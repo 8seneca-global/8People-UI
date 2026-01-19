@@ -1,0 +1,163 @@
+[
+  {
+    "id": "jr-1",
+    "title": "Senior JavaScript Developer",
+    "positionId": "S-031-MID-002",
+    "positionCode": "S-031-MID-002",
+    "organizationalUnitId": "O-031",
+    "organizationalUnitName": "JavaScript Department",
+    "jobClassificationId": "C-011",
+    "jobClassificationTitle": "Senior Software Engineer",
+    "description": "We are looking for a Senior JavaScript Developer to join our dynamic team. You will be responsible for developing and maintaining web applications using modern JavaScript frameworks. This role offers the opportunity to work on challenging projects with cutting-edge technologies.\n\nWhat we offer:\n- Competitive salary and benefits\n- Flexible working hours\n- Professional development opportunities\n- Modern office environment",
+    "requirements": [
+      "5+ years of JavaScript/TypeScript experience",
+      "Expert knowledge of React and Next.js",
+      "Strong Node.js backend skills",
+      "Experience with PostgreSQL and Redis",
+      "Excellent problem-solving abilities",
+      "Strong communication skills in English"
+    ],
+    "salaryRange": {
+      "min": 25000000,
+      "max": 40000000,
+      "currency": "VND"
+    },
+    "employmentType": "full-time",
+    "status": "open",
+    "openings": 2,
+    "hired": 0,
+    "createdBy": "P-003",
+    "createdAt": "2025-12-15T10:00:00Z",
+    "closingDate": "2026-02-28",
+    "publishPlatforms": [
+      "linkedin",
+      "topcv",
+      "itviec",
+      "landing_page"
+    ]
+  },
+  {
+    "id": "jr-2",
+    "title": "AI/ML Engineer",
+    "positionId": "S-032-SR-001",
+    "organizationalUnitId": "O-032",
+    "organizationalUnitName": "AI Department",
+    "jobClassificationId": "C-011",
+    "jobClassificationTitle": "Senior Software Engineer",
+    "description": "Join our AI team to build innovative machine learning solutions. You will work on cutting-edge AI projects including natural language processing, computer vision, and predictive analytics.\n\nResponsibilities:\n- Design and implement ML models\n- Collaborate with product teams\n- Research new AI techniques\n- Optimize model performance",
+    "requirements": [
+      "3+ years ML/AI experience",
+      "Proficiency in Python and PyTorch/TensorFlow",
+      "Strong math and statistics background",
+      "Experience with MLOps tools",
+      "Publication in AI conferences is a plus"
+    ],
+    "salaryRange": {
+      "min": 30000000,
+      "max": 50000000,
+      "currency": "VND"
+    },
+    "employmentType": "full-time",
+    "status": "open",
+    "openings": 1,
+    "hired": 0,
+    "createdBy": "P-003",
+    "createdAt": "2025-12-20T10:00:00Z",
+    "closingDate": "2026-03-15",
+    "publishPlatforms": [
+      "linkedin",
+      "topcv"
+    ]
+  },
+  {
+    "id": "jr-3",
+    "title": "Junior React Developer",
+    "organizationalUnitId": "O-031",
+    "organizationalUnitName": "JavaScript Department",
+    "jobClassificationId": "C-013",
+    "jobClassificationTitle": "Junior Software Engineer",
+    "description": "Great opportunity for fresh graduates or developers with 1-2 years experience to join our JavaScript team. You will learn from senior developers and work on real projects.\n\nWhat you'll do:\n- Develop React components\n- Write unit tests\n- Participate in code reviews\n- Learn best practices",
+    "requirements": [
+      "0-2 years of experience",
+      "Knowledge of React basics",
+      "Understanding of HTML, CSS, JavaScript",
+      "Willingness to learn",
+      "Good teamwork attitude"
+    ],
+    "salaryHidden": true,
+    "employmentType": "full-time",
+    "status": "open",
+    "openings": 3,
+    "hired": 1,
+    "createdBy": "P-003",
+    "createdAt": "2026-01-02T10:00:00Z",
+    "closingDate": "2026-02-15",
+    "publishPlatforms": [
+      "topcv",
+      "vietnamworks",
+      "facebook"
+    ]
+  },
+  {
+    "id": "jr-4",
+    "title": "Marketing Executive",
+    "organizationalUnitId": "O-021",
+    "organizationalUnitName": "Marketing Department",
+    "jobClassificationId": "C-020",
+    "jobClassificationTitle": "Marketing Specialist",
+    "description": "We are looking for a creative Marketing Executive to join our marketing team. You will help develop and execute marketing campaigns across multiple channels.",
+    "requirements": [
+      "2+ years marketing experience",
+      "Experience with digital marketing",
+      "Strong writing skills",
+      "Creative mindset"
+    ],
+    "salaryRange": {
+      "min": 15000000,
+      "max": 25000000,
+      "currency": "VND"
+    },
+    "employmentType": "full-time",
+    "status": "closed",
+    "openings": 1,
+    "hired": 1,
+    "createdBy": "P-003",
+    "createdAt": "2025-11-01T10:00:00Z",
+    "closingDate": "2025-12-31",
+    "publishPlatforms": [
+      "linkedin",
+      "vietnamworks"
+    ]
+  },
+  {
+    "id": "jr-5",
+    "title": "DevOps Engineer",
+    "organizationalUnitId": "O-030",
+    "organizationalUnitName": "Technology Division",
+    "jobClassificationId": "C-012",
+    "jobClassificationTitle": "Software Engineer",
+    "description": "Looking for a DevOps Engineer to manage our cloud infrastructure and CI/CD pipelines. You will work with AWS, Docker, and Kubernetes.",
+    "requirements": [
+      "3+ years DevOps experience",
+      "Strong AWS knowledge",
+      "Experience with Docker and Kubernetes",
+      "CI/CD pipeline management",
+      "Infrastructure as Code (Terraform)"
+    ],
+    "salaryRange": {
+      "min": 25000000,
+      "max": 40000000,
+      "currency": "VND"
+    },
+    "employmentType": "full-time",
+    "status": "on_hold",
+    "openings": 1,
+    "hired": 0,
+    "createdBy": "P-003",
+    "createdAt": "2025-12-10T10:00:00Z",
+    "publishPlatforms": [
+      "linkedin",
+      "itviec"
+    ]
+  }
+]

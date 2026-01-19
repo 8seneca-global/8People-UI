@@ -1,0 +1,295 @@
+[
+  {
+    "id": "C-001",
+    "code": "C-001",
+    "title": "Chief Executive Officer",
+    "jobFamily": "Executive",
+    "jobLevel": "Executive",
+    "payGradeGroup": "E1",
+    "standardHours": 40,
+    "flsaStatus": "exempt",
+    "description": "Lead the company's strategic direction and operations",
+    "requirements": [
+      "MBA or equivalent",
+      "15+ years executive experience",
+      "Strategic leadership"
+    ],
+    "responsibilities": [
+      "Set company vision and strategy",
+      "Lead executive team",
+      "Stakeholder management"
+    ],
+    "competencies": [
+      "Strategic Thinking",
+      "Leadership",
+      "Business Acumen"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "C-002",
+    "code": "C-002",
+    "title": "Chief Technology Officer",
+    "jobFamily": "Executive",
+    "jobLevel": "Executive",
+    "payGradeGroup": "E2",
+    "standardHours": 40,
+    "flsaStatus": "exempt",
+    "description": "Lead technology strategy and engineering teams",
+    "requirements": [
+      "CS degree or equivalent",
+      "10+ years tech leadership",
+      "Architecture expertise"
+    ],
+    "responsibilities": [
+      "Technology roadmap",
+      "Engineering culture",
+      "Technical decisions"
+    ],
+    "competencies": [
+      "Technical Leadership",
+      "Innovation",
+      "Team Building"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "C-003",
+    "code": "C-003",
+    "title": "HR Manager",
+    "jobFamily": "Human Resources",
+    "jobLevel": "Manager",
+    "payGradeGroup": "M1",
+    "standardHours": 40,
+    "flsaStatus": "exempt",
+    "description": "Manage HR operations and employee relations",
+    "requirements": [
+      "HR degree or certification",
+      "5+ years HR experience",
+      "Employment law knowledge"
+    ],
+    "responsibilities": [
+      "HR policy development",
+      "Employee relations",
+      "Recruitment oversight"
+    ],
+    "competencies": [
+      "People Management",
+      "Communication",
+      "Problem Solving"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "C-004",
+    "code": "C-004",
+    "title": "HR Specialist",
+    "jobFamily": "Human Resources",
+    "jobLevel": "Professional",
+    "payGradeGroup": "P2",
+    "standardHours": 40,
+    "flsaStatus": "non-exempt",
+    "description": "Support HR operations and employee services",
+    "requirements": [
+      "HR degree or equivalent",
+      "2+ years HR experience"
+    ],
+    "responsibilities": [
+      "Recruitment support",
+      "Onboarding",
+      "HR administration"
+    ],
+    "competencies": [
+      "Organization",
+      "Communication",
+      "Attention to Detail"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "C-010",
+    "code": "C-010",
+    "title": "Team Lead (Software)",
+    "jobFamily": "Engineering Management",
+    "jobLevel": "Lead",
+    "payGradeGroup": "M2",
+    "standardHours": 40,
+    "flsaStatus": "exempt",
+    "description": "Lead a software development team",
+    "requirements": [
+      "5+ years development",
+      "Leadership experience",
+      "Technical expertise"
+    ],
+    "responsibilities": [
+      "Team leadership",
+      "Code review",
+      "Technical guidance",
+      "Sprint planning"
+    ],
+    "competencies": [
+      "Technical Leadership",
+      "Mentoring",
+      "Agile"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "C-011",
+    "code": "C-011",
+    "title": "Senior Software Engineer",
+    "jobFamily": "Engineering",
+    "jobLevel": "Senior",
+    "payGradeGroup": "S1",
+    "standardHours": 40,
+    "flsaStatus": "exempt",
+    "description": "Design and develop complex software systems",
+    "requirements": [
+      "5+ years software development",
+      "System design",
+      "Mentoring ability"
+    ],
+    "responsibilities": [
+      "System design",
+      "Code development",
+      "Code review",
+      "Mentor juniors"
+    ],
+    "competencies": [
+      "Technical Excellence",
+      "Problem Solving",
+      "Communication"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "C-012",
+    "code": "C-012",
+    "title": "Software Engineer",
+    "jobFamily": "Engineering",
+    "jobLevel": "Mid-level",
+    "payGradeGroup": "P3",
+    "standardHours": 40,
+    "flsaStatus": "non-exempt",
+    "description": "Develop and maintain software applications",
+    "requirements": [
+      "3+ years software development",
+      "Programming proficiency"
+    ],
+    "responsibilities": [
+      "Feature development",
+      "Bug fixes",
+      "Unit testing",
+      "Documentation"
+    ],
+    "competencies": [
+      "Coding Skills",
+      "Problem Solving",
+      "Teamwork"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "C-013",
+    "code": "C-013",
+    "title": "Junior Software Engineer",
+    "jobFamily": "Engineering",
+    "jobLevel": "Junior",
+    "payGradeGroup": "P4",
+    "standardHours": 40,
+    "flsaStatus": "non-exempt",
+    "description": "Learn and contribute to software development",
+    "requirements": [
+      "CS degree or bootcamp",
+      "Basic programming knowledge"
+    ],
+    "responsibilities": [
+      "Implement features",
+      "Learn codebase",
+      "Write tests"
+    ],
+    "competencies": [
+      "Learning Agility",
+      "Coding Basics",
+      "Teamwork"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "C-014",
+    "code": "C-014",
+    "title": "Software Intern",
+    "jobFamily": "Engineering",
+    "jobLevel": "Intern",
+    "payGradeGroup": "I1",
+    "standardHours": 40,
+    "flsaStatus": "non-exempt",
+    "description": "Internship program for software development",
+    "requirements": [
+      "Currently enrolled in CS program",
+      "Basic programming"
+    ],
+    "responsibilities": [
+      "Assist with development",
+      "Learning projects"
+    ],
+    "competencies": [
+      "Eagerness to Learn",
+      "Basic Programming"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "C-020",
+    "code": "C-020",
+    "title": "Marketing Specialist",
+    "jobFamily": "Marketing",
+    "jobLevel": "Professional",
+    "payGradeGroup": "P2",
+    "standardHours": 40,
+    "flsaStatus": "non-exempt",
+    "description": "Execute marketing campaigns and brand initiatives",
+    "requirements": [
+      "Marketing degree",
+      "2+ years marketing experience",
+      "Digital marketing"
+    ],
+    "responsibilities": [
+      "Campaign management",
+      "Content creation",
+      "Analytics"
+    ],
+    "competencies": [
+      "Creativity",
+      "Communication",
+      "Analytics"
+    ],
+    "status": "active"
+  },
+  {
+    "id": "C-021",
+    "code": "C-021",
+    "title": "Finance Specialist",
+    "jobFamily": "Finance",
+    "jobLevel": "Professional",
+    "payGradeGroup": "P2",
+    "standardHours": 40,
+    "flsaStatus": "non-exempt",
+    "description": "Support financial operations and reporting",
+    "requirements": [
+      "Finance/Accounting degree",
+      "2+ years experience"
+    ],
+    "responsibilities": [
+      "Financial reporting",
+      "Budget support",
+      "Compliance"
+    ],
+    "competencies": [
+      "Analytical Skills",
+      "Attention to Detail",
+      "Excel"
+    ],
+    "status": "active"
+  }
+]

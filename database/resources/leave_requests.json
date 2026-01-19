@@ -1,0 +1,229 @@
+[
+  {
+    "id": "lr-1",
+    "employeeId": "P-011",
+    "employeeName": "Nguyen Van Phuc",
+    "leaveTypeId": "lt-1",
+    "leaveTypeName": "Annual Leave",
+    "startDate": "2026-01-15",
+    "endDate": "2026-01-17",
+    "totalDays": 3,
+    "reason": "Family vacation to Da Lat",
+    "status": "approved",
+    "approvers": [
+      {
+        "employeeId": "P-010",
+        "employeeName": "Hoang Van Em",
+        "status": "approved",
+        "respondedAt": "2026-01-10T09:00:00Z"
+      }
+    ],
+    "ccRecipients": [
+      {
+        "employeeId": "P-002",
+        "employeeName": "Tran Thi Binh"
+      }
+    ],
+    "createdAt": "2026-01-08T10:00:00Z",
+    "updatedAt": "2026-01-10T09:00:00Z"
+  },
+  {
+    "id": "lr-2",
+    "employeeId": "P-012",
+    "employeeName": "Tran Thi Giang",
+    "leaveTypeId": "lt-1",
+    "leaveTypeName": "Annual Leave",
+    "startDate": "2026-01-20",
+    "endDate": "2026-01-20",
+    "totalDays": 0.5,
+    "reason": "Doctor appointment in the morning",
+    "notes": "morning",
+    "status": "approved",
+    "approvers": [
+      {
+        "employeeId": "P-010",
+        "employeeName": "Hoang Van Em",
+        "status": "approved",
+        "respondedAt": "2026-01-12T14:00:00Z"
+      }
+    ],
+    "createdAt": "2026-01-10T08:00:00Z",
+    "updatedAt": "2026-01-12T14:00:00Z"
+  },
+  {
+    "id": "lr-3",
+    "employeeId": "P-003",
+    "employeeName": "Le Van Cuong",
+    "leaveTypeId": "lt-2",
+    "leaveTypeName": "Unpaid Leave",
+    "startDate": "2026-01-22",
+    "endDate": "2026-01-24",
+    "totalDays": 3,
+    "reason": "Personal matters - handling visa documents",
+    "status": "pending",
+    "approvers": [
+      {
+        "employeeId": "P-002",
+        "employeeName": "Tran Thi Binh",
+        "status": "pending"
+      }
+    ],
+    "createdAt": "2026-01-11T11:00:00Z",
+    "updatedAt": "2026-01-11T11:00:00Z"
+  },
+  {
+    "id": "lr-4",
+    "employeeId": "P-005",
+    "employeeName": "Nguyen Thi Anh",
+    "leaveTypeId": "lt-1",
+    "leaveTypeName": "Annual Leave",
+    "startDate": "2026-01-06",
+    "endDate": "2026-01-08",
+    "totalDays": 3,
+    "reason": "Attending cousin's wedding in Hue",
+    "status": "approved",
+    "approvers": [
+      {
+        "employeeId": "P-001",
+        "employeeName": "Nguyen Van An",
+        "status": "approved",
+        "respondedAt": "2026-01-03T10:00:00Z"
+      }
+    ],
+    "createdAt": "2026-01-02T09:00:00Z",
+    "updatedAt": "2026-01-03T10:00:00Z"
+  },
+  {
+    "id": "lr-5",
+    "employeeId": "P-007",
+    "employeeName": "Pham Van Giang",
+    "leaveTypeId": "lt-1",
+    "leaveTypeName": "Annual Leave",
+    "startDate": "2026-01-13",
+    "endDate": "2026-01-13",
+    "totalDays": 0.5,
+    "reason": "Afternoon off for child's school event",
+    "notes": "afternoon",
+    "status": "approved",
+    "approvers": [
+      {
+        "employeeId": "P-002",
+        "employeeName": "Tran Thi Binh",
+        "status": "approved",
+        "respondedAt": "2026-01-10T11:00:00Z"
+      }
+    ],
+    "createdAt": "2026-01-09T14:00:00Z",
+    "updatedAt": "2026-01-10T11:00:00Z"
+  },
+  {
+    "id": "lr-6",
+    "employeeId": "P-008",
+    "employeeName": "Hoang Thi Hoa",
+    "leaveTypeId": "lt-2",
+    "leaveTypeName": "Unpaid Leave",
+    "startDate": "2026-01-27",
+    "endDate": "2026-01-28",
+    "totalDays": 2,
+    "reason": "Moving to new apartment",
+    "status": "approved",
+    "approvers": [
+      {
+        "employeeId": "P-002",
+        "employeeName": "Tran Thi Binh",
+        "status": "approved",
+        "respondedAt": "2026-01-15T09:00:00Z"
+      }
+    ],
+    "createdAt": "2026-01-14T10:00:00Z",
+    "updatedAt": "2026-01-15T09:00:00Z"
+  },
+  {
+    "id": "lr-7",
+    "employeeId": "P-001",
+    "employeeName": "Nguyen Van An",
+    "leaveTypeId": "lt-1",
+    "leaveTypeName": "Annual Leave",
+    "startDate": "2026-01-30",
+    "endDate": "2026-02-02",
+    "totalDays": 4,
+    "reason": "Lunar New Year early celebration with family",
+    "status": "approved",
+    "approvers": [
+      {
+        "employeeId": "P-002",
+        "employeeName": "Tran Thi Binh",
+        "status": "approved",
+        "respondedAt": "2026-01-20T14:00:00Z"
+      }
+    ],
+    "createdAt": "2026-01-18T09:00:00Z",
+    "updatedAt": "2026-01-20T14:00:00Z"
+  },
+  {
+    "id": "lr-8",
+    "employeeId": "P-004",
+    "employeeName": "Pham Thi Dung",
+    "leaveTypeId": "lt-1",
+    "leaveTypeName": "Annual Leave",
+    "startDate": "2026-01-06",
+    "endDate": "2026-01-06",
+    "totalDays": 1,
+    "reason": "Personal day off",
+    "status": "approved",
+    "approvers": [
+      {
+        "employeeId": "P-001",
+        "employeeName": "Nguyen Van An",
+        "status": "approved",
+        "respondedAt": "2026-01-05T10:00:00Z"
+      }
+    ],
+    "createdAt": "2026-01-04T11:00:00Z",
+    "updatedAt": "2026-01-05T10:00:00Z"
+  },
+  {
+    "id": "lr-9",
+    "employeeId": "P-009",
+    "employeeName": "Vu Van Ich",
+    "leaveTypeId": "lt-2",
+    "leaveTypeName": "Unpaid Leave",
+    "startDate": "2026-01-14",
+    "endDate": "2026-01-14",
+    "totalDays": 0.5,
+    "reason": "Bank appointment - morning",
+    "notes": "morning",
+    "status": "approved",
+    "approvers": [
+      {
+        "employeeId": "P-002",
+        "employeeName": "Tran Thi Binh",
+        "status": "approved",
+        "respondedAt": "2026-01-12T08:00:00Z"
+      }
+    ],
+    "createdAt": "2026-01-11T15:00:00Z",
+    "updatedAt": "2026-01-12T08:00:00Z"
+  },
+  {
+    "id": "lr-10",
+    "employeeId": "P-006",
+    "employeeName": "Vo Thi Bich Ngoc",
+    "leaveTypeId": "lt-1",
+    "leaveTypeName": "Annual Leave",
+    "startDate": "2026-01-21",
+    "endDate": "2026-01-23",
+    "totalDays": 3,
+    "reason": "Short trip with friends",
+    "status": "pending",
+    "approvers": [
+      {
+        "employeeId": "P-001",
+        "employeeName": "Nguyen Van An",
+        "status": "pending"
+      }
+    ],
+    "createdAt": "2026-01-12T10:00:00Z",
+    "updatedAt": "2026-01-12T10:00:00Z"
+  }
+]
