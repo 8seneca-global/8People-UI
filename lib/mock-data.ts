@@ -477,10 +477,13 @@ export interface LeaveType {
   id: string
   name: string
   description: string
+  isPaid: boolean
   defaultDays: number
   carryForward: boolean
   maxCarryForwardDays: number
   color: string
+  applyFor: "everyone" | string // "everyone" or specific group
+  totalDays?: number // Optional number of paid leave days. If set, it's fixed.
 }
 
 export const organizationalUnits: OrganizationalUnit[] = [
@@ -3127,28 +3130,80 @@ export const leaveTypes: LeaveType[] = [
     id: "lt-1",
     name: "Annual Leave",
     description: "Paid time off for vacation and personal matters",
+    isPaid: true,
     defaultDays: 14,
     carryForward: true,
     maxCarryForwardDays: 5,
     color: "#3B82F6",
+    applyFor: "everyone",
+    totalDays: 14,
   },
   {
     id: "lt-2",
+    name: "Sick Leave",
+    description: "Time off for illness or medical appointments",
+    isPaid: false,
+    defaultDays: 10,
+    carryForward: false,
+    maxCarryForwardDays: 0,
+    color: "#EF4444",
+    applyFor: "everyone",
+  },
+  {
+    id: "lt-3",
     name: "Unpaid Leave",
     description: "Unpaid time off for personal reasons without benefits",
+    isPaid: false,
     defaultDays: 0,
     carryForward: false,
     maxCarryForwardDays: 0,
     color: "#9CA3AF",
+    applyFor: "everyone",
   },
   {
-    id: "lt-3",
-    name: "Holiday Leave",
-    description: "Public holidays as defined by company policy",
+    id: "lt-4",
+    name: "Vacation",
+    description: "Unpaid long-term holiday break",
+    isPaid: false,
     defaultDays: 0,
     carryForward: false,
     maxCarryForwardDays: 0,
-    color: "#EF4444",
+    color: "#10B981",
+    applyFor: "everyone",
+  },
+  {
+    id: "lt-5",
+    name: "Birthday Leave",
+    description: "Specially paid day off for your birthday",
+    isPaid: true,
+    defaultDays: 1,
+    carryForward: false,
+    maxCarryForwardDays: 0,
+    color: "#EC4899",
+    applyFor: "everyone",
+    totalDays: 1,
+  },
+  {
+    id: "lt-6",
+    name: "Other",
+    description: "Miscellaneous unpaid leave requests",
+    isPaid: false,
+    defaultDays: 0,
+    carryForward: false,
+    maxCarryForwardDays: 0,
+    color: "#8B5CF6",
+    applyFor: "everyone",
+  },
+  {
+    id: "lt-7",
+    name: "Special Paid Leave",
+    description: "Paid leave with custom entitlement per employee",
+    isPaid: true,
+    defaultDays: 0,
+    carryForward: false,
+    maxCarryForwardDays: 0,
+    color: "#F59E0B",
+    applyFor: "everyone",
   },
 ]
 

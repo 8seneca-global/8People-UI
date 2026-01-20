@@ -124,7 +124,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import type { LeaveType } from "@/lib/mock-data"
+
 
 const roleIcons: Record<string, React.ReactNode> = {
   admin: <Shield className="h-5 w-5" />,
@@ -313,22 +313,12 @@ const colorOptions = [
   { value: "bg-orange-500/20 text-orange-400", label: "Orange" },
 ]
 
-const leaveTypeColorOptions = [
-  { value: "#3B82F6", label: "Blue" },
-  { value: "#10B981", label: "Green" },
-  { value: "#F59E0B", label: "Amber" },
-  { value: "#EF4444", label: "Red" },
-  { value: "#8B5CF6", label: "Purple" },
-  { value: "#EC4899", label: "Pink" },
-  { value: "#06B6D4", label: "Cyan" },
-  { value: "#F97316", label: "Orange" },
-  { value: "#9CA3AF", label: "Gray" },
-]
+
 
 // Default module permissions for new roles
-const defaultRoleModulePermissions = {
+const defaultRoleModulePermissions: Record<string, ActionType[]> = {
   dashboard: ["view"],
-}
+} as const;
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -337,10 +327,6 @@ export default function SettingsPage() {
     customRoles,
     modules,
     employees,
-    leaveTypes,
-    addLeaveType,
-    updateLeaveType,
-    deleteLeaveType,
     addCustomRole,
     updateCustomRole,
     deleteCustomRole,
@@ -383,22 +369,8 @@ export default function SettingsPage() {
   const [employeeSearchOpen, setEmployeeSearchOpen] = useState(false)
   const [employeeSearchQuery, setEmployeeSearchQuery] = useState("")
 
-  const [createLeaveTypeOpen, setCreateLeaveTypeOpen] = useState(false)
-  const [editLeaveTypeOpen, setEditLeaveTypeOpen] = useState(false)
-  const [deleteLeaveTypeConfirmOpen, setDeleteLeaveTypeConfirmOpen] = useState(false)
-  const [selectedLeaveTypeId, setSelectedLeaveTypeId] = useState<string | null>(null)
-  const [newLeaveType, setNewLeaveType] = useState<Omit<LeaveType, "id">>({
-    name: "",
-    description: "",
-    defaultDays: 0,
-    carryForward: false,
-    maxCarryForwardDays: 0,
-    color: "#3B82F6",
-  })
-
   const selectedRole = customRoles.find((r) => r.id === selectedRoleId)
   const selectedModule = selectedModuleId ? modules.find((m) => m.id === selectedModuleId) : null
-  const selectedLeaveType = selectedLeaveTypeId ? leaveTypes.find((t) => t.id === selectedLeaveTypeId) : null
 
   // Get parent modules (modules without parentId)
   const parentModules = modules.filter((m) => !m.parentId).sort((a, b) => a.order - b.order)
@@ -850,56 +822,6 @@ export default function SettingsPage() {
     )
   }
 
-  const handleCreateLeaveType = () => {
-    if (newLeaveType.name.trim()) {
-      addLeaveType(newLeaveType)
-      setNewLeaveType({
-        name: "",
-        description: "",
-        defaultDays: 0,
-        carryForward: false,
-        maxCarryForwardDays: 0,
-        color: "#3B82F6",
-      })
-      setCreateLeaveTypeOpen(false)
-    }
-  }
-
-  const handleEditLeaveType = () => {
-    if (selectedLeaveTypeId && newLeaveType.name.trim()) {
-      updateLeaveType(selectedLeaveTypeId, newLeaveType)
-      setEditLeaveTypeOpen(false)
-    }
-  }
-
-  const handleDeleteLeaveType = () => {
-    if (selectedLeaveTypeId) {
-      deleteLeaveType(selectedLeaveTypeId)
-      setSelectedLeaveTypeId(null)
-      setDeleteLeaveTypeConfirmOpen(false)
-    }
-  }
-
-  const openEditLeaveType = (leaveTypeId: string) => {
-    const leaveType = leaveTypes.find((t) => t.id === leaveTypeId)
-    if (leaveType) {
-      setSelectedLeaveTypeId(leaveTypeId)
-      setNewLeaveType({
-        name: leaveType.name,
-        description: leaveType.description,
-        defaultDays: leaveType.defaultDays,
-        carryForward: leaveType.carryForward,
-        maxCarryForwardDays: leaveType.maxCarryForwardDays,
-        color: leaveType.color,
-      })
-      setEditLeaveTypeOpen(true)
-    }
-  }
-
-  const openDeleteLeaveType = (leaveTypeId: string) => {
-    setSelectedLeaveTypeId(leaveTypeId)
-    setDeleteLeaveTypeConfirmOpen(true)
-  }
 
   return (
     <AdminLayout title="Settings" subtitle="Configure roles, permissions, and system settings">
@@ -907,7 +829,7 @@ export default function SettingsPage() {
         <TabsList className="bg-secondary">
           <TabsTrigger value="roles">Roles & Permissions</TabsTrigger>
           <TabsTrigger value="modules">Modules</TabsTrigger>
-          <TabsTrigger value="leave">Leave Settings</TabsTrigger>
+
           <TabsTrigger value="general">General Settings</TabsTrigger>
         </TabsList>
 
@@ -936,7 +858,7 @@ export default function SettingsPage() {
                       : "border-border bg-transparent hover:bg-secondary"
                       }`}
                   >
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-md ${role.color}`}>
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-md ${role.color || "bg-secondary"}`}>
                       {roleIcons[role.id] || <User className="h-5 w-5" />}
                     </div>
                     <div className="flex-1">
@@ -1051,86 +973,7 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="leave" className="space-y-4">
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-card-foreground">Leave Types</CardTitle>
-                  <CardDescription>
-                    Configure leave types available in the system. Each type can have different settings for days and
-                    carry forward.
-                  </CardDescription>
-                </div>
-                <Button onClick={() => setCreateLeaveTypeOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Leave Type
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {leaveTypes.map((leaveType) => (
-                  <div
-                    key={leaveType.id}
-                    className="flex items-center gap-3 rounded-lg border border-border bg-card p-4"
-                  >
-                    <div
-                      className="flex h-10 w-10 items-center justify-center rounded-md"
-                      style={{ backgroundColor: `${leaveType.color}20` }}
-                    >
-                      <CalendarDays className="h-5 w-5" style={{ color: leaveType.color }} />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium text-card-foreground">{leaveType.name}</p>
-                        {leaveType.carryForward && (
-                          <Badge variant="outline" className="text-xs border-muted-foreground/30">
-                            <Repeat className="h-3 w-3 mr-1" />
-                            Carry Forward
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground">{leaveType.description}</p>
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="text-center">
-                        <p className="font-medium text-card-foreground">{leaveType.defaultDays}</p>
-                        <p className="text-xs">Default Days</p>
-                      </div>
-                      {leaveType.carryForward && (
-                        <div className="text-center">
-                          <p className="font-medium text-card-foreground">{leaveType.maxCarryForwardDays}</p>
-                          <p className="text-xs">Max Carry</p>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="icon" onClick={() => openEditLeaveType(leaveType.id)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => openDeleteLeaveType(leaveType.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-                {leaveTypes.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <CalendarDays className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                    <p>No leave types configured</p>
-                    <p className="text-sm">Add a leave type to get started</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+
 
         {/* General Settings Tab */}
         <TabsContent value="general" className="space-y-4">
@@ -1616,215 +1459,7 @@ export default function SettingsPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={createLeaveTypeOpen} onOpenChange={setCreateLeaveTypeOpen}>
-        <DialogContent className="bg-card border-border">
-          <DialogHeader>
-            <DialogTitle className="text-card-foreground">Create Leave Type</DialogTitle>
-            <DialogDescription>Add a new leave type to the system</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Name</Label>
-              <Input
-                value={newLeaveType.name}
-                onChange={(e) => setNewLeaveType((p) => ({ ...p, name: e.target.value }))}
-                placeholder="e.g. Annual Leave"
-                className="bg-secondary border-border"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <Textarea
-                value={newLeaveType.description}
-                onChange={(e) => setNewLeaveType((p) => ({ ...p, description: e.target.value }))}
-                placeholder="Describe this leave type..."
-                className="bg-secondary border-border"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Default Days</Label>
-                <Input
-                  type="number"
-                  value={newLeaveType.defaultDays}
-                  onChange={(e) => setNewLeaveType((p) => ({ ...p, defaultDays: Number(e.target.value) }))}
-                  min={0}
-                  className="bg-secondary border-border"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Color</Label>
-                <Select value={newLeaveType.color} onValueChange={(v) => setNewLeaveType((p) => ({ ...p, color: v }))}>
-                  <SelectTrigger className="bg-secondary border-border">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-card border-border">
-                    {leaveTypeColorOptions.map((color) => (
-                      <SelectItem key={color.value} value={color.value}>
-                        <div className="flex items-center gap-2">
-                          <div className="h-4 w-4 rounded" style={{ backgroundColor: color.value }} />
-                          {color.label}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Allow Carry Forward</Label>
-                  <p className="text-sm text-muted-foreground">Allow unused days to be carried to next year</p>
-                </div>
-                <Switch
-                  checked={newLeaveType.carryForward}
-                  onCheckedChange={(checked) =>
-                    setNewLeaveType((p) => ({
-                      ...p,
-                      carryForward: checked,
-                      maxCarryForwardDays: checked ? p.maxCarryForwardDays : 0,
-                    }))
-                  }
-                />
-              </div>
-              {newLeaveType.carryForward && (
-                <div className="space-y-2">
-                  <Label>Max Carry Forward Days</Label>
-                  <Input
-                    type="number"
-                    value={newLeaveType.maxCarryForwardDays}
-                    onChange={(e) => setNewLeaveType((p) => ({ ...p, maxCarryForwardDays: Number(e.target.value) }))}
-                    min={0}
-                    className="bg-secondary border-border"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateLeaveTypeOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleCreateLeaveType}>Create Leave Type</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
-      <Dialog open={editLeaveTypeOpen} onOpenChange={setEditLeaveTypeOpen}>
-        <DialogContent className="bg-card border-border">
-          <DialogHeader>
-            <DialogTitle className="text-card-foreground">Edit Leave Type</DialogTitle>
-            <DialogDescription>Update leave type settings</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Name</Label>
-              <Input
-                value={newLeaveType.name}
-                onChange={(e) => setNewLeaveType((p) => ({ ...p, name: e.target.value }))}
-                placeholder="e.g. Annual Leave"
-                className="bg-secondary border-border"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Description</Label>
-              <Textarea
-                value={newLeaveType.description}
-                onChange={(e) => setNewLeaveType((p) => ({ ...p, description: e.target.value }))}
-                placeholder="Describe this leave type..."
-                className="bg-secondary border-border"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Default Days</Label>
-                <Input
-                  type="number"
-                  value={newLeaveType.defaultDays}
-                  onChange={(e) => setNewLeaveType((p) => ({ ...p, defaultDays: Number(e.target.value) }))}
-                  min={0}
-                  className="bg-secondary border-border"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Color</Label>
-                <Select value={newLeaveType.color} onValueChange={(v) => setNewLeaveType((p) => ({ ...p, color: v }))}>
-                  <SelectTrigger className="bg-secondary border-border">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-card border-border">
-                    {leaveTypeColorOptions.map((color) => (
-                      <SelectItem key={color.value} value={color.value}>
-                        <div className="flex items-center gap-2">
-                          <div className="h-4 w-4 rounded" style={{ backgroundColor: color.value }} />
-                          {color.label}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label>Allow Carry Forward</Label>
-                  <p className="text-sm text-muted-foreground">Allow unused days to be carried to next year</p>
-                </div>
-                <Switch
-                  checked={newLeaveType.carryForward}
-                  onCheckedChange={(checked) =>
-                    setNewLeaveType((p) => ({
-                      ...p,
-                      carryForward: checked,
-                      maxCarryForwardDays: checked ? p.maxCarryForwardDays : 0,
-                    }))
-                  }
-                />
-              </div>
-              {newLeaveType.carryForward && (
-                <div className="space-y-2">
-                  <Label>Max Carry Forward Days</Label>
-                  <Input
-                    type="number"
-                    value={newLeaveType.maxCarryForwardDays}
-                    onChange={(e) => setNewLeaveType((p) => ({ ...p, maxCarryForwardDays: Number(e.target.value) }))}
-                    min={0}
-                    className="bg-secondary border-border"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditLeaveTypeOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleEditLeaveType}>Save Changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={deleteLeaveTypeConfirmOpen} onOpenChange={setDeleteLeaveTypeConfirmOpen}>
-        <DialogContent className="bg-card border-border">
-          <DialogHeader>
-            <DialogTitle className="text-card-foreground">Delete Leave Type</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete "{selectedLeaveType?.name}"? This action cannot be undone. Existing leave
-              requests and balances using this type may be affected.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteLeaveTypeConfirmOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDeleteLeaveType}>
-              Delete Leave Type
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </AdminLayout>
   )
 }

@@ -36,7 +36,7 @@ import {
 import type { Role, FeaturePermission, ModuleConfig, RoleModulePermissions, ActionType } from "./rbac"
 import { defaultModules, defaultRoleModulePermissions, roleInfo } from "./rbac"
 
-interface CustomRole {
+export interface CustomRole {
   id: string
   name: string
   description: string
@@ -44,6 +44,7 @@ interface CustomRole {
   permissions: FeaturePermission[]
   modulePermissions: RoleModulePermissions
   assignedEmployeeIds: string[]
+  color?: string
 }
 
 interface StoreState {
@@ -324,7 +325,7 @@ export const useStore = create<StoreState>((set, get) => ({
       const employee = state.employees.find((e) => e.id === id)
       if (!employee) return state
 
-      const oldValue = String((employee as Record<string, unknown>)[field] || "")
+      const oldValue = String((employee as unknown as Record<string, unknown>)[field] || "")
       const auditEntry: AuditLogEntry = {
         id: `audit-${Date.now()}`,
         employeeId: id,
