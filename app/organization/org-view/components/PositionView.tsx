@@ -14,7 +14,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Briefcase, DollarSign, Calendar, FileText, Lock, Edit3, MoreHorizontal, UserPlus, UserMinus, Copy, Trash2, CheckCircle2, AlertCircle, MoveRight, Merge } from "lucide-react"
+import { Briefcase, DollarSign, Calendar, FileText, Lock, Edit3, MoreHorizontal, UserPlus, UserMinus, Copy, Trash2, CheckCircle2, AlertCircle, MoveRight, Merge, Mail, User, Settings, ArrowUp, ArrowDown } from "lucide-react"
 import { HistoryLog } from "./HistoryLog"
 import { useStore } from "@/lib/store"
 import { Position } from "@/lib/mock-data"
@@ -24,43 +24,36 @@ interface PositionViewProps {
     onMove: () => void
     onMerge: () => void
     onDelete: () => void
+    onSelectPosition?: (positionId: string) => void
 }
 
-export function PositionView({ position, onMove, onMerge, onDelete }: PositionViewProps) {
-    const { employees, organizationalUnits } = useStore()
+export function PositionView({ position, onMove, onMerge, onDelete, onSelectPosition }: PositionViewProps) {
+    const { employees, organizationalUnits, positions } = useStore()
 
     const incumbent = position.incumbentId ? employees.find(e => e.id === position.incumbentId) : null
     const orgUnit = organizationalUnits.find(u => u.id === position.organizationalUnitId)
     const isVacant = !incumbent
 
-    // Mock Data
-    const salaryBand = { min: 85000, max: 125000, current: 105000 } // Mock
-    const comparisonPercent = Math.round(((salaryBand.current - salaryBand.min) / (salaryBand.max - salaryBand.min)) * 100)
-    const competencies = ["Strategic Planning", "Team Leadership", "Project Management", "Agile Methodologies"]
+    // Find reporter (manager) - position this role reports to
+    const reporterPosition = position.reportsToId ? positions.find(p => p.id === position.reportsToId) : null
+    const reporterIncumbent = reporterPosition?.incumbentId ? employees.find(e => e.id === reporterPosition.incumbentId) : null
+
+    // Find reportees (direct reports) - positions that report to this position
+    const reporteePositions = positions.filter(p => p.reportsToId === position.id)
 
     return (
         <div className="h-full flex flex-col">
             {/* Header Region */}
             <div className="p-6 border-b border-border bg-background flex justify-between items-start">
                 <div>
-                    <div className="flex items-center gap-2 mb-2">
-                        {isVacant ? (
-                            <Badge variant="destructive" className="flex items-center gap-1">
-                                <AlertCircle className="h-3 w-3" /> Vacant
-                            </Badge>
-                        ) : (
-                            <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100 flex items-center gap-1">
-                                <CheckCircle2 className="h-3 w-3" /> Filled
-                            </Badge>
-                        )}
-                        <Badge variant="outline" className="text-muted-foreground border-muted-foreground/30">
-                            {position.code}
-                        </Badge>
+                    <h1 className="text-3xl font-bold text-card-foreground mb-3">{position.title}</h1>
+                    <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                            <User className="h-4 w-4" />
+                            <span className="font-semibold text-foreground">{isVacant ? "Vacant" : "Filled"}</span>
+                            <span className="text-xs">Status</span>
+                        </div>
                     </div>
-                    <h1 className="text-2xl font-bold text-card-foreground">{position.title}</h1>
-                    <p className="text-muted-foreground mt-1 text-sm">
-                        Reports to <span className="text-primary font-medium cursor-pointer hover:underline">Unit Lead</span> • {orgUnit?.name}
-                    </p>
                 </div>
                 <div className="flex gap-2">
                     {isVacant ? (
@@ -109,144 +102,178 @@ export function PositionView({ position, onMove, onMerge, onDelete }: PositionVi
 
             <div className="flex-1 overflow-auto p-6">
                 <Tabs defaultValue="overview" className="space-y-6">
-                    <TabsList>
-                        <TabsTrigger value="overview">Overview</TabsTrigger>
-                        <TabsTrigger value="history">History & Audit</TabsTrigger>
+                    <TabsList className="bg-transparent border-0 p-0 h-auto gap-4">
+                        <TabsTrigger
+                            value="overview"
+                            className="data-[state=active]:border-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:font-semibold data-[state=inactive]:border-0 data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground rounded-md px-4 py-2"
+                        >
+                            Overview
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="history"
+                            className="data-[state=active]:border-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:font-semibold data-[state=inactive]:border-0 data-[state=inactive]:bg-transparent data-[state=inactive]:text-muted-foreground rounded-md px-4 py-2"
+                        >
+                            History & Audit
+                        </TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="overview" className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Associated Employee Table */}
+                        <div>
+                            <h2 className="text-lg font-semibold mb-4">Associated Employee</h2>
+                            <div className="rounded-md border">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr className="border-b bg-muted/50">
+                                            <th className="text-left p-3 font-medium text-sm">Position Title</th>
+                                            <th className="text-left p-3 font-medium text-sm">Team</th>
+                                            <th className="text-left p-3 font-medium text-sm">Incumbent</th>
+                                            <th className="text-left p-3 font-medium text-sm">Status</th>
+                                            <th className="text-left p-3 font-medium text-sm">Reports To</th>
+                                            <th className="text-left p-3 font-medium text-sm">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {(() => {
+                                            const status = position.status || (incumbent ? "Filled" : "Vacant")
+                                            const teamName = orgUnit?.type === "team" ? orgUnit.name : "—"
 
-                            {/* Incumbency Card (The "Seat") */}
-                            <Card className="md:col-span-2">
-                                <CardHeader className="pb-3 border-b border-border/50">
-                                    <CardTitle className="text-base flex items-center gap-2">
-                                        <Briefcase className="h-4 w-4 text-muted-foreground" />
-                                        Seat Status
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="pt-6">
-                                    {incumbent ? (
-                                        <div className="flex items-start md:items-center gap-6">
-                                            <Avatar className="h-20 w-20 border-4 border-background shadow-sm">
-                                                <AvatarFallback className="text-2xl bg-primary/10 text-primary font-bold">
-                                                    {incumbent.firstName[0] + incumbent.lastName[0]}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <div className="flex-1 space-y-1">
-                                                <div className="flex justify-between items-start">
-                                                    <div>
-                                                        <h3 className="text-xl font-bold">{incumbent.fullName}</h3>
-                                                        <p className="text-muted-foreground text-sm">{incumbent.companyEmail}</p>
+                                            return (
+                                                <tr className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+                                                    <td className="p-3 font-medium text-sm">{position.title}</td>
+                                                    <td className="p-3 text-sm text-muted-foreground">
+                                                        {teamName === "—" ? <span className="text-muted-foreground/40">—</span> : teamName}
+                                                    </td>
+                                                    <td className="p-3">
+                                                        {incumbent ? (
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-medium">
+                                                                    {incumbent.firstName[0]}{incumbent.lastName[0]}
+                                                                </div>
+                                                                <span className="text-sm">{incumbent.fullName}</span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-muted-foreground/40">—</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="p-3">
+                                                        <Badge
+                                                            variant={status === "Filled" ? "outline" : status === "Hiring" ? "secondary" : "destructive"}
+                                                            className="text-xs"
+                                                        >
+                                                            {status}
+                                                        </Badge>
+                                                    </td>
+                                                    <td className="p-3 text-sm text-muted-foreground">
+                                                        {reporterPosition ? reporterPosition.title : <span className="text-muted-foreground/40">—</span>}
+                                                    </td>
+                                                    <td className="p-3">
+                                                        <div className="flex gap-1">
+                                                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                                                                <Settings className="h-3.5 w-3.5" />
+                                                            </Button>
+                                                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive">
+                                                                <Trash2 className="h-3.5 w-3.5" />
+                                                            </Button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })()}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {/* Reporter (Direct Manager) */}
+                        <div>
+                            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                                <ArrowUp className="h-4 w-4 text-muted-foreground" />
+                                Reporter (Direct Manager)
+                            </h2>
+                            <div className="rounded-md border">
+                                {reporterPosition ? (
+                                    <div
+                                        className="p-4 hover:bg-muted/30 transition-colors cursor-pointer"
+                                        onClick={() => onSelectPosition?.(reporterPosition.id)}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                {reporterIncumbent && (
+                                                    <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-medium">
+                                                        {reporterIncumbent.firstName[0]}{reporterIncumbent.lastName[0]}
                                                     </div>
-                                                    <Button variant="outline" size="sm">View Full Profile</Button>
+                                                )}
+                                                <div>
+                                                    <p className="font-medium text-sm text-primary hover:underline">{reporterPosition.title}</p>
+                                                    {reporterIncumbent && (
+                                                        <p className="text-xs text-muted-foreground">{reporterIncumbent.fullName}</p>
+                                                    )}
                                                 </div>
+                                            </div>
+                                            <Badge variant="outline" className="text-xs">
+                                                {reporterPosition.status || (reporterIncumbent ? "Filled" : "Vacant")}
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="p-4 text-center text-sm text-muted-foreground">
+                                        No direct manager assigned
+                                    </div>
+                                )}
+                            </div>
+                        </div>
 
-                                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-4 pt-4 border-t border-border/50">
-                                                    <div>
-                                                        <p className="text-xs text-muted-foreground uppercase font-semibold">Joined</p>
-                                                        <p className="text-sm font-medium flex items-center gap-1.5 mt-1">
-                                                            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                                                            {new Date(incumbent.companyJoinDate || "").toLocaleDateString()}
-                                                        </p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-xs text-muted-foreground uppercase font-semibold">Employee ID</p>
-                                                        <p className="text-sm font-medium mt-1">{incumbent.employeeId}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-xs text-muted-foreground uppercase font-semibold">Performance</p>
-                                                        <Badge variant="outline" className="mt-1 font-normal bg-green-50 text-green-700 border-green-200">Exceeds Expectations</Badge>
+                        {/* Reportees (Direct Subordinates) */}
+                        <div>
+                            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                                <ArrowDown className="h-4 w-4 text-muted-foreground" />
+                                Reportees (Direct Subordinates)
+                            </h2>
+                            <div className="rounded-md border">
+                                {reporteePositions.length > 0 ? (
+                                    <div className="divide-y">
+                                        {reporteePositions.map(reporteePos => {
+                                            const reporteeIncumbent = reporteePos.incumbentId ? employees.find(e => e.id === reporteePos.incumbentId) : null
+                                            const status = reporteePos.status || (reporteeIncumbent ? "Filled" : "Vacant")
+
+                                            return (
+                                                <div
+                                                    key={reporteePos.id}
+                                                    className="p-4 hover:bg-muted/30 transition-colors cursor-pointer"
+                                                    onClick={() => onSelectPosition?.(reporteePos.id)}
+                                                >
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-3">
+                                                            {reporteeIncumbent && (
+                                                                <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-medium">
+                                                                    {reporteeIncumbent.firstName[0]}{reporteeIncumbent.lastName[0]}
+                                                                </div>
+                                                            )}
+                                                            <div>
+                                                                <p className="font-medium text-sm text-primary hover:underline">{reporteePos.title}</p>
+                                                                {reporteeIncumbent && (
+                                                                    <p className="text-xs text-muted-foreground">{reporteeIncumbent.fullName}</p>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <Badge
+                                                            variant={status === "Filled" ? "outline" : status === "Hiring" ? "secondary" : "destructive"}
+                                                            className="text-xs"
+                                                        >
+                                                            {status}
+                                                        </Badge>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex flex-col items-center justify-center py-8 text-center bg-muted/30 rounded-lg border border-dashed border-muted-foreground/30">
-                                            <div className="p-3 bg-background rounded-full mb-3 shadow-sm text-muted-foreground">
-                                                <UserPlus className="h-6 w-6" />
-                                            </div>
-                                            <h3 className="text-lg font-medium">Position is Vacant</h3>
-                                            <p className="text-muted-foreground mb-4 max-w-sm">This seat has been empty for 12 days. Recruitment pipeline is active.</p>
-                                            <div className="flex gap-3">
-                                                <Button variant="default">Start Recruitment</Button>
-                                                <Button variant="outline">View Candidates (3)</Button>
-                                            </div>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-
-                            {/* Job Details */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-base flex items-center gap-2">
-                                        <FileText className="h-4 w-4 text-muted-foreground" />
-                                        Job Description
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div>
-                                        <p className="text-xs font-bold uppercase text-muted-foreground mb-1.5">Role Summary</p>
-                                        <p className="text-sm leading-relaxed text-card-foreground/80">
-                                            Responsible for leading the development team, ensuring code quality, and delivering projects on time.
-                                            Mentors junior developers and collaborates with product managers to define feature specifications.
-                                        </p>
+                                            )
+                                        })}
                                     </div>
-                                    <div>
-                                        <p className="text-xs font-bold uppercase text-muted-foreground mb-2">Core Competencies</p>
-                                        <div className="flex flex-wrap gap-2">
-                                            {competencies.map(c => (
-                                                <Badge key={c} variant="secondary" className="font-normal bg-secondary/50 text-secondary-foreground hover:bg-secondary/70 transition-colors">{c}</Badge>
-                                            ))}
-                                        </div>
+                                ) : (
+                                    <div className="p-4 text-center text-sm text-muted-foreground">
+                                        No direct reports
                                     </div>
-                                    <div className="pt-2">
-                                        <Button variant="link" className="px-0 text-primary h-auto text-xs">View Full JD</Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Compensation */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-base flex items-center gap-2">
-                                        <DollarSign className="h-4 w-4 text-muted-foreground" />
-                                        Compensation Band
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-5">
-                                        <div>
-                                            <div className="flex justify-between text-sm mb-2">
-                                                <span className="text-muted-foreground font-medium">Range Penetration</span>
-                                                <span className="font-bold text-primary">{comparisonPercent}%</span>
-                                            </div>
-                                            <Progress value={comparisonPercent} className="h-2.5" />
-                                        </div>
-
-                                        <div className="bg-muted/40 p-3 rounded-md grid grid-cols-3 gap-2 text-center text-sm border border-border/50">
-                                            <div className="flex flex-col">
-                                                <span className="text-xs text-muted-foreground uppercase font-bold">Min</span>
-                                                <span className="font-mono">${salaryBand.min.toLocaleString()}</span>
-                                            </div>
-                                            <div className="flex flex-col border-l border-r border-border/50">
-                                                <span className="text-xs text-muted-foreground uppercase font-bold">Mid</span>
-                                                <span className="font-mono">${((salaryBand.max + salaryBand.min) / 2).toLocaleString()}</span>
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-xs text-muted-foreground uppercase font-bold">Max</span>
-                                                <span className="font-mono">${salaryBand.max.toLocaleString()}</span>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center gap-2 text-xs text-muted-foreground bg-blue-50 dark:bg-blue-900/10 p-2 rounded text-blue-700 dark:text-blue-300">
-                                            <AlertCircle className="h-3 w-3" />
-                                            <span>Current package is within Level 4 guidelines.</span>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                )}
+                            </div>
                         </div>
                     </TabsContent>
 

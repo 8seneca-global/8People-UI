@@ -761,6 +761,12 @@ export default function OrgViewPage() {
             type: "division",
             level: selectedDetail.node.level
           })}
+          onDelete={() => openDeleteModal({
+            id: selectedDetail.node.id,
+            name: selectedDetail.node.name,
+            type: "division",
+            parentId: organizationalUnits.find(u => u.id === selectedDetail.node.id)?.parentId
+          })}
         />
       case "department":
         return <DepartmentView
@@ -772,6 +778,12 @@ export default function OrgViewPage() {
             type: "department",
             level: selectedDetail.node.level
           })}
+          onDelete={() => openDeleteModal({
+            id: selectedDetail.node.id,
+            name: selectedDetail.node.name,
+            type: "department",
+            parentId: organizationalUnits.find(u => u.id === selectedDetail.node.id)?.parentId
+          })}
         />
       case "team":
         return <TeamView
@@ -782,6 +794,12 @@ export default function OrgViewPage() {
             name: selectedDetail.node.name,
             type: "team",
             level: selectedDetail.node.level
+          })}
+          onDelete={() => openDeleteModal({
+            id: selectedDetail.node.id,
+            name: selectedDetail.node.name,
+            type: "team",
+            parentId: organizationalUnits.find(u => u.id === selectedDetail.node.id)?.parentId
           })}
         />
       case "position":
@@ -795,6 +813,18 @@ export default function OrgViewPage() {
             type: "position",
             level: 5 // Positions are conceptually level 5
           })}
+          onDelete={() => openDeleteModal({
+            id: selectedDetail.position!.id,
+            name: selectedDetail.position!.title,
+            type: "position",
+            parentId: selectedDetail.position!.organizationalUnitId
+          })}
+          onSelectPosition={(positionId) => {
+            const position = positions.find(p => p.id === positionId)
+            if (position) {
+              setSelectedDetail({ type: "position", position })
+            }
+          }}
         />
       default:
         return <div>Select an item</div>
