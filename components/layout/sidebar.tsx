@@ -54,7 +54,11 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Database,
 }
 
-export function Sidebar() {
+interface SidebarProps {
+  collapsed?: boolean
+}
+
+export function Sidebar({ collapsed = false }: SidebarProps) {
   const pathname = usePathname()
   const { currentRole, modules, customRoles } = useStore()
   const [expandedModules, setExpandedModules] = useState<string[]>([])
@@ -112,14 +116,15 @@ export function Sidebar() {
                 ? "bg-sidebar-accent text-sidebar-accent-foreground"
                 : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
             )}
+            title={collapsed ? module.name : undefined}
           >
             <div className="flex items-center gap-3">
-              <Icon className="h-4 w-4" />
-              {module.name}
+              <Icon className="h-4 w-4 shrink-0" />
+              {!collapsed && module.name}
             </div>
-            <ChevronDown className={cn("h-4 w-4 transition-transform", isExpanded && "rotate-180")} />
+            {!collapsed && <ChevronDown className={cn("h-4 w-4 transition-transform", isExpanded && "rotate-180")} />}
           </button>
-          {isExpanded && (
+          {isExpanded && !collapsed && (
             <div className="ml-4 mt-1 space-y-1">
               {childModules.map((child) => {
                 const ChildIcon = iconMap[child.icon] || Building2
@@ -134,7 +139,7 @@ export function Sidebar() {
                         : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                     )}
                   >
-                    <ChildIcon className="h-4 w-4" />
+                    <ChildIcon className="h-4 w-4 shrink-0" />
                     {child.name}
                   </Link>
                 )
@@ -155,42 +160,47 @@ export function Sidebar() {
             ? "bg-sidebar-primary text-sidebar-primary-foreground"
             : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
         )}
+        title={collapsed ? module.name : undefined}
       >
-        <Icon className="h-4 w-4" />
-        {module.name}
+        <Icon className="h-4 w-4 shrink-0" />
+        {!collapsed && module.name}
       </Link>
     )
   }
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar">
+    <aside className="flex h-screen w-full flex-col border-r border-sidebar-border bg-sidebar">
       {/* Logo */}
-      <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+      <div className={cn("flex h-16 items-center border-b border-sidebar-border", collapsed ? "justify-center px-2" : "gap-2 px-6")}>
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary shrink-0">
           <span className="text-sm font-bold text-primary-foreground">8</span>
         </div>
-        <span className="text-lg font-semibold text-sidebar-foreground">8People</span>
+        {!collapsed && <span className="text-lg font-semibold text-sidebar-foreground">8People</span>}
       </div>
 
-      <div className="border-b border-sidebar-border p-3">
-        <RoleSwitcher />
-      </div>
+      {!collapsed && (
+        <div className="border-b border-sidebar-border p-3">
+          <RoleSwitcher />
+        </div>
+      )}
 
       {/* Navigation - dynamically rendered based on role permissions and module order */}
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">{parentModules.map(renderModule)}</nav>
 
       {/* User Info */}
-      <div className="border-t border-sidebar-border p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-sidebar-accent">
+      <div className={cn("border-t border-sidebar-border p-4", collapsed && "px-2")}>
+        <div className={cn("flex items-center", collapsed ? "justify-center" : "gap-3")}>
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-sidebar-accent shrink-0">
             <span className="text-sm font-medium text-sidebar-accent-foreground">
               {currentRole === "admin" ? "AD" : currentRole === "hr" ? "HR" : "EM"}
             </span>
           </div>
-          <div className="flex-1 truncate">
-            <p className="text-sm font-medium text-sidebar-foreground">{currentRoleData?.name || "User"}</p>
-            <p className="text-xs text-sidebar-foreground/60">{currentRole}@8people.com</p>
-          </div>
+          {!collapsed && (
+            <div className="flex-1 truncate">
+              <p className="text-sm font-medium text-sidebar-foreground">{currentRoleData?.name || "User"}</p>
+              <p className="text-xs text-sidebar-foreground/60">{currentRole}@8people.com</p>
+            </div>
+          )}
         </div>
       </div>
     </aside>

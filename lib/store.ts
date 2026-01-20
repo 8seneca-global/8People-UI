@@ -88,6 +88,9 @@ interface StoreState {
   addOrganizationalUnit: (unit: Omit<OrganizationalUnit, "id">) => void
   updateOrganizationalUnit: (id: string, unit: Partial<OrganizationalUnit>) => void
   deleteOrganizationalUnit: (id: string) => void
+  moveOrganizationalUnit: (id: string, newParentId: string, newLevel: number) => void
+  mergeOrganizationalUnits: (sourceId: string, targetId: string) => void
+  deleteOrganizationalUnitCascade: (id: string) => void
 
   // Job Classification actions
   addJobClassification: (job: Omit<JobClassification, "id">) => void
@@ -98,6 +101,8 @@ interface StoreState {
   addPosition: (position: Omit<Position, "id">) => void
   updatePosition: (id: string, position: Partial<Position>) => void
   deletePosition: (id: string) => void
+  movePosition: (id: string, newUnitId: string) => void
+  mergePosition: (sourcePositionId: string, targetUnitId: string) => void
 
   // Employee actions
   addEmployee: (employee: Omit<Employee, "id">) => void
@@ -277,6 +282,133 @@ export const useStore = create<StoreState>((set, get) => ({
     set((state) => ({
       organizationalUnits: state.organizationalUnits.filter((u) => u.id !== id),
     })),
+  moveOrganizationalUnit: (id, newParentId, newLevel) =>
+    set((state) => {
+      const unit = state.organizationalUnits.find((u) => u.id === id)
+      if (!unit) return state
+
+      const auditEntry: AuditLogEntry = {
+        id: `audit-${Date.now()}`,
+        employeeId: "system",
+        employeeName: "System",
+        fieldChanged: "parentUnit",
+        oldValue: unit.parentId || "root",
+        newValue: newParentId,
+        changedBy: "system",
+        changedByName: "System",
+        changedAt: new Date().toISOString(),
+        changeType: "system",
+      }
+
+      return {
+        organizationalUnits: state.organizationalUnits.map((u) =>
+          u.id === id ? { ...u, parentId: newParentId, level: newLevel } : u
+        ),
+        auditLogs: [...state.auditLogs, auditEntry]
+      }
+    }),
+
+  mergeOrganizationalUnits: (sourceId, targetId) =>
+    set((state) => {
+      const source = state.organizationalUnits.find((u) => u.id === sourceId)
+      const target = state.organizationalUnits.find((u) => u.id === targetId)
+      if (!source || !target) return state
+
+      const isSameLevel = source.level === target.level
+      const auditEntry: AuditLogEntry = {
+        id: `audit-${Date.now()}`,
+        employeeId: "system",
+        employeeName: "System",
+        fieldChanged: isSameLevel ? "unitMerged" : "unitNested",
+        oldValue: source.name,
+        newValue: target.name,
+        changedBy: "system",
+        changedByName: "System",
+        changedAt: new Date().toISOString(),
+        changeType: "system",
+      }
+
+      if (isSameLevel) {
+        // Same-level merge: Consolidation mode
+        // Transfer all children and positions, then delete source
+        return {
+          organizationalUnits: state.organizationalUnits
+            .map((u) => {
+              // Transfer children: update their parentId to target
+              if (u.parentId === sourceId) {
+                return { ...u, parentId: targetId }
+              }
+              return u
+            })
+            .filter((u) => u.id !== sourceId), // Delete source unit
+          positions: state.positions.map((p) => {
+            // Transfer positions: update their organizationalUnitId to target
+            if (p.organizationalUnitId === sourceId) {
+              return { ...p, organizationalUnitId: targetId }
+            }
+            return p
+          }),
+          auditLogs: [...state.auditLogs, auditEntry]
+        }
+      } else {
+        // Cross-level merge: Nesting mode
+        // Simply move source under target (change parent)
+        return {
+          organizationalUnits: state.organizationalUnits.map((u) =>
+            u.id === sourceId ? { ...u, parentId: targetId, level: target.level + 1 } : u
+          ),
+          auditLogs: [...state.auditLogs, auditEntry]
+        }
+      }
+    }),
+
+  deleteOrganizationalUnitCascade: (id) =>
+    set((state) => {
+      const unit = state.organizationalUnits.find((u) => u.id === id)
+      if (!unit) return state
+
+      // Recursively collect all descendant IDs
+      const collectDescendants = (unitId: string): string[] => {
+        const children = state.organizationalUnits.filter((u) => u.parentId === unitId)
+        const descendantIds = children.map((child) => child.id)
+
+        // Recursively collect descendants of children
+        children.forEach((child) => {
+          descendantIds.push(...collectDescendants(child.id))
+        })
+
+        return descendantIds
+      }
+
+      const descendantIds = collectDescendants(id)
+      const allIdsToDelete = [id, ...descendantIds]
+
+      // Create audit log entry
+      const auditEntry: AuditLogEntry = {
+        id: `audit-${Date.now()}`,
+        employeeId: "system",
+        employeeName: "System",
+        fieldChanged: "unitDeleted",
+        oldValue: unit.name,
+        newValue: "",
+        changedBy: "system",
+        changedByName: "System",
+        changedAt: new Date().toISOString(),
+        changeType: "system",
+      }
+
+      return {
+        // Remove all units (parent and descendants)
+        organizationalUnits: state.organizationalUnits.filter(
+          (u) => !allIdsToDelete.includes(u.id)
+        ),
+        // Remove all positions in these units
+        positions: state.positions.filter(
+          (p) => !allIdsToDelete.includes(p.organizationalUnitId)
+        ),
+        auditLogs: [...state.auditLogs, auditEntry]
+      }
+    }),
 
   // Job Classification actions
   addJobClassification: (job) =>
@@ -305,6 +437,57 @@ export const useStore = create<StoreState>((set, get) => ({
     set((state) => ({
       positions: state.positions.filter((p) => p.id !== id),
     })),
+  movePosition: (id, newUnitId) =>
+    set((state) => {
+      const position = state.positions.find((p) => p.id === id)
+      if (!position) return state
+
+      const auditEntry: AuditLogEntry = {
+        id: `audit-${Date.now()}`,
+        employeeId: "system",
+        employeeName: "System",
+        fieldChanged: "organizationalUnit",
+        oldValue: position.organizationalUnitId,
+        newValue: newUnitId,
+        changedBy: "system",
+        changedByName: "System",
+        changedAt: new Date().toISOString(),
+        changeType: "system",
+      }
+
+      return {
+        positions: state.positions.map((p) =>
+          p.id === id ? { ...p, organizationalUnitId: newUnitId } : p
+        ),
+        auditLogs: [...state.auditLogs, auditEntry]
+      }
+    }),
+
+  mergePosition: (sourcePositionId, targetUnitId) =>
+    set((state) => {
+      const position = state.positions.find((p) => p.id === sourcePositionId)
+      if (!position) return state
+
+      const auditEntry: AuditLogEntry = {
+        id: `audit-${Date.now()}`,
+        employeeId: "system",
+        employeeName: "System",
+        fieldChanged: "positionMerged",
+        oldValue: position.organizationalUnitId,
+        newValue: targetUnitId,
+        changedBy: "system",
+        changedByName: "System",
+        changedAt: new Date().toISOString(),
+        changeType: "system",
+      }
+
+      return {
+        positions: state.positions.map((p) =>
+          p.id === sourcePositionId ? { ...p, organizationalUnitId: targetUnitId } : p
+        ),
+        auditLogs: [...state.auditLogs, auditEntry]
+      }
+    }),
 
   // Employee actions
   addEmployee: (employee) =>

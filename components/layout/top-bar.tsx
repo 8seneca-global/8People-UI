@@ -16,6 +16,9 @@ import {
   X,
   AlertTriangle,
   Cake,
+  PanelLeftClose,
+  PanelLeft,
+  type LucideIcon,
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -33,7 +36,9 @@ interface TopBarProps {
   subtitle?: string
   icon?: LucideIcon
   sidebarOpen?: boolean
+  sidebarCollapsed?: boolean
   onSidebarToggle?: () => void
+  onSidebarCollapse?: () => void
 }
 
 const notificationIcons: Record<Notification["type"], typeof Calendar> = {
@@ -48,7 +53,7 @@ const notificationIcons: Record<Notification["type"], typeof Calendar> = {
   birthday: Cake,
 }
 
-export function TopBar({ title, subtitle, icon: Icon, sidebarOpen = true, onSidebarToggle }: TopBarProps) {
+export function TopBar({ title, subtitle, icon: Icon, sidebarOpen = true, sidebarCollapsed = false, onSidebarToggle, onSidebarCollapse }: TopBarProps) {
   const { notifications, markNotificationRead, markAllNotificationsRead } = useStore()
   const { theme, toggleTheme } = useTheme()
   const router = useRouter()
@@ -98,9 +103,19 @@ export function TopBar({ title, subtitle, icon: Icon, sidebarOpen = true, onSide
           {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
 
+        {/* Desktop Sidebar Collapse Toggle - replaces the icon */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onSidebarCollapse}
+          className="hidden md:flex"
+          title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {sidebarCollapsed ? <PanelLeft className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
+        </Button>
+
         <div>
           <div className="flex items-center gap-2">
-            {Icon && <Icon className="h-5 w-5 text-foreground" />}
             <h1 className="text-base md:text-lg font-semibold text-foreground">{title}</h1>
           </div>
           {subtitle && <p className="text-xs md:text-sm text-muted-foreground">{subtitle}</p>}
