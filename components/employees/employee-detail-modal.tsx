@@ -105,6 +105,7 @@ const emptyEducation: EmployeeEducation = {
 }
 
 const emptyContract: EmployeeContract = {
+  id: "",
   contractNumber: "",
   contractType: "",
   startDate: "",
@@ -170,7 +171,7 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
   } = useStore()
   const [activeTab, setActiveTab] = useState("work")
   const [formData, setFormData] = useState<
-    Partial<Employee> & { citizenshipIdFile?: File | null; contractFile?: File | null; directReportIds?: string[] }
+    Omit<Partial<Employee>, "citizenshipIdFile"> & { citizenshipIdFile?: File | null; contractFile?: File | null; directReportIds?: string[] }
   >({})
   const [hasChanges, setHasChanges] = useState(false)
   const idFileInputRef = useRef<HTMLInputElement>(null)
@@ -279,7 +280,7 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
     if (readOnly) return
     setFormData((prev) => ({
       ...prev,
-      [parent]: { ...(prev[parent] as Record<string, unknown>), [field]: value },
+      [parent]: { ...(prev[parent] as unknown as Record<string, unknown>), [field]: value },
     }))
     setHasChanges(true)
   }
@@ -332,6 +333,7 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
     if (!newContract.contractNumber || !newContract.contractType) return
 
     const contractToAdd: EmployeeContract = {
+      id: `c-${Date.now()}`,
       contractNumber: newContract.contractNumber,
       contractType: newContract.contractType,
       startDate: newContract.startDate,
@@ -371,6 +373,7 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
     setFormData((prev) => {
       const contracts = [...(prev.contracts || [])]
       contracts[editingContractIndex] = {
+        id: editingContract.id || `c-${Date.now()}`,
         contractNumber: editingContract.contractNumber,
         contractType: editingContract.contractType,
         startDate: editingContract.startDate,
@@ -699,7 +702,7 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
                       setFormData((prev) => ({
                         ...prev,
                         jobClassificationId: value,
-                        jobClassificationName: classification?.name || "",
+                        jobClassificationTitle: classification?.title || "",
                       }))
                       setHasChanges(true)
                     }}
@@ -711,7 +714,7 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
                     <SelectContent>
                       {jobClassifications.map((classification) => (
                         <SelectItem key={classification.id} value={classification.id}>
-                          {classification.name}
+                          {classification.title}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -1641,18 +1644,18 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
                                   {/* Timeline dot */}
                                   <div
                                     className={`absolute left-2.5 top-4 w-3 h-3 rounded-full border-2 border-background ${status === "active"
-                                        ? "bg-success"
-                                        : status === "upcoming"
-                                          ? "bg-info"
-                                          : "bg-muted-foreground"
+                                      ? "bg-success"
+                                      : status === "upcoming"
+                                        ? "bg-info"
+                                        : "bg-muted-foreground"
                                       }`}
                                   />
 
                                   <CollapsibleTrigger asChild>
                                     <div
                                       className={`rounded-lg border overflow-hidden cursor-pointer transition-colors ${isExpanded
-                                          ? "border-primary/50 bg-primary/5"
-                                          : "border-border hover:bg-secondary/50"
+                                        ? "border-primary/50 bg-primary/5"
+                                        : "border-border hover:bg-secondary/50"
                                         }`}
                                     >
                                       {/* Contract Header */}
@@ -2706,8 +2709,8 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
                                 <td className="px-6 py-5 text-center">
                                   <Badge
                                     className={`text-sm font-black px-3 py-1 ${remaining > 0
-                                        ? "bg-primary/20 text-primary border-primary/20"
-                                        : "bg-destructive/10 text-destructive border-destructive/20"
+                                      ? "bg-primary/20 text-primary border-primary/20"
+                                      : "bg-destructive/10 text-destructive border-destructive/20"
                                       }`}
                                   >
                                     {remaining}
