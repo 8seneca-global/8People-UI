@@ -6,6 +6,7 @@ import { StatCard } from "@/components/dashboard/stat-card"
 import { QuickActions } from "@/components/dashboard/quick-actions"
 import { OrgTreePreview } from "@/components/dashboard/org-tree-preview"
 import { AddEmployeeModal } from "@/components/employees/add-employee-modal"
+import { OnboardingChecklistModal } from "@/components/dashboard/onboarding-checklist-modal"
 import { useStore } from "@/lib/store"
 import { DashboardBanner } from "@/components/dashboard/dashboard-banner"
 import { Users, UserPlus, Briefcase, Calendar, Bell, CalendarDays, UserSearch, AlertCircle, Clock } from "lucide-react"
@@ -462,7 +463,7 @@ function EmployeeDashboard() {
 
   return (
     <div className="space-y-6">
-      <DashboardBanner />
+      <OnboardingChecklistModal />
       {/* Welcome Banner */}
       <Card className="bg-gradient-to-r from-primary/20 to-primary/5 border-primary/20">
         <CardContent className="pt-6">
@@ -594,27 +595,6 @@ function EmployeeDashboard() {
                   </div>
                 </div>
               ))}
-            </CardContent>
-          </Card>
-
-          {/* Announcements */}
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="text-card-foreground flex items-center gap-2">
-                <Bell className="h-5 w-5" />
-                Announcements
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {recentAnnouncements.map((announcement, idx) => (
-                <div key={idx} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                  <p className="text-sm font-medium text-card-foreground">{announcement.title}</p>
-                  <span className="text-xs text-muted-foreground">{announcement.date}</span>
-                </div>
-              ))}
-              <Button variant="link" className="w-full text-primary p-0 h-auto mt-2">
-                View all announcements
-              </Button>
             </CardContent>
           </Card>
         </div>

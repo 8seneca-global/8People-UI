@@ -5,7 +5,7 @@ import type React from "react"
 import { useStore } from "@/lib/store"
 import type { Role } from "@/lib/rbac"
 import { cn } from "@/lib/utils"
-import { Check, ChevronDown, Shield, UserCog, User, Crown, UserCheck } from "lucide-react"
+import { Check, ChevronDown, Shield, UserCog, User, Crown, UserCheck, UserPlus, LogOut } from "lucide-react"
 import { useRouter } from "next/navigation"
 import {
   DropdownMenu,
@@ -25,7 +25,7 @@ const roleIcons: Record<string, React.ReactNode> = {
 }
 
 export function RoleSwitcher() {
-  const { currentRole, setCurrentRole, customRoles } = useStore()
+  const { currentRole, setCurrentRole, customRoles, simulationMode, setSimulationMode } = useStore()
   const router = useRouter()
 
   const currentRoleData = customRoles.find((r) => r.id === currentRole) || customRoles[0]
@@ -35,16 +35,29 @@ export function RoleSwitcher() {
     router.push("/")
   }
 
+  const handleSimulationMode = (mode: 'onboarding' | null) => {
+    setSimulationMode(mode)
+    if (mode === 'onboarding') {
+      router.push("/onboarding")
+    } else {
+      router.push("/")
+    }
+  }
+
+  const displayText = simulationMode === 'onboarding'
+    ? { name: "Onboarding Employee", subtitle: "Simulation Mode" }
+    : { name: currentRoleData.name, subtitle: "Switch view mode" }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex w-full items-center gap-3 rounded-lg border border-sidebar-border bg-sidebar-accent/50 p-3 transition-colors hover:bg-sidebar-accent">
-          <div className={cn("flex h-8 w-8 items-center justify-center rounded-md", currentRoleData.color)}>
-            {roleIcons[currentRole] || <User className="h-4 w-4" />}
+          <div className={cn("flex h-8 w-8 items-center justify-center rounded-md", simulationMode === 'onboarding' ? "bg-blue-500 text-white" : currentRoleData.color)}>
+            {simulationMode === 'onboarding' ? <UserPlus className="h-4 w-4" /> : (roleIcons[currentRole] || <User className="h-4 w-4" />)}
           </div>
           <div className="flex-1 text-left">
-            <p className="text-sm font-medium text-sidebar-foreground">{currentRoleData.name}</p>
-            <p className="text-xs text-sidebar-foreground/60">Switch view mode</p>
+            <p className="text-sm font-medium text-sidebar-foreground">{displayText.name}</p>
+            <p className="text-xs text-sidebar-foreground/60">{displayText.subtitle}</p>
           </div>
           <ChevronDown className="h-4 w-4 text-sidebar-foreground/60" />
         </button>
@@ -65,9 +78,41 @@ export function RoleSwitcher() {
               <p className="text-sm font-medium">{role.name}</p>
               <p className="text-xs text-muted-foreground line-clamp-1">{role.description}</p>
             </div>
-            {currentRole === role.id && <Check className="h-4 w-4 text-primary" />}
+            {currentRole === role.id && !simulationMode && <Check className="h-4 w-4 text-primary" />}
           </DropdownMenuItem>
         ))}
+
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel className="text-xs text-muted-foreground">Simulation Modes</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+
+        {simulationMode === 'onboarding' ? (
+          <DropdownMenuItem
+            onClick={() => handleSimulationMode(null)}
+            className="flex items-center gap-3 py-2 text-orange-600"
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-orange-100">
+              <LogOut className="h-4 w-4" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium">Exit Simulation</p>
+              <p className="text-xs text-muted-foreground">Return to admin view</p>
+            </div>
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem
+            onClick={() => handleSimulationMode('onboarding')}
+            className="flex items-center gap-3 py-2"
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-500 text-white">
+              <UserPlus className="h-4 w-4" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium">Onboarding Employee</p>
+              <p className="text-xs text-muted-foreground">Simulate new hire experience</p>
+            </div>
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )

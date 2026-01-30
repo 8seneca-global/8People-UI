@@ -1,154 +1,203 @@
 "use client"
 
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { AdminLayout } from "@/components/layout/admin-layout"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
 import { useStore } from "@/lib/store"
-import { Check, X, Send, UserPlus } from "lucide-react"
-import { cn } from "@/lib/utils"
+import {
+  CheckCircle2,
+  Circle,
+  FileText,
+  User,
+  Building2,
+  Calendar,
+  Clock,
+  BookOpen,
+  Users,
+  MessageSquare,
+  AlertCircle,
+} from "lucide-react"
 
-export default function OnboardingPage() {
-  const { employees, updateEmployee } = useStore()
+export default function OnboardingDashboardPage() {
+  const router = useRouter()
+  const { simulationMode } = useStore()
 
-  const handleResendInvite = (employeeId: string) => {
-    updateEmployee(employeeId, {
-      onboardingStatus: {
-        emailSent: true,
-        accountActivated: false,
-        profileCompleted: false,
-      },
-    })
-  }
+  // Redirect if not in simulation mode
+  useEffect(() => {
+    if (simulationMode !== 'onboarding') {
+      router.push("/")
+    }
+  }, [simulationMode, router])
 
-  const handleSendInvite = (employeeId: string) => {
-    updateEmployee(employeeId, {
-      onboardingStatus: {
-        emailSent: true,
-        accountActivated: false,
-        profileCompleted: false,
-      },
-    })
-  }
+  // Mock onboarding checklist
+  const checklistItems = [
+    { id: 1, title: "Complete Profile Information", completed: false, icon: User },
+    { id: 2, title: "Review Company Policies", completed: false, icon: FileText },
+    { id: 3, title: "Set Up Workspace Access", completed: false, icon: Building2 },
+    { id: 4, title: "Schedule 1-on-1 with Manager", completed: false, icon: Calendar },
+    { id: 5, title: "Complete Required Training", completed: false, icon: BookOpen },
+    { id: 6, title: "Meet Your Team", completed: false, icon: Users },
+  ]
 
-  const StatusIcon = ({ completed }: { completed: boolean }) => (
-    <div
-      className={cn(
-        "flex h-6 w-6 items-center justify-center rounded-full",
-        completed ? "bg-success/20" : "bg-secondary",
-      )}
-    >
-      {completed ? <Check className="h-3.5 w-3.5 text-success" /> : <X className="h-3.5 w-3.5 text-muted-foreground" />}
-    </div>
-  )
-
-  const pendingEmployees = employees.filter((e) => e.status === "pending")
-  const activeEmployees = employees.filter((e) => e.status === "active")
+  const completedCount = checklistItems.filter(item => item.completed).length
+  const progressPercentage = (completedCount / checklistItems.length) * 100
 
   return (
-    <AdminLayout title="Onboarding" subtitle="Track employee onboarding progress">
+    <AdminLayout title="Onboarding Dashboard" subtitle="Welcome to 8People!" icon={Building2}>
       <div className="space-y-6">
-        {pendingEmployees.length > 0 && (
-          <div className="rounded-lg border border-primary/30 bg-primary/5 p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <UserPlus className="h-5 w-5 text-primary" />
-              <h3 className="font-medium">New Hires Pending Onboarding</h3>
-              <Badge variant="secondary">{pendingEmployees.length}</Badge>
+        {/* Simulation Mode Alert */}
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="font-semibold text-blue-900">Simulation Mode Active</h3>
+              <p className="text-sm text-blue-700 mt-1">
+                You are viewing the application as a new employee during onboarding. This is a simulation to help you understand the onboarding experience.
+              </p>
             </div>
-            <div className="space-y-2">
-              {pendingEmployees.map((employee) => (
-                <div
-                  key={employee.id}
-                  className="flex items-center justify-between rounded-md border border-border bg-card p-3"
-                >
-                  <div>
-                    <p className="font-medium">{employee.fullName}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {employee.positionTitle} - {employee.organizationalUnitName}
-                    </p>
-                    <p className="text-xs text-muted-foreground font-mono">{employee.companyEmail}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {!employee.onboardingStatus.emailSent ? (
-                      <Button size="sm" onClick={() => handleSendInvite(employee.id)} className="gap-2">
-                        <Send className="h-4 w-4" />
-                        Send Invite
-                      </Button>
-                    ) : (
-                      <Badge className="bg-blue-500/20 text-blue-500">Invite Sent</Badge>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200">
+              Simulation
+            </Badge>
           </div>
-        )}
+        </div>
 
-        <div className="rounded-lg border border-border bg-card">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Employee</TableHead>
-                <TableHead className="text-muted-foreground">Department</TableHead>
-                <TableHead className="text-muted-foreground text-center">Email Sent</TableHead>
-                <TableHead className="text-muted-foreground text-center">Account Activated</TableHead>
-                <TableHead className="text-muted-foreground text-center">Profile Completed</TableHead>
-                <TableHead className="text-muted-foreground">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {employees.map((employee) => (
-                <TableRow key={employee.id} className="border-border">
-                  <TableCell>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium text-card-foreground">{employee.fullName}</p>
-                        {employee.status === "pending" && (
-                          <Badge variant="outline" className="text-xs">
-                            New
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground font-mono">{employee.companyEmail}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-card-foreground">{employee.organizationalUnitName}</TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex justify-center">
-                      <StatusIcon completed={employee.onboardingStatus.emailSent} />
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex justify-center">
-                      <StatusIcon completed={employee.onboardingStatus.accountActivated} />
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex justify-center">
-                      <StatusIcon completed={employee.onboardingStatus.profileCompleted} />
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {!employee.onboardingStatus.profileCompleted && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleResendInvite(employee.id)}
-                        className="text-primary hover:text-primary hover:bg-primary/10"
-                      >
-                        <Send className="mr-2 h-4 w-4" />
-                        {employee.onboardingStatus.emailSent ? "Resend Invite" : "Send Invite"}
+        {/* Welcome Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl">Welcome to 8People! 🎉</CardTitle>
+            <CardDescription>
+              We're excited to have you on board. Let's get you started with your onboarding journey.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Onboarding Progress</span>
+                  <span className="text-sm text-muted-foreground">{completedCount} of {checklistItems.length} completed</span>
+                </div>
+                <Progress value={progressPercentage} className="h-2" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Onboarding Checklist */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Your Onboarding Checklist</CardTitle>
+            <CardDescription>Complete these tasks to get started</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {checklistItems.map((item) => {
+                const Icon = item.icon
+                return (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors"
+                  >
+                    {item.completed ? (
+                      <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
+                    ) : (
+                      <Circle className="h-5 w-5 text-muted-foreground shrink-0" />
+                    )}
+                    <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <span className={`flex-1 ${item.completed ? 'line-through text-muted-foreground' : 'font-medium'}`}>
+                      {item.title}
+                    </span>
+                    {!item.completed && (
+                      <Button size="sm" variant="outline">
+                        Start
                       </Button>
                     )}
-                    {employee.onboardingStatus.profileCompleted && (
-                      <Badge className="bg-success/20 text-success hover:bg-success/30">Completed</Badge>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  </div>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Links */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-blue-100">
+                  <User className="h-5 w-5 text-blue-600" />
+                </div>
+                <CardTitle className="text-base">My Profile</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">View and update your personal information</p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-green-100">
+                  <FileText className="h-5 w-5 text-green-600" />
+                </div>
+                <CardTitle className="text-base">Documents</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">Access important company documents</p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-md transition-shadow cursor-pointer">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-purple-100">
+                  <MessageSquare className="h-5 w-5 text-purple-600" />
+                </div>
+                <CardTitle className="text-base">Get Help</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">Contact HR or your manager for support</p>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Important Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Important Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="font-medium">First Day Schedule</p>
+                  <p className="text-sm text-muted-foreground">Your manager will share your first-day agenda shortly.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Users className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="font-medium">Team Introduction</p>
+                  <p className="text-sm text-muted-foreground">Meet your team members during the welcome session.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <BookOpen className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="font-medium">Training Resources</p>
+                  <p className="text-sm text-muted-foreground">Access training materials in the Documents section.</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </AdminLayout>
   )

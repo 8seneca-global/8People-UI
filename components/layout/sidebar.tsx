@@ -60,19 +60,47 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed = false }: SidebarProps) {
   const pathname = usePathname()
-  const { currentRole, modules, customRoles } = useStore()
+  const { currentRole, modules, customRoles, simulationMode } = useStore()
   const [expandedModules, setExpandedModules] = useState<string[]>([])
 
-  const currentRoleData = customRoles.find((r) => r.id === currentRole)
-  const roleModulePermissions = currentRoleData?.modulePermissions || {}
+  const effectiveRole = simulationMode === 'onboarding' ? 'employee' : currentRole
+  const effectiveRoleData = customRoles.find((r) => r.id === effectiveRole)
+  const basePermissions = effectiveRoleData?.modulePermissions || {}
 
-  const parentModules = modules
-    .filter((m) => !m.parentId && m.isActive && roleModulePermissions[m.id]?.length > 0)
-    .sort((a, b) => a.order - b.order)
+  // Ensure onboarding module is visible in simulation mode
+  const effectivePermissions = (simulationMode === 'onboarding'
+    ? { ...basePermissions, onboarding: ["view"] }
+    : basePermissions) as Record<string, any[]>
+
+  const getFilteredModules = () => {
+    let filtered = modules.filter((m) => !m.parentId && m.isActive && effectivePermissions[m.id]?.length > 0)
+
+    if (currentRole === 'employee') {
+      const allowedConfigs = ['dashboard', 'my-profile', 'leave', 'attendance']
+      filtered = filtered.filter(m => allowedConfigs.includes(m.id))
+    }
+
+    if (simulationMode === 'onboarding') {
+      // Hide original dashboard and customize onboarding module
+      filtered = filtered
+        .filter(m => m.id !== 'dashboard')
+        .map(m => {
+          if (m.id === 'onboarding') {
+            return { ...m, name: 'Dashboard', icon: 'LayoutDashboard', order: -1 }
+          }
+          return m
+        })
+    }
+
+    return filtered
+  }
+
+
+  const parentModules = getFilteredModules().sort((a, b) => a.order - b.order)
 
   const getChildModules = (parentId: string) =>
     modules
-      .filter((m) => m.parentId === parentId && m.isActive && roleModulePermissions[m.id]?.length > 0)
+      .filter((m) => m.parentId === parentId && m.isActive && effectivePermissions[m.id]?.length > 0)
       .sort((a, b) => a.order - b.order)
 
   // Auto-expand modules based on current path
@@ -184,6 +212,16 @@ export function Sidebar({ collapsed = false }: SidebarProps) {
         </div>
       )}
 
+      {/* Simulation Mode Indicator */}
+      {!collapsed && simulationMode === 'onboarding' && (
+        <div className="mx-3 mt-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+            <span className="text-xs font-medium text-blue-600">Simulation Mode Active</span>
+          </div>
+        </div>
+      )}
+
       {/* Navigation - dynamically rendered based on role permissions and module order */}
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">{parentModules.map(renderModule)}</nav>
 
@@ -192,15 +230,16 @@ export function Sidebar({ collapsed = false }: SidebarProps) {
         <div className={cn("flex items-center", collapsed ? "justify-center" : "gap-3")}>
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-sidebar-accent shrink-0">
             <span className="text-sm font-medium text-sidebar-accent-foreground">
-              {currentRole === "admin" ? "AD" : currentRole === "hr" ? "HR" : "EM"}
+              {effectiveRole === "admin" ? "AD" : effectiveRole === "hr" ? "HR" : "EM"}
             </span>
           </div>
           {!collapsed && (
             <div className="flex-1 truncate">
-              <p className="text-sm font-medium text-sidebar-foreground">{currentRoleData?.name || "User"}</p>
-              <p className="text-xs text-sidebar-foreground/60">{currentRole}@8people.com</p>
+              <p className="text-sm font-medium text-sidebar-foreground">{effectiveRoleData?.name || "User"}</p>
+              <p className="text-xs text-sidebar-foreground/60">{effectiveRole}@8people.com</p>
             </div>
           )}
+
         </div>
       </div>
     </aside>

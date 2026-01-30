@@ -39,6 +39,8 @@ interface TopBarProps {
   sidebarCollapsed?: boolean
   onSidebarToggle?: () => void
   onSidebarCollapse?: () => void
+  breadcrumb?: React.ReactNode
+  headerAction?: React.ReactNode
 }
 
 const notificationIcons: Record<Notification["type"], typeof Calendar> = {
@@ -53,7 +55,7 @@ const notificationIcons: Record<Notification["type"], typeof Calendar> = {
   birthday: Cake,
 }
 
-export function TopBar({ title, subtitle, icon: Icon, sidebarOpen = true, sidebarCollapsed = false, onSidebarToggle, onSidebarCollapse }: TopBarProps) {
+export function TopBar({ title, subtitle, icon: Icon, sidebarOpen = true, sidebarCollapsed = false, onSidebarToggle, onSidebarCollapse, breadcrumb, headerAction }: TopBarProps) {
   const { notifications, markNotificationRead, markAllNotificationsRead } = useStore()
   const { theme, toggleTheme } = useTheme()
   const router = useRouter()
@@ -103,7 +105,7 @@ export function TopBar({ title, subtitle, icon: Icon, sidebarOpen = true, sideba
           {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
 
-        {/* Desktop Sidebar Collapse Toggle - replaces the icon */}
+        {/* Desktop Sidebar Collapse Toggle */}
         <Button
           variant="ghost"
           size="icon"
@@ -114,12 +116,19 @@ export function TopBar({ title, subtitle, icon: Icon, sidebarOpen = true, sideba
           {sidebarCollapsed ? <PanelLeft className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
         </Button>
 
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-base md:text-lg font-semibold text-foreground">{title}</h1>
+        {/* Header Action - aligned with collapse icon */}
+        {headerAction && <div className="hidden md:block">{headerAction}</div>}
+
+        {breadcrumb ? (
+          <div>{breadcrumb}</div>
+        ) : (
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-base md:text-lg font-semibold text-foreground">{title}</h1>
+            </div>
+            {subtitle && <p className="text-xs md:text-sm text-muted-foreground">{subtitle}</p>}
           </div>
-          {subtitle && <p className="text-xs md:text-sm text-muted-foreground">{subtitle}</p>}
-        </div>
+        )}
       </div>
 
       <div className="flex items-center gap-2 md:gap-4">

@@ -94,11 +94,12 @@ export interface EmployeeContract {
   contractType: string
   startDate: string
   endDate: string
-  signDate: string
+  signDate?: string
   fileUrl?: string
   fileName?: string
   notes?: string
   attachmentFile?: string // Deprecated, use fileUrl/fileName instead
+  status: "active" | "terminated"
 }
 
 export const contractTypeOptions = ["Internship", "Probation", "Service Contract", "Full-time"] as const
@@ -449,14 +450,30 @@ export interface Employee {
   cellphone?: string
   dateOfBirth?: string
   workingDays?: number[] // Array of days of week (0=Sun, 6=Sat) considered working days
-  gender?: string
+  gender?: "male" | "female" | "other"
   nationality?: string
   maritalStatus?: string
-
+  address?: string
   nationalIdNumber?: string
   nationalIdIssueDate?: string
   nationalIdIssuePlace?: string
-  citizenshipIdFile?: string
+  passportNumber?: string
+  passportIssueDate?: string
+  passportExpiryDate?: string
+
+  // Contract Information
+  contractNumber?: string
+  contractType?: "full-time" | "part-time" | "contract" | "internship"
+  contractStartDate?: string
+  contractEndDate?: string
+  contractFileUrl?: string
+  contractFileName?: string
+
+  // Onboarding tracking
+  onboardingDate?: string | null // Populated when employee first logs in and completes profile
+
+  // Compensation
+  baseSalary?: number
 
   birthRegisterAddress?: EmployeeAddress
   permanentAddress?: EmployeeAddress
@@ -1415,7 +1432,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 001",
     dateOfBirth: "1975-03-15",
-    gender: "Male",
+    gender: "male",
     directReportIds: ["P-002", "P-003", "P-030", "P-031"],
     workingDays: [1, 2, 3, 4, 5], // Mon-Fri
     contracts: [
@@ -1425,7 +1442,10 @@ export const employees: Employee[] = [
         contractType: "Official",
         startDate: "2020-01-01",
         endDate: "2025-12-31",
+        status: "active",
         signDate: "2020-01-01",
+        status: "active",
+        status: "terminated",
       },
       {
         id: "ct-001-2", // Added id
@@ -1433,7 +1453,10 @@ export const employees: Employee[] = [
         contractType: "Contract Extension",
         startDate: "2026-01-01",
         endDate: "2029-12-31",
+        status: "active",
         signDate: "2025-12-15",
+        status: "active",
+        status: "active",
       },
     ],
     transactions: [
@@ -1536,7 +1559,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 002",
     dateOfBirth: "1980-06-20",
-    gender: "Female",
+    gender: "female",
     directReportIds: ["P-010", "P-011", "P-012", "P-013", "P-014", "P-020", "P-033-LEAD"],
     workingDays: [1, 2, 3, 4, 5, 6], // Mon-Sat
     contracts: [
@@ -1546,7 +1569,10 @@ export const employees: Employee[] = [
         contractType: "Official",
         startDate: "2021-01-15",
         endDate: "2024-01-14",
+        status: "active",
         signDate: "2021-01-15",
+        status: "active",
+        status: "terminated",
       },
       {
         id: "ct-002-2", // Added id
@@ -1554,7 +1580,10 @@ export const employees: Employee[] = [
         contractType: "Contract Renewal",
         startDate: "2024-01-15",
         endDate: "2027-01-14",
+        status: "active",
         signDate: "2024-01-01",
+        status: "active",
+        status: "active",
       },
     ],
     transactions: [
@@ -1648,7 +1677,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 003",
     dateOfBirth: "1985-09-10",
-    gender: "Male",
+    gender: "male",
     directReportIds: ["P-004", "P-005"],
     workingDays: [1, 2, 3, 4, 5], // Mon-Fri
     contracts: [
@@ -1658,7 +1687,9 @@ export const employees: Employee[] = [
         contractType: "Official",
         startDate: "2021-03-01",
         endDate: "2024-02-29",
+        status: "active",
         signDate: "2021-03-01",
+        status: "active",
       },
       {
         id: "ct-003-2", // Added id
@@ -1666,7 +1697,9 @@ export const employees: Employee[] = [
         contractType: "Contract Extension",
         startDate: "2024-03-01",
         endDate: "2027-02-28",
+        status: "active",
         signDate: "2024-02-20",
+        status: "active",
       },
     ],
     transactions: [
@@ -1740,7 +1773,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 004",
     dateOfBirth: "1990-12-05",
-    gender: "Female",
+    gender: "female",
     contracts: [
       {
         id: "ct-004-1", // Added id
@@ -1748,7 +1781,9 @@ export const employees: Employee[] = [
         contractType: "Probation",
         startDate: "2022-01-10",
         endDate: "2022-04-09",
+        status: "active",
         signDate: "2022-01-10",
+        status: "active",
       },
       {
         id: "ct-004-2", // Added id
@@ -1756,7 +1791,9 @@ export const employees: Employee[] = [
         contractType: "Official",
         startDate: "2022-04-10",
         endDate: "2025-04-09",
+        status: "active",
         signDate: "2022-04-01",
+        status: "active",
       },
     ],
     transactions: [
@@ -1830,7 +1867,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 010",
     dateOfBirth: "1988-04-15",
-    gender: "Male",
+    gender: "male",
     directReportIds: ["P-011", "P-012", "P-013", "P-014"],
     contracts: [
       {
@@ -1839,7 +1876,9 @@ export const employees: Employee[] = [
         contractType: "Junior Engineer",
         startDate: "2021-06-01",
         endDate: "2022-01-31",
+        status: "active",
         signDate: "2021-06-01",
+        status: "active",
       },
       {
         id: "ct-010-2", // Added id
@@ -1847,7 +1886,9 @@ export const employees: Employee[] = [
         contractType: "Mid-Level Engineer",
         startDate: "2022-02-01",
         endDate: "2023-12-31",
+        status: "active",
         signDate: "2022-02-01",
+        status: "active",
       },
       {
         id: "ct-010-3", // Added id
@@ -1855,7 +1896,9 @@ export const employees: Employee[] = [
         contractType: "Promotion to Team Lead",
         startDate: "2024-01-01",
         endDate: "2027-01-01",
+        status: "active",
         signDate: "2024-01-01",
+        status: "active",
       },
     ],
     transactions: [
@@ -1929,7 +1972,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 011",
     dateOfBirth: "1990-07-20",
-    gender: "Male",
+    gender: "male",
     contracts: [
       {
         id: "ct-011-1", // Added id
@@ -1937,7 +1980,9 @@ export const employees: Employee[] = [
         contractType: "Intern",
         startDate: "2022-01-15",
         endDate: "2022-03-14",
+        status: "active",
         signDate: "2022-01-15",
+        status: "active",
       },
       {
         id: "ct-011-2", // Added id
@@ -1945,7 +1990,9 @@ export const employees: Employee[] = [
         contractType: "Probation",
         startDate: "2022-03-15",
         endDate: "2022-06-14",
+        status: "active",
         signDate: "2022-03-15",
+        status: "active",
       },
       {
         id: "ct-011-3", // Added id
@@ -1953,7 +2000,9 @@ export const employees: Employee[] = [
         contractType: "Official",
         startDate: "2022-06-15",
         endDate: "2025-06-14",
+        status: "active",
         signDate: "2022-06-10",
+        status: "active",
       },
       {
         id: "ct-011-4", // Added id
@@ -1961,7 +2010,9 @@ export const employees: Employee[] = [
         contractType: "Salary Increase",
         startDate: "2025-01-01",
         endDate: "2028-01-01",
+        status: "active",
         signDate: "2024-12-20",
+        status: "active",
       },
     ],
     transactions: [
@@ -2052,7 +2103,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 012",
     dateOfBirth: "1991-11-30",
-    gender: "Female",
+    gender: "female",
     contracts: [
       {
         id: "ct-012-1", // Added id
@@ -2060,7 +2111,9 @@ export const employees: Employee[] = [
         contractType: "Official",
         startDate: "2022-04-01",
         endDate: "2025-03-31",
+        status: "active",
         signDate: "2022-04-01",
+        status: "active",
       },
       {
         id: "ct-012-2", // Added id
@@ -2068,7 +2121,9 @@ export const employees: Employee[] = [
         contractType: "Promotion",
         startDate: "2024-06-01",
         endDate: "2027-06-01",
+        status: "active",
         signDate: "2024-05-25",
+        status: "active",
       },
     ],
     transactions: [
@@ -2142,7 +2197,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 013",
     dateOfBirth: "1993-02-14",
-    gender: "Male",
+    gender: "male",
     contracts: [
       {
         id: "ct-013-1", // Added id
@@ -2150,7 +2205,9 @@ export const employees: Employee[] = [
         contractType: "Junior Engineer",
         startDate: "2023-01-20",
         endDate: "2023-12-31",
+        status: "active",
         signDate: "2023-01-20",
+        status: "active",
       },
       {
         id: "ct-013-2", // Added id
@@ -2158,7 +2215,9 @@ export const employees: Employee[] = [
         contractType: "Mid-Level Engineer",
         startDate: "2024-01-01",
         endDate: "2026-12-31",
+        status: "active",
         signDate: "2024-01-01",
+        status: "active",
       },
     ],
     transactions: [
@@ -2232,7 +2291,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 014",
     dateOfBirth: "1998-08-25",
-    gender: "Male",
+    gender: "male",
     contracts: [
       {
         id: "ct-014-1", // Added id
@@ -2240,7 +2299,9 @@ export const employees: Employee[] = [
         contractType: "Intern",
         startDate: "2023-07-01",
         endDate: "2023-12-31",
+        status: "active",
         signDate: "2023-07-01",
+        status: "active",
       },
       {
         id: "ct-014-2", // Added id
@@ -2248,7 +2309,9 @@ export const employees: Employee[] = [
         contractType: "Junior Engineer",
         startDate: "2024-01-02",
         endDate: "2025-01-01",
+        status: "active",
         signDate: "2024-01-02",
+        status: "active",
       },
     ],
     transactions: [
@@ -2322,7 +2385,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 020",
     dateOfBirth: "1987-05-18",
-    gender: "Female",
+    gender: "female",
     directReportIds: [],
     contracts: [
       {
@@ -2331,7 +2394,9 @@ export const employees: Employee[] = [
         contractType: "Official",
         startDate: "2022-06-01",
         endDate: "2025-05-31",
+        status: "active",
         signDate: "2022-06-01",
+        status: "active",
       },
     ],
     transactions: [
@@ -2384,7 +2449,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 030",
     dateOfBirth: "1992-10-12",
-    gender: "Female",
+    gender: "female",
     contracts: [
       {
         id: "ct-030-1", // Added id
@@ -2392,7 +2457,9 @@ export const employees: Employee[] = [
         contractType: "Official",
         startDate: "2023-03-01",
         endDate: "2026-02-28",
+        status: "active",
         signDate: "2023-03-01",
+        status: "active",
       },
     ],
     transactions: [
@@ -2445,7 +2512,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 031",
     dateOfBirth: "1989-01-28",
-    gender: "Male",
+    gender: "male",
     contracts: [
       {
         id: "ct-031-1", // Added id
@@ -2453,7 +2520,9 @@ export const employees: Employee[] = [
         contractType: "Official",
         startDate: "2023-04-15",
         endDate: "2026-04-14",
+        status: "active",
         signDate: "2023-04-15",
+        status: "active",
       },
     ],
     transactions: [
@@ -2504,7 +2573,7 @@ export const employees: Employee[] = [
     fte: 0,
     cellphone: "+84 901 234 050",
     dateOfBirth: "1992-03-20",
-    gender: "Male",
+    gender: "male",
     contracts: [
       {
         id: "ct-050-1", // Added id
@@ -2512,7 +2581,9 @@ export const employees: Employee[] = [
         contractType: "Probation",
         startDate: "2021-06-01",
         endDate: "2021-08-31",
+        status: "active",
         signDate: "2021-06-01",
+        status: "active",
       },
       {
         id: "ct-050-2", // Added id
@@ -2520,7 +2591,9 @@ export const employees: Employee[] = [
         contractType: "Official",
         startDate: "2021-09-01",
         endDate: "2024-08-31",
+        status: "active",
         signDate: "2021-09-01",
+        status: "active",
       },
       {
         id: "ct-term-2025-001", // Added id
@@ -2528,7 +2601,9 @@ export const employees: Employee[] = [
         contractType: "Termination",
         startDate: "2025-01-15",
         endDate: "2025-01-15",
+        status: "active",
         signDate: "2025-01-10",
+        status: "active",
       },
     ],
     transactions: [
@@ -2600,7 +2675,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 051",
     dateOfBirth: "1995-07-10",
-    gender: "Female",
+    gender: "female",
     contracts: [
       {
         id: "ct-051-1", // Added id
@@ -2608,7 +2683,9 @@ export const employees: Employee[] = [
         contractType: "Official",
         startDate: "2026-02-01",
         endDate: "2029-01-31",
+        status: "active",
         signDate: "2026-01-20",
+        status: "active",
       },
     ],
     transactions: [
@@ -2662,7 +2739,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 005",
     dateOfBirth: "1991-05-20",
-    gender: "Female",
+    gender: "female",
     contracts: [
       {
         id: "ct-005-1", // Added id
@@ -2670,7 +2747,9 @@ export const employees: Employee[] = [
         contractType: "Probation",
         startDate: "2022-01-10",
         endDate: "2022-04-09",
+        status: "active",
         signDate: "2022-01-10",
+        status: "active",
       },
       {
         id: "ct-005-2", // Added id
@@ -2678,7 +2757,9 @@ export const employees: Employee[] = [
         contractType: "Official",
         startDate: "2022-04-10",
         endDate: "2025-04-09",
+        status: "active",
         signDate: "2022-04-01",
+        status: "active",
       },
     ],
     transactions: [
@@ -2752,7 +2833,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 006",
     dateOfBirth: "1999-03-10",
-    gender: "Female",
+    gender: "female",
     contracts: [
       {
         id: "ct-006-1", // Added id
@@ -2760,7 +2841,9 @@ export const employees: Employee[] = [
         contractType: "Intern",
         startDate: "2024-01-02",
         endDate: "2024-06-30",
+        status: "active",
         signDate: "2024-01-02",
+        status: "active",
       },
       {
         id: "ct-006-2", // Added id
@@ -2768,7 +2851,9 @@ export const employees: Employee[] = [
         contractType: "Junior Engineer",
         startDate: "2024-07-01",
         endDate: "2025-06-30",
+        status: "active",
         signDate: "2024-07-01",
+        status: "active",
       },
     ],
     transactions: [
@@ -2842,7 +2927,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 007",
     dateOfBirth: "1993-08-15",
-    gender: "Male",
+    gender: "male",
     contracts: [
       {
         id: "ct-007-1", // Added id
@@ -2850,7 +2935,9 @@ export const employees: Employee[] = [
         contractType: "Official",
         startDate: "2023-03-01",
         endDate: "2026-02-28",
+        status: "active",
         signDate: "2023-03-01",
+        status: "active",
       },
     ],
     transactions: [
@@ -2903,7 +2990,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 008",
     dateOfBirth: "1990-11-01",
-    gender: "Female",
+    gender: "female",
     contracts: [
       {
         id: "ct-008-1", // Added id
@@ -2911,7 +2998,9 @@ export const employees: Employee[] = [
         contractType: "Official",
         startDate: "2023-04-15",
         endDate: "2026-04-14",
+        status: "active",
         signDate: "2023-04-15",
+        status: "active",
       },
     ],
     transactions: [
@@ -2964,7 +3053,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 009",
     dateOfBirth: "1992-07-07",
-    gender: "Male",
+    gender: "male",
     contracts: [
       {
         id: "ct-009-1", // Added id
@@ -2972,7 +3061,9 @@ export const employees: Employee[] = [
         contractType: "Junior Engineer",
         startDate: "2023-01-20",
         endDate: "2023-12-31",
+        status: "active",
         signDate: "2023-01-20",
+        status: "active",
       },
       {
         id: "ct-009-2", // Added id
@@ -2980,7 +3071,9 @@ export const employees: Employee[] = [
         contractType: "Mid-Level Engineer",
         startDate: "2024-01-01",
         endDate: "2026-12-31",
+        status: "active",
         signDate: "2024-01-01",
+        status: "active",
       },
     ],
     transactions: [
@@ -3056,7 +3149,7 @@ export const employees: Employee[] = [
     fte: 1.0,
     cellphone: "+84 901 234 006-alt",
     dateOfBirth: "1999-03-10",
-    gender: "Female",
+    gender: "female",
     contracts: [
       {
         id: "ct-006-alt-1", // Added id
@@ -3064,7 +3157,9 @@ export const employees: Employee[] = [
         contractType: "Intern",
         startDate: "2024-01-02",
         endDate: "2024-06-30",
+        status: "active",
         signDate: "2024-01-02",
+        status: "active",
       },
       {
         id: "ct-006-alt-2", // Added id
@@ -3072,7 +3167,9 @@ export const employees: Employee[] = [
         contractType: "Junior Engineer",
         startDate: "2024-07-01",
         endDate: "2025-06-30",
+        status: "active",
         signDate: "2024-07-01",
+        status: "active",
       },
     ],
     transactions: [

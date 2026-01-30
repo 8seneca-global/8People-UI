@@ -40,6 +40,7 @@ interface CustomRole {
   id: string
   name: string
   description: string
+  color: string
   isBuiltIn: boolean
   permissions: FeaturePermission[]
   modulePermissions: RoleModulePermissions
@@ -70,6 +71,11 @@ interface StoreState {
 
   currentRole: Role
   setCurrentRole: (role: Role) => void
+  simulationMode: 'admin' | 'onboarding' | null
+  setSimulationMode: (mode: 'admin' | 'onboarding' | null) => void
+
+  onboardingSteps: { personalInfo: boolean }
+  completeOnboardingStep: (step: 'personalInfo') => void
 
   modules: ModuleConfig[]
   addModule: (module: Omit<ModuleConfig, "id">) => void
@@ -105,7 +111,7 @@ interface StoreState {
   mergePosition: (sourcePositionId: string, targetUnitId: string) => void
 
   // Employee actions
-  addEmployee: (employee: Omit<Employee, "id">) => void
+  addEmployee: (employee: Omit<Employee, "id"> & { id?: string }) => void
   updateEmployee: (id: string, employee: Partial<Employee>) => void
   deleteEmployee: (id: string) => void
   updateEmployeeSelfService: (id: string, field: string, value: string, changedByName: string) => void
@@ -132,7 +138,7 @@ interface StoreState {
   addAttendanceRecord: (record: Omit<AttendanceRecord, "id">) => void
   updateAttendanceRecord: (id: string, record: Partial<AttendanceRecord>) => void
 
-  addJobRequisition: (job: Omit<JobRequisition, "id" | "createdAt">) => void
+  addJobRequisition: (job: Omit<JobRequisition, "id" | "createdAt">) => string
   updateJobRequisition: (id: string, job: Partial<JobRequisition>) => void
   deleteJobRequisition: (id: string) => void
   addCandidate: (candidate: Omit<Candidate, "id" | "appliedAt" | "updatedAt">) => void
@@ -168,6 +174,7 @@ const initialCustomRoles: CustomRole[] = [
     id: "admin",
     name: roleInfo.admin.name,
     description: roleInfo.admin.description,
+    color: roleInfo.admin.color,
     isBuiltIn: true,
     permissions: [],
     modulePermissions: defaultRoleModulePermissions.admin,
@@ -177,6 +184,7 @@ const initialCustomRoles: CustomRole[] = [
     id: "hr",
     name: roleInfo.hr.name,
     description: roleInfo.hr.description,
+    color: roleInfo.hr.color,
     isBuiltIn: true,
     permissions: [],
     modulePermissions: defaultRoleModulePermissions.hr,
@@ -186,6 +194,7 @@ const initialCustomRoles: CustomRole[] = [
     id: "employee",
     name: roleInfo.employee.name,
     description: roleInfo.employee.description,
+    color: roleInfo.employee.color,
     isBuiltIn: true,
     permissions: [],
     modulePermissions: defaultRoleModulePermissions.employee,
@@ -214,6 +223,14 @@ export const useStore = create<StoreState>((set, get) => ({
 
   currentRole: "admin" as Role,
   setCurrentRole: (role: Role) => set({ currentRole: role }),
+  simulationMode: null,
+  setSimulationMode: (mode) => set({ simulationMode: mode }),
+
+  onboardingSteps: { personalInfo: false },
+  completeOnboardingStep: (step) =>
+    set((state) => ({
+      onboardingSteps: { ...state.onboardingSteps, [step]: true },
+    })),
 
   modules: defaultModules,
   addModule: (module) =>
@@ -492,7 +509,7 @@ export const useStore = create<StoreState>((set, get) => ({
   // Employee actions
   addEmployee: (employee) =>
     set((state) => ({
-      employees: [...state.employees, { ...employee, id: `P-${Date.now()}`, auditLog: [] }],
+      employees: [...state.employees, { ...employee, id: employee.id || `P-${Date.now()}`, auditLog: [] }],
     })),
   updateEmployee: (id, employee) =>
     set((state) => ({
@@ -689,13 +706,16 @@ export const useStore = create<StoreState>((set, get) => ({
     })),
 
   // Job Requisition actions
-  addJobRequisition: (job) =>
+  addJobRequisition: (job) => {
+    const newId = `jr-${Date.now()}`
     set((state) => ({
       jobRequisitions: [
         ...state.jobRequisitions,
-        { ...job, id: `jr-${Date.now()}`, createdAt: new Date().toISOString() },
+        { ...job, id: newId, createdAt: new Date().toISOString() },
       ],
-    })),
+    }))
+    return newId
+  },
   updateJobRequisition: (id, job) =>
     set((state) => ({
       jobRequisitions: state.jobRequisitions.map((j) => (j.id === id ? { ...j, ...job } : j)),

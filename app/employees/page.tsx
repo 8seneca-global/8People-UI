@@ -8,11 +8,10 @@ import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { AddEmployeeModal } from "@/components/employees/add-employee-modal"
-import { EmployeeDetailModal } from "@/components/employees/employee-detail-modal"
+import { Checkbox } from "@/components/ui/checkbox"
 import { useStore } from "@/lib/store"
 import { hasPermission } from "@/lib/rbac"
-import { Plus, Search, User, Calendar } from "lucide-react"
+import { Plus, Search, Trash2, MoreHorizontal, Upload } from "lucide-react"
 import type { Employee } from "@/lib/mock-data"
 
 function calculateSeniority(date: string | undefined): string {
@@ -44,24 +43,18 @@ type StatusFilter = "all" | "active" | "resigned" | "future" | "pending"
 export default function EmployeesPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [addEmployeeOpen, setAddEmployeeOpen] = useState(false)
-  const [detailModalOpen, setDetailModalOpen] = useState(false)
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
-  const { employees, currentRole } = useStore()
+  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>([])
+  const { employees, currentRole, deleteEmployee } = useStore()
 
-  // Open modal if id query param exists
+  // Navigate to detail page if id query param exists
   useEffect(() => {
     const employeeId = searchParams.get("id")
     if (employeeId) {
-      const employee = employees.find(e => e.id === employeeId)
-      if (employee) {
-        setSelectedEmployee(employee)
-        setDetailModalOpen(true)
-      }
+      router.push(`/employees/${employeeId}`)
     }
-  }, [searchParams, employees])
+  }, [searchParams, router])
 
   const canCreate = hasPermission(currentRole, "employees.create")
   const canEdit = hasPermission(currentRole, "employees.edit")
@@ -100,8 +93,7 @@ export default function EmployeesPage() {
   }, [employees])
 
   const handleEmployeeClick = (employee: Employee) => {
-    setSelectedEmployee(employee)
-    setDetailModalOpen(true)
+    router.push(`/employees/${employee.id}`)
   }
 
   const getStatusBadge = (status: Employee["status"]) => {
@@ -112,6 +104,47 @@ export default function EmployeesPage() {
       resigned: "bg-destructive/20 text-destructive hover:bg-destructive/30",
     }
     return styles[status] || styles.pending
+  }
+
+  // Bulk selection handlers
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedEmployeeIds(filteredEmployees.map((e) => e.id))
+    } else {
+      setSelectedEmployeeIds([])
+    }
+  }
+
+  const handleSelectEmployee = (employeeId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedEmployeeIds([...selectedEmployeeIds, employeeId])
+    } else {
+      setSelectedEmployeeIds(selectedEmployeeIds.filter((id) => id !== employeeId))
+    }
+  }
+
+  const handleBulkDelete = () => {
+    if (selectedEmployeeIds.length === 0) return
+
+    const confirmMessage = `Are you sure you want to delete ${selectedEmployeeIds.length} employee(s)? This action cannot be undone.`
+    if (window.confirm(confirmMessage)) {
+      selectedEmployeeIds.forEach((id) => {
+        deleteEmployee(id)
+      })
+      setSelectedEmployeeIds([])
+    }
+  }
+
+  const isAllSelected = filteredEmployees.length > 0 && selectedEmployeeIds.length === filteredEmployees.length
+  const isSomeSelected = selectedEmployeeIds.length > 0 && selectedEmployeeIds.length < filteredEmployees.length
+
+  const formatDate = (date: string | undefined): string => {
+    if (!date) return "—"
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric"
+    })
   }
 
 
@@ -145,82 +178,132 @@ export default function EmployeesPage() {
             </Select>
           </div>
           {canCreate && (
-            <Button onClick={() => setAddEmployeeOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Employee
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={() => router.push("/employees/bulk-upload")}>
+                <Upload className="mr-2 h-4 w-4" />
+                Bulk Upload
+              </Button>
+              <Button onClick={() => router.push("/employees/add")}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Employee
+              </Button>
+            </div>
           )}
         </div>
 
-        {/* Table - Updated columns with seniority */}
+        {/* Bulk action toolbar */}
+        {selectedEmployeeIds.length > 0 && (
+          <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-card p-4">
+            <div className="text-sm text-muted-foreground">
+              {selectedEmployeeIds.length} employee(s) selected
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </Button>
+              <Button variant="outline" size="sm">
+                <MoreHorizontal className="mr-2 h-4 w-4" />
+                More
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Table - Updated columns */}
         <div className="rounded-lg border border-border bg-card">
           <Table>
             <TableHeader>
               <TableRow className="border-border hover:bg-transparent">
-                <TableHead className="text-muted-foreground">Name</TableHead>
-                <TableHead className="text-muted-foreground">Email</TableHead>
-                <TableHead className="text-muted-foreground">Org Unit</TableHead>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={isAllSelected}
+                    onCheckedChange={handleSelectAll}
+                    aria-label="Select all"
+                  />
+                </TableHead>
+                <TableHead className="text-muted-foreground">Employee ID</TableHead>
+                <TableHead className="text-muted-foreground">Full Name</TableHead>
+                <TableHead className="text-muted-foreground">Work Email</TableHead>
                 <TableHead className="text-muted-foreground">Position</TableHead>
-                <TableHead className="text-muted-foreground">Seniority</TableHead>
-                <TableHead className="text-muted-foreground">Manager</TableHead>
-                <TableHead className="text-muted-foreground">Status</TableHead>
+                <TableHead className="text-muted-foreground">Department</TableHead>
+                <TableHead className="text-muted-foreground">Client</TableHead>
+                <TableHead className="text-muted-foreground">Contract</TableHead>
+                <TableHead className="text-muted-foreground">Start Date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredEmployees.map((employee) => (
                 <TableRow
                   key={employee.id}
-                  className="border-border cursor-pointer hover:bg-secondary/50 transition-colors"
-                  onClick={() => handleEmployeeClick(employee)}
+                  className="border-border hover:bg-secondary/50 transition-colors"
                 >
-                  <TableCell className="font-medium text-card-foreground">{employee.fullName}</TableCell>
-                  <TableCell className="text-muted-foreground font-mono text-sm">{employee.companyEmail}</TableCell>
-                  <TableCell className="text-card-foreground">{employee.organizationalUnitName}</TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="text-card-foreground">{employee.positionTitle}</p>
-                      <p className="text-xs text-muted-foreground">{employee.jobClassificationTitle}</p>
-                    </div>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={selectedEmployeeIds.includes(employee.id)}
+                      onCheckedChange={(checked) => handleSelectEmployee(employee.id, checked as boolean)}
+                      aria-label={`Select ${employee.fullName}`}
+                    />
                   </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-1 text-card-foreground">
-                        <Calendar className="h-3 w-3 text-muted-foreground" />
-                        <span className="font-medium">
-                          {calculateSeniority(
-                            employee.officialStartDate || employee.companyJoinDate || employee.startDate,
-                          )}
-                        </span>
-                      </div>
-                      {employee.companyJoinDate &&
-                        employee.officialStartDate &&
-                        employee.companyJoinDate !== employee.officialStartDate && (
-                          <p className="text-xs text-muted-foreground">
-                            (at company: {calculateSeniority(employee.companyJoinDate)})
-                          </p>
-                        )}
-                    </div>
+                  <TableCell
+                    className="font-medium text-card-foreground cursor-pointer"
+                    onClick={() => handleEmployeeClick(employee)}
+                  >
+                    {employee.code}
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {employee.lineManagerName ? (
-                      <div className="flex items-center gap-1">
-                        <User className="h-3 w-3" />
-                        {employee.lineManagerName}
-                      </div>
+                  <TableCell
+                    className="font-medium text-card-foreground cursor-pointer"
+                    onClick={() => handleEmployeeClick(employee)}
+                  >
+                    {employee.fullName}
+                  </TableCell>
+                  <TableCell
+                    className="text-card-foreground cursor-pointer"
+                    onClick={() => handleEmployeeClick(employee)}
+                  >
+                    {employee.companyEmail}
+                  </TableCell>
+                  <TableCell
+                    className="text-card-foreground cursor-pointer"
+                    onClick={() => handleEmployeeClick(employee)}
+                  >
+                    {employee.positionTitle}
+                  </TableCell>
+                  <TableCell
+                    className="text-card-foreground cursor-pointer"
+                    onClick={() => handleEmployeeClick(employee)}
+                  >
+                    {employee.organizationalUnitName}
+                  </TableCell>
+                  <TableCell
+                    className="text-card-foreground cursor-pointer"
+                    onClick={() => handleEmployeeClick(employee)}
+                  >
+                    {employee.client || "—"}
+                  </TableCell>
+                  <TableCell
+                    className="text-card-foreground cursor-pointer"
+                    onClick={() => handleEmployeeClick(employee)}
+                  >
+                    {employee.contractType ? (
+                      <Badge variant="secondary" className="capitalize">
+                        {employee.contractType}
+                      </Badge>
                     ) : (
                       "—"
                     )}
                   </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary" className={getStatusBadge(employee.status)}>
-                      {employee.status}
-                    </Badge>
+                  <TableCell
+                    className="text-card-foreground cursor-pointer"
+                    onClick={() => handleEmployeeClick(employee)}
+                  >
+                    {formatDate(employee.officialStartDate || employee.companyJoinDate || employee.startDate)}
                   </TableCell>
                 </TableRow>
               ))}
               {filteredEmployees.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                     No employees found
                   </TableCell>
                 </TableRow>
@@ -230,13 +313,7 @@ export default function EmployeesPage() {
         </div>
       </div>
 
-      {canCreate && <AddEmployeeModal open={addEmployeeOpen} onOpenChange={setAddEmployeeOpen} />}
-      <EmployeeDetailModal
-        open={detailModalOpen}
-        onOpenChange={setDetailModalOpen}
-        employee={selectedEmployee}
-        readOnly={!canEdit}
-      />
+
     </AdminLayout>
   )
 }

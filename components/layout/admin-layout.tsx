@@ -12,9 +12,11 @@ interface AdminLayoutProps {
   title: string
   subtitle?: string
   icon?: LucideIcon
+  breadcrumb?: React.ReactNode
+  headerAction?: React.ReactNode
 }
 
-export function AdminLayout({ children, title, subtitle, icon }: AdminLayoutProps) {
+export function AdminLayout({ children, title, subtitle, icon, breadcrumb, headerAction }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const isMobile = useIsMobile()
@@ -56,6 +58,8 @@ export function AdminLayout({ children, title, subtitle, icon }: AdminLayoutProp
           sidebarCollapsed={sidebarCollapsed}
           onSidebarToggle={() => setSidebarOpen(!sidebarOpen)}
           onSidebarCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+          breadcrumb={breadcrumb}
+          headerAction={headerAction}
         />
         <main className="flex-1 overflow-auto bg-background p-4 md:p-6">{children}</main>
       </div>
