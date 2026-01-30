@@ -105,6 +105,7 @@ const emptyEducation: EmployeeEducation = {
 }
 
 const emptyContract: EmployeeContract = {
+  id: "",
   contractNumber: "",
   contractType: "",
   startDate: "",
@@ -158,10 +159,19 @@ function generateTransactionText(action: TransactionAction, reason: string, subR
 }
 
 export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = false }: EmployeeDetailModalProps) {
-  const { updateEmployee, organizationalUnits, positions, jobClassifications, employees } = useStore()
+  const {
+    updateEmployee,
+    organizationalUnits,
+    positions,
+    jobClassifications,
+    employees,
+    leaveTypes,
+    leaveBalances,
+    updateLeaveBalance,
+  } = useStore()
   const [activeTab, setActiveTab] = useState("work")
   const [formData, setFormData] = useState<
-    Partial<Employee> & { citizenshipIdFile?: File | null; contractFile?: File | null; directReportIds?: string[] }
+    Omit<Partial<Employee>, "citizenshipIdFile"> & { citizenshipIdFile?: File | null; contractFile?: File | null; directReportIds?: string[] }
   >({})
   const [hasChanges, setHasChanges] = useState(false)
   const idFileInputRef = useRef<HTMLInputElement>(null)
@@ -270,7 +280,7 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
     if (readOnly) return
     setFormData((prev) => ({
       ...prev,
-      [parent]: { ...(prev[parent] as Record<string, unknown>), [field]: value },
+      [parent]: { ...(prev[parent] as unknown as Record<string, unknown>), [field]: value },
     }))
     setHasChanges(true)
   }
@@ -323,6 +333,7 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
     if (!newContract.contractNumber || !newContract.contractType) return
 
     const contractToAdd: EmployeeContract = {
+      id: `c-${Date.now()}`,
       contractNumber: newContract.contractNumber,
       contractType: newContract.contractType,
       startDate: newContract.startDate,
@@ -362,6 +373,7 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
     setFormData((prev) => {
       const contracts = [...(prev.contracts || [])]
       contracts[editingContractIndex] = {
+        id: editingContract.id || `c-${Date.now()}`,
         contractNumber: editingContract.contractNumber,
         contractType: editingContract.contractType,
         startDate: editingContract.startDate,
@@ -584,12 +596,13 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
-          <TabsList className="grid w-full grid-cols-6 bg-secondary">
+          <TabsList className={`grid w-full ${formData.status === "resigned" ? "grid-cols-7" : "grid-cols-6"} bg-secondary`}>
             <TabsTrigger value="work">Work Info</TabsTrigger>
             <TabsTrigger value="personal">Personal</TabsTrigger>
             <TabsTrigger value="dependents">Dependents</TabsTrigger>
             <TabsTrigger value="contract">Contract</TabsTrigger>
             <TabsTrigger value="transactions">Transactions</TabsTrigger>
+            <TabsTrigger value="benefits">Benefits</TabsTrigger>
             {formData.status === "resigned" && <TabsTrigger value="resignation">Resignation</TabsTrigger>}
           </TabsList>
 
@@ -689,7 +702,7 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
                       setFormData((prev) => ({
                         ...prev,
                         jobClassificationId: value,
-                        jobClassificationName: classification?.name || "",
+                        jobClassificationTitle: classification?.title || "",
                       }))
                       setHasChanges(true)
                     }}
@@ -701,7 +714,7 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
                     <SelectContent>
                       {jobClassifications.map((classification) => (
                         <SelectItem key={classification.id} value={classification.id}>
-                          {classification.name}
+                          {classification.title}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -1630,22 +1643,20 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
                                 <div className="relative pl-10">
                                   {/* Timeline dot */}
                                   <div
-                                    className={`absolute left-2.5 top-4 w-3 h-3 rounded-full border-2 border-background ${
-                                      status === "active"
-                                        ? "bg-success"
-                                        : status === "upcoming"
-                                          ? "bg-info"
-                                          : "bg-muted-foreground"
-                                    }`}
+                                    className={`absolute left-2.5 top-4 w-3 h-3 rounded-full border-2 border-background ${status === "active"
+                                      ? "bg-success"
+                                      : status === "upcoming"
+                                        ? "bg-info"
+                                        : "bg-muted-foreground"
+                                      }`}
                                   />
 
                                   <CollapsibleTrigger asChild>
                                     <div
-                                      className={`rounded-lg border overflow-hidden cursor-pointer transition-colors ${
-                                        isExpanded
-                                          ? "border-primary/50 bg-primary/5"
-                                          : "border-border hover:bg-secondary/50"
-                                      }`}
+                                      className={`rounded-lg border overflow-hidden cursor-pointer transition-colors ${isExpanded
+                                        ? "border-primary/50 bg-primary/5"
+                                        : "border-border hover:bg-secondary/50"
+                                        }`}
                                     >
                                       {/* Contract Header */}
                                       <div className="flex items-center justify-between p-3">
@@ -2391,10 +2402,10 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
                                                           setEditingTransaction((prev) =>
                                                             prev
                                                               ? {
-                                                                  ...prev,
-                                                                  fromTeamId: value,
-                                                                  fromTeamName: unit?.name || "",
-                                                                }
+                                                                ...prev,
+                                                                fromTeamId: value,
+                                                                fromTeamName: unit?.name || "",
+                                                              }
                                                               : null,
                                                           )
                                                         }}
@@ -2422,10 +2433,10 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
                                                           setEditingTransaction((prev) =>
                                                             prev
                                                               ? {
-                                                                  ...prev,
-                                                                  toTeamId: value,
-                                                                  toTeamName: unit?.name || "",
-                                                                }
+                                                                ...prev,
+                                                                toTeamId: value,
+                                                                toTeamName: unit?.name || "",
+                                                              }
                                                               : null,
                                                           )
                                                         }}
@@ -2621,6 +2632,113 @@ export function EmployeeDetailModal({ open, onOpenChange, employee, readOnly = f
                       </div>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="benefits" className="space-y-4 m-0">
+              <Card className="bg-secondary/30 border-border">
+                <CardHeader>
+                  <CardTitle className="text-xl font-bold text-card-foreground">Employee Benefits & Paid Leave</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="rounded-xl border border-border overflow-hidden bg-card/50">
+                    <table className="w-full text-sm">
+                      <thead className="bg-muted/50 text-muted-foreground font-semibold border-b border-border">
+                        <tr>
+                          <th className="px-6 py-4 text-left">Leave Category</th>
+                          <th className="px-6 py-4 text-center">Base Entitlement (Yearly)</th>
+                          <th className="px-6 py-4 text-center">Used</th>
+                          <th className="px-6 py-4 text-center">Remaining</th>
+                          <th className="px-6 py-4 text-right">Scope</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border/50">
+                        {leaveTypes
+                          .filter((lt) => lt.isPaid)
+                          .map((lt) => {
+                            const balance = leaveBalances.find(
+                              (b) => b.employeeId === employee.id && b.leaveTypeId === lt.id,
+                            )
+                            const isFixed = lt.totalDays !== undefined
+                            const total = isFixed ? lt.totalDays : balance?.annualEntitlement || 0
+                            const used = balance?.used || 0
+                            const remaining = (total || 0) - used
+
+                            return (
+                              <tr key={lt.id} className="hover:bg-muted/10 transition-colors group">
+                                <td className="px-6 py-5">
+                                  <div className="flex items-center gap-4">
+                                    <div
+                                      className="h-10 w-10 rounded-xl flex items-center justify-center border border-border/50"
+                                      style={{ backgroundColor: `${lt.color}10` }}
+                                    >
+                                      <Clock className="h-5 w-5" style={{ color: lt.color }} />
+                                    </div>
+                                    <div>
+                                      <p className="font-bold text-card-foreground">{lt.name}</p>
+                                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">
+                                        Paid Leave
+                                      </p>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-5 text-center">
+                                  {isFixed ? (
+                                    <div className="inline-flex items-center justify-center h-10 px-4 rounded-lg bg-muted text-muted-foreground font-black text-lg">
+                                      {total}
+                                    </div>
+                                  ) : (
+                                    <Input
+                                      type="number"
+                                      className="w-20 mx-auto h-10 text-center font-bold text-lg bg-input focus:bg-background border-border transition-all"
+                                      defaultValue={total}
+                                      onBlur={(e) => {
+                                        const val = parseInt(e.target.value)
+                                        if (!isNaN(val)) {
+                                          updateLeaveBalance(employee.id, lt.id, { annualEntitlement: val })
+                                        }
+                                      }}
+                                      readOnly={readOnly}
+                                    />
+                                  )}
+                                </td>
+                                <td className="px-6 py-5 text-center">
+                                  <span className="text-muted-foreground font-semibold">{used}</span>
+                                </td>
+                                <td className="px-6 py-5 text-center">
+                                  <Badge
+                                    className={`text-sm font-black px-3 py-1 ${remaining > 0
+                                      ? "bg-primary/20 text-primary border-primary/20"
+                                      : "bg-destructive/10 text-destructive border-destructive/20"
+                                      }`}
+                                  >
+                                    {remaining}
+                                  </Badge>
+                                </td>
+                                <td className="px-6 py-5 text-right">
+                                  {isFixed ? (
+                                    <Badge variant="outline" className="text-[9px] uppercase font-black opacity-40">
+                                      Global Config
+                                    </Badge>
+                                  ) : (
+                                    <Badge variant="secondary" className="text-[9px] uppercase font-black bg-primary/5 text-primary/60 border-primary/10">
+                                      Customized
+                                    </Badge>
+                                  )}
+                                </td>
+                              </tr>
+                            )
+                          })}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="mt-6 p-4 rounded-lg bg-primary/5 border border-primary/10 flex items-start gap-3">
+                    <Info className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Entitlements marked as <strong className="text-primary/70">Global Config</strong> are defined in the Leave Configuration settings and apply to the role specified. Values without this marker can be adjusted individually for this employee by HR or Admins.
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

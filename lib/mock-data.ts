@@ -189,6 +189,8 @@ export interface EmployeeDependent {
   dateOfBirth?: string
   effectiveDate: string // Used for VAT reduction & payroll calculation
   nationalIdNumber?: string
+  idNumber?: string
+  taxCode?: string
   notes?: string
 }
 
@@ -235,11 +237,11 @@ export interface LeavePolicyRule {
   id: string
   name: string
   description: string
-  jobLevels: string[] // Job levels this policy applies to (from JobClassification.jobLevel)
+  jobLevels: string[]
   annualLeaveDays: number
   maxCarryForwardDays: number
-  carryForwardExpiryMonth: number // Month when carry forward expires (1-12, e.g., 6 = June)
-  carryForwardExpiryDay: number // Day of the month when carry forward expires
+  carryForwardExpiryMonth: number
+  carryForwardExpiryDay: number
   effectiveFrom: string
   effectiveTo?: string
   status: "active" | "inactive"
@@ -430,6 +432,12 @@ export interface Employee {
   matrixManagerName?: string
 
   directReportIds?: string[]
+  phone?: string
+  placeOfBirth?: string
+  citizenshipIdNumber?: string
+  citizenshipIdDateOfIssue?: string
+  citizenshipIdPlaceOfIssue?: string
+  taxCode?: string
 
   status: "pending" | "active" | "future" | "resigned"
   onboardingStatus: {
@@ -492,12 +500,26 @@ export interface Employee {
 
 export interface LeaveType {
   id: string
+  code: string
   name: string
   description: string
-  defaultDays: number
-  carryForward: boolean
-  maxCarryForwardDays: number
+  catalogue: string
+  genderRequirement: "All" | "Male" | "Female"
+  entitlementMethod: "By Actual Balance" | string
+  manageBalanceType: "Year" | "Days" | string
+  isPaid: boolean
+  paidPercentage: number // 0-100
+  allowOnHoliday: boolean
+  allowOnDaysOff: boolean
+  allowByHour: boolean
+  checkBalanceOnAssign: boolean
   color: string
+  // Legacy fields preserved for compatibility during migration if needed
+  defaultDays?: number
+  carryForward?: boolean
+  maxCarryForwardDays?: number
+  applyFor?: string
+  totalDays?: number
 }
 
 export const organizationalUnits: OrganizationalUnit[] = [
@@ -3222,79 +3244,284 @@ export const employees: Employee[] = [
 export const leaveTypes: LeaveType[] = [
   {
     id: "lt-1",
+    code: "AL",
     name: "Annual Leave",
     description: "Paid time off for vacation and personal matters",
-    defaultDays: 14,
-    carryForward: true,
-    maxCarryForwardDays: 5,
+    catalogue: "Annual Leave",
+    genderRequirement: "All",
+    entitlementMethod: "By Actual Balance",
+    manageBalanceType: "Year",
+    isPaid: true,
+    paidPercentage: 100,
+    allowOnHoliday: false,
+    allowOnDaysOff: false,
+    allowByHour: true,
+    checkBalanceOnAssign: true,
     color: "#3B82F6",
   },
   {
     id: "lt-2",
-    name: "Unpaid Leave",
-    description: "Unpaid time off for personal reasons without benefits",
-    defaultDays: 0,
-    carryForward: false,
-    maxCarryForwardDays: 0,
-    color: "#9CA3AF",
+    code: "BD",
+    name: "Birthday leave",
+    description: "Paid day off for birthday",
+    catalogue: "Other",
+    genderRequirement: "All",
+    entitlementMethod: "By Actual Balance",
+    manageBalanceType: "Year",
+    isPaid: true,
+    paidPercentage: 100,
+    allowOnHoliday: false,
+    allowOnDaysOff: false,
+    allowByHour: true,
+    checkBalanceOnAssign: true,
+    color: "#EC4899",
   },
   {
     id: "lt-3",
-    name: "Holiday Leave",
-    description: "Public holidays as defined by company policy",
-    defaultDays: 0,
-    carryForward: false,
-    maxCarryForwardDays: 0,
+    code: "CL",
+    name: "Compensation leave",
+    description: "Leave granted for overtime worked",
+    catalogue: "Compensation Leave",
+    genderRequirement: "All",
+    entitlementMethod: "By Actual Balance",
+    manageBalanceType: "Year",
+    isPaid: true,
+    paidPercentage: 100,
+    allowOnHoliday: false,
+    allowOnDaysOff: false,
+    allowByHour: true,
+    checkBalanceOnAssign: true,
+    color: "#10B981",
+  },
+  {
+    id: "lt-4",
+    code: "ML",
+    name: "Maternity leave",
+    description: "Maternity leave for female employees",
+    catalogue: "Maternity Leave",
+    genderRequirement: "Female",
+    entitlementMethod: "By Actual Balance",
+    manageBalanceType: "Days",
+    isPaid: true,
+    paidPercentage: 100,
+    allowOnHoliday: true,
+    allowOnDaysOff: true,
+    allowByHour: false,
+    checkBalanceOnAssign: true,
+    color: "#F472B6",
+  },
+  {
+    id: "lt-5",
+    code: "PM",
+    name: "Paternity leave",
+    description: "Paternity leave for male employees",
+    catalogue: "Other",
+    genderRequirement: "Male",
+    entitlementMethod: "By Actual Balance",
+    manageBalanceType: "Days",
+    isPaid: true,
+    paidPercentage: 100,
+    allowOnHoliday: false,
+    allowOnDaysOff: false,
+    allowByHour: false,
+    checkBalanceOnAssign: true,
+    color: "#60A5FA",
+  },
+  {
+    id: "lt-6",
+    code: "SFL",
+    name: "Summer flexi leave",
+    description: "Flexible leave for summer period",
+    catalogue: "Other",
+    genderRequirement: "All",
+    entitlementMethod: "By Actual Balance",
+    manageBalanceType: "Year",
+    isPaid: true,
+    paidPercentage: 100,
+    allowOnHoliday: false,
+    allowOnDaysOff: false,
+    allowByHour: true,
+    checkBalanceOnAssign: true,
+    color: "#F59E0B",
+  },
+  {
+    id: "lt-7",
+    code: "SLUP",
+    name: "Sick leave paid by Social Insurance",
+    description: "Sick leave compensated by social insurance fund",
+    catalogue: "Sick Leave",
+    genderRequirement: "All",
+    entitlementMethod: "By Actual Balance",
+    manageBalanceType: "Days",
+    isPaid: false,
+    paidPercentage: 0,
+    allowOnHoliday: false,
+    allowOnDaysOff: false,
+    allowByHour: false,
+    checkBalanceOnAssign: true,
     color: "#EF4444",
   },
+  {
+    id: "lt-8",
+    code: "STUL",
+    name: "Study leave-Non Actuary",
+    description: "Study leave for non-actuarial exams",
+    catalogue: "Other",
+    genderRequirement: "All",
+    entitlementMethod: "By Actual Balance",
+    manageBalanceType: "Year",
+    isPaid: true,
+    paidPercentage: 100,
+    allowOnHoliday: false,
+    allowOnDaysOff: false,
+    allowByHour: true,
+    checkBalanceOnAssign: true,
+    color: "#8B5CF6",
+  },
+  {
+    id: "lt-9",
+    code: "UP",
+    name: "Unpaid leave",
+    description: "Time off without pay",
+    catalogue: "Unpaid Leave",
+    genderRequirement: "All",
+    entitlementMethod: "By Actual Balance",
+    manageBalanceType: "Year",
+    isPaid: false,
+    paidPercentage: 0,
+    allowOnHoliday: false,
+    allowOnDaysOff: false,
+    allowByHour: true,
+    checkBalanceOnAssign: true,
+    color: "#9CA3AF",
+  },
+  {
+    id: "lt-10",
+    code: "WB",
+    name: "Well-being leave",
+    description: "Time off for mental health and well-being",
+    catalogue: "Other",
+    genderRequirement: "All",
+    entitlementMethod: "By Actual Balance",
+    manageBalanceType: "Year",
+    isPaid: true,
+    paidPercentage: 100,
+    allowOnHoliday: false,
+    allowOnDaysOff: false,
+    allowByHour: true,
+    checkBalanceOnAssign: true,
+    color: "#06B6D4",
+  },
+  {
+    id: "lt-11",
+    code: "SPL",
+    name: "Special Leave",
+    description: "Bereavement, wedding, or other special occasions",
+    catalogue: "Other",
+    genderRequirement: "All",
+    entitlementMethod: "By Actual Balance",
+    manageBalanceType: "Days",
+    isPaid: true,
+    paidPercentage: 100,
+    allowOnHoliday: false,
+    allowOnDaysOff: false,
+    allowByHour: false,
+    checkBalanceOnAssign: true,
+    color: "#F97316",
+  },
+  {
+    id: "lt-12",
+    code: "SLFC",
+    name: "Sick leave full paid by Company",
+    description: "Sick leave fully compensated by the organization",
+    catalogue: "Sick Leave",
+    genderRequirement: "All",
+    entitlementMethod: "By Actual Balance",
+    manageBalanceType: "Year",
+    isPaid: true,
+    paidPercentage: 100,
+    allowOnHoliday: false,
+    allowOnDaysOff: false,
+    allowByHour: true,
+    checkBalanceOnAssign: true,
+    color: "#EF4444",
+  },
+  {
+    id: "lt-13",
+    code: "ELNA",
+    name: "Exam Leave-Non Actuary",
+    description: "Time off for non-actuarial examinations",
+    catalogue: "Other",
+    genderRequirement: "All",
+    entitlementMethod: "By Actual Balance",
+    manageBalanceType: "Year",
+    isPaid: true,
+    paidPercentage: 100,
+    allowOnHoliday: false,
+    allowOnDaysOff: false,
+    allowByHour: true,
+    checkBalanceOnAssign: true,
+    color: "#8B5CF6",
+  },
+  {
+    id: "lt-14",
+    code: "SLA",
+    name: "Study Leave-Actuary",
+    description: "Study leave for actuarial exams",
+    catalogue: "Other",
+    genderRequirement: "All",
+    entitlementMethod: "By Actual Balance",
+    manageBalanceType: "Year",
+    isPaid: true,
+    paidPercentage: 100,
+    allowOnHoliday: false,
+    allowOnDaysOff: false,
+    allowByHour: true,
+    checkBalanceOnAssign: true,
+    color: "#06B6D4",
+  },
+  {
+    id: "lt-15",
+    code: "ELA",
+    name: "Exam Leave-Actuary",
+    description: "Time off for actuarial examinations",
+    catalogue: "Other",
+    genderRequirement: "All",
+    entitlementMethod: "By Actual Balance",
+    manageBalanceType: "Year",
+    isPaid: true,
+    paidPercentage: 100,
+    allowOnHoliday: false,
+    allowOnDaysOff: false,
+    allowByHour: true,
+    checkBalanceOnAssign: true,
+    color: "#3B82F6",
+  },
 ]
+
 
 export const leavePolicyRules: LeavePolicyRule[] = [
   {
     id: "lp-1",
-    name: "Executive Policy",
-    description: "Leave policy for C-level executives",
-    jobLevels: ["Executive"],
-    annualLeaveDays: 20,
+    name: "Standard Full-time Policy",
+    description: "Standard policy for full-time employees",
+    jobLevels: ["Mid-level", "Professional", "Junior"],
+    annualLeaveDays: 14,
     maxCarryForwardDays: 5,
-    carryForwardExpiryMonth: 6,
-    carryForwardExpiryDay: 30,
+    carryForwardExpiryMonth: 3,
+    carryForwardExpiryDay: 31,
     effectiveFrom: "2024-01-01",
     status: "active",
   },
   {
     id: "lp-2",
-    name: "Manager Policy",
-    description: "Leave policy for management level",
-    jobLevels: ["Manager", "Lead"],
+    name: "Management Policy",
+    description: "Policy for directors and managers",
+    jobLevels: ["Executive", "Manager", "Lead", "Senior"],
     annualLeaveDays: 18,
-    maxCarryForwardDays: 5,
-    carryForwardExpiryMonth: 6,
-    carryForwardExpiryDay: 30,
-    effectiveFrom: "2024-01-01",
-    status: "active",
-  },
-  {
-    id: "lp-3",
-    name: "Senior Staff Policy",
-    description: "Leave policy for senior-level employees",
-    jobLevels: ["Senior"],
-    annualLeaveDays: 16,
-    maxCarryForwardDays: 5,
-    carryForwardExpiryMonth: 6,
-    carryForwardExpiryDay: 30,
-    effectiveFrom: "2024-01-01",
-    status: "active",
-  },
-  {
-    id: "lp-4",
-    name: "Standard Policy",
-    description: "Default leave policy for all other employees",
-    jobLevels: ["Mid-level", "Professional", "Junior", "Intern"],
-    annualLeaveDays: 14,
-    maxCarryForwardDays: 5,
-    carryForwardExpiryMonth: 6,
-    carryForwardExpiryDay: 30,
+    maxCarryForwardDays: 10,
+    carryForwardExpiryMonth: 3,
+    carryForwardExpiryDay: 31,
     effectiveFrom: "2024-01-01",
     status: "active",
   },
@@ -3383,10 +3610,6 @@ export const publicHolidays: PublicHoliday[] = [
     status: "active",
   },
 ]
-
-export function getLeavePolicyForJobLevel(jobLevel: string): LeavePolicyRule | undefined {
-  return leavePolicyRules.find((policy) => policy.status === "active" && policy.jobLevels.includes(jobLevel))
-}
 
 export const leaveRequests: LeaveRequest[] = [
   {
@@ -3568,10 +3791,9 @@ export const leaveBalances: LeaveBalance[] = employees.map((emp) => {
   const jobClass = jobClassifications.find((jc) => jc.id === emp.jobClassificationId)
   const jobLevel = jobClass?.jobLevel || "Mid-level"
 
-  // Find applicable leave policy
-  const policy = getLeavePolicyForJobLevel(jobLevel)
-  const annualEntitlement = policy?.annualLeaveDays || 14
-  const maxCarryForward = policy?.maxCarryForwardDays || 5
+  // Use default entitlement (formerly from policy)
+  const annualEntitlement = 14
+  const maxCarryForward = 5
 
   // Calculate carry forward from previous year (simulated)
   const carryForwardFromPrevYear = Math.min(empNum % 5, maxCarryForward)
@@ -3580,14 +3802,10 @@ export const leaveBalances: LeaveBalance[] = employees.map((emp) => {
   const pendingDays = empNum % 3
   const totalEntitlement = carryForwardFromPrevYear + annualEntitlement
 
-  // Determine carry forward expiry date based on policy
-  let carryForwardExpiryDate = undefined
-  if (policy && policy.carryForwardExpiryMonth && policy.carryForwardExpiryDay) {
-    // Find the last day of the carryForwardExpiryMonth in the current year (or next year if month is earlier than current month)
-    const currentYear = new Date().getFullYear()
-    const expiryYear = policy.carryForwardExpiryMonth < new Date().getMonth() + 1 ? currentYear + 1 : currentYear
-    carryForwardExpiryDate = `${expiryYear}-${String(policy.carryForwardExpiryMonth).padStart(2, "0")}-${String(policy.carryForwardExpiryDay).padStart(2, "0")}`
-  }
+  // Determine carry forward expiry date (default to June 30)
+  const currentYear = new Date().getFullYear()
+  const carryForwardExpiryDate = `${currentYear}-06-30`
+
 
   // Calculate expired carry forward days (simplified simulation)
   const carryForwardExpired =
@@ -3600,9 +3818,6 @@ export const leaveBalances: LeaveBalance[] = employees.map((emp) => {
     employeeName: emp.fullName,
     department: emp.organizationalUnitName,
     leaveTypeId: "lt-1",
-    // Policy-based fields
-    leavePolicyId: policy?.id,
-    leavePolicyName: policy?.name,
     jobLevel: jobLevel,
     // Breakdown
     carryForwardFromPrevYear: carryForwardFromPrevYear,
