@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import {
   Card,
   CardContent,
@@ -9,80 +8,53 @@ import {
   CardHeader,
   CardTitle,
 } from "@/modules/core/components/ui/card";
-import { toast } from "sonner";
-import { useLoginMutation } from "@/modules/auth/api";
+import { Button } from "@/modules/core/components/ui/button";
+import { PlayCircle } from "lucide-react";
 
-// Placeholder Client ID - Update this in apps/web/.env.local
-const GOOGLE_CLIENT_ID =
-  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
-  "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
-
-function LoginForm() {
+/**
+ * Login Page - Mock Mode
+ *
+ * This page has been simplified for demo/mock mode.
+ * Instead of Google OAuth, it shows a simple "Enter Demo" button
+ * that redirects directly to the dashboard.
+ */
+export default function LoginPage() {
   const router = useRouter();
 
-  const { mutate: login, isPending } = useLoginMutation({
-    onSuccess: (data) => {
-      // Store token (consider using a better storage strategy or cookie in real app)
-      localStorage.setItem("token", data.access_token);
-      toast.success("Login successful");
-      router.push("/");
-    },
-    onError: (error: any) => {
-      console.error(error);
-      toast.error(error.response?.data?.message || "Authentication failed");
-    },
-  });
-
-  const handleGoogleSuccess = (credentialResponse: any) => {
-    const idToken = credentialResponse.credential;
-    if (!idToken) {
-      toast.error("No ID Token received from Google");
-      return;
-    }
-    login({ idToken });
+  const handleEnterDemo = () => {
+    // In mock mode, just redirect to the dashboard
+    router.push("/dashboard");
   };
 
   return (
-    <div className="flex h-screen w-full items-center justify-center p-4">
-      <Card className="w-full max-w-sm border-0!">
+    <div className="flex h-screen w-full items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
+      <Card className="w-full max-w-sm border-0 shadow-2xl bg-card/80 backdrop-blur-sm">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold tracking-tight">
-            Welcome
+            Welcome to 8People
           </CardTitle>
-          <CardDescription>Sign in to access the HRM System</CardDescription>
+          <CardDescription>HR Management System Demo</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col items-center gap-4 py-8">
-          {/* 
-            Using standard GoogleLogin component for ID Token flow.
-            We use a large width and 'outline' theme to blend with the UI.
-          */}
-          <div className="w-full flex justify-center">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => toast.error("Google Login Failed")}
-              theme="outline"
-              size="large"
-              width="300"
-              text="signin_with"
-              shape="rectangular"
-            />
+        <CardContent className="flex flex-col items-center gap-6 py-8">
+          <div className="text-center space-y-2">
+            <p className="text-sm text-muted-foreground">
+              This is a demo version with mock data.
+            </p>
+            <p className="text-xs text-muted-foreground/70">
+              No authentication required.
+            </p>
           </div>
 
-          {isPending && (
-            <p className="text-sm text-muted-foreground animate-pulse">
-              Authenticating...
-            </p>
-          )}
+          <Button
+            onClick={handleEnterDemo}
+            size="lg"
+            className="w-full max-w-[200px] gap-2 font-semibold"
+          >
+            <PlayCircle className="h-5 w-5" />
+            Enter Demo
+          </Button>
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <LoginForm />
-    </GoogleOAuthProvider>
   );
 }

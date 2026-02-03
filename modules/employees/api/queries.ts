@@ -1,12 +1,27 @@
+/**
+ * Employee API Queries - Mock Mode
+ *
+ * All queries return mock data from the Zustand store instead of making API calls.
+ */
+
 import {
   useQuery,
   UseQueryOptions,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { employeesApi } from "./api";
+import { useStore } from "@/lib/store";
 import { employeesQueryKeys } from "./query-keys";
-import { EmployeesListResponse, EmployeeResponse } from "@hr-system/contracts";
+
+// Define types locally since we're not using the API contracts
+interface EmployeesListResponse {
+  data: any[];
+  total: number;
+}
+
+interface EmployeeResponse {
+  data: any;
+}
 
 export function useEmployees(
   options?: Omit<
@@ -16,7 +31,14 @@ export function useEmployees(
 ) {
   return useQuery({
     queryKey: employeesQueryKeys.lists(),
-    queryFn: employeesApi.list,
+    queryFn: async (): Promise<EmployeesListResponse> => {
+      // Return mock employees from the store
+      const employees = useStore.getState().employees;
+      return {
+        data: employees,
+        total: employees.length,
+      };
+    },
     ...options,
   });
 }
@@ -30,22 +52,30 @@ export function useEmployee(
 ) {
   return useQuery({
     queryKey: employeesQueryKeys.detail(id),
-    queryFn: () => employeesApi.get(id),
+    queryFn: async (): Promise<EmployeeResponse> => {
+      // Return mock employee from the store
+      const employees = useStore.getState().employees;
+      const employee = employees.find((e) => e.id === id);
+      return { data: employee || null };
+    },
     enabled: !!id,
     ...options,
   });
 }
+
 export function useUpdateEmployee() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) =>
-      employeesApi.patch(id, data),
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      // Update employee in the store
+      useStore.getState().updateEmployee(id, data);
+      return data;
+    },
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({
         queryKey: employeesQueryKeys.all,
       });
-      // Also invalidate org units as employee might have moved
       queryClient.invalidateQueries({
         queryKey: ["orgUnits"],
       });

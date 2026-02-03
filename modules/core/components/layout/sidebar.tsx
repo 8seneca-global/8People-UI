@@ -30,6 +30,7 @@ import {
   Database,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { defaultModules, type ModuleConfig } from "@/lib/rbac";
 
 // Icon mapping
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -54,64 +55,47 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Database,
 };
 
-import { useMyRoles } from "@/modules/settings/api";
-import { useModules } from "@/modules/settings/api";
-import { NavigationModule } from "@/modules/settings/api/types";
-
+/**
+ * Sidebar - Mock Mode
+ *
+ * In mock mode, the sidebar displays all modules from defaultModules
+ * without permission filtering, so all navigation items are visible.
+ */
 export function Sidebar() {
   const pathname = usePathname();
   const {
     currentRole,
-    activeRoleId,
+    customRoles,
     isMobileSidebarOpen,
     setMobileSidebarOpen,
   } = useStore();
-  const { data: roles = [] } = useMyRoles();
-  const { data: allModules = [] } = useModules();
   const [expandedModules, setExpandedModules] = useState<string[]>([]);
 
+  // In mock mode, use defaultModules directly
+  const allModules = defaultModules;
+
+  // Get current role data from store
   const currentRoleData =
-    roles.find((r) => r.id === activeRoleId) ||
-    roles.find((r) => r.name.toLowerCase() === currentRole.toLowerCase()) ||
-    roles[0];
-  const permissions = currentRoleData?.permissions || [];
+    customRoles.find(
+      (r) => r.id === currentRole || r.name.toLowerCase().includes(currentRole),
+    ) || customRoles[0];
 
-  // A module is visible if it has ANY permission true
-  const visibleModuleIds = new Set(
-    permissions
-      .filter((p) => p.canView || p.canCreate || p.canEdit || p.canDelete)
-      .map((p) => p.moduleId),
-  );
-
+  // Get parent modules (no parentId)
   const parentModules = allModules
-    .filter((m) => {
-      const isVisible = visibleModuleIds.has(m.id);
-      if (m.parentId || !m.isActive || !isVisible) return false;
+    .filter((m) => !m.parentId && m.isActive)
+    .sort((a, b) => a.order - b.order);
 
-      // If it's top level, it must either have a urlPath OR have navigable children
-      const hasNavigableChildren = allModules.some(
-        (child) =>
-          child.parentId === m.id &&
-          child.isActive &&
-          visibleModuleIds.has(child.id) &&
-          child.urlPath &&
-          child.urlPath !== "#",
-      );
-      return (m.urlPath && m.urlPath !== "#") || hasNavigableChildren;
-    })
-    .sort((a, b) => a.sortOrder - b.sortOrder);
-
+  // Get child modules for a parent
   const getChildModules = (parentId: string) =>
     allModules
       .filter(
         (m) =>
           m.parentId === parentId &&
           m.isActive &&
-          visibleModuleIds.has(m.id) &&
           m.urlPath &&
           m.urlPath !== "#",
       )
-      .sort((a, b) => a.sortOrder - b.sortOrder);
+      .sort((a, b) => a.order - b.order);
 
   // Auto-expand modules based on current path
   useEffect(() => {
@@ -120,7 +104,7 @@ export function Sidebar() {
       const firstPart = pathParts[0];
       // Try to find a module that matches this path
       const matchingModule = allModules.find(
-        (m) => m.urlPath?.includes(firstPart) && !m.parentId,
+        (m) => m.urlPath?.includes(`/${firstPart}`) && !m.parentId,
       );
       if (matchingModule && !expandedModules.includes(matchingModule.id)) {
         setExpandedModules((prev) => [...prev, matchingModule.id]);
@@ -133,95 +117,6 @@ export function Sidebar() {
       prev.includes(moduleId)
         ? prev.filter((id) => id !== moduleId)
         : [...prev, moduleId],
-    );
-  };
-
-  const renderModule = (module: NavigationModule) => {
-    const Icon = iconMap[module.icon || ""] || LayoutDashboard;
-    const childModules = getChildModules(module.id);
-    const hasChildren = childModules.length > 0;
-    const isExpanded = expandedModules.includes(module.id);
-    const isActive = module.urlPath
-      ? pathname === module.urlPath
-      : childModules.some((c) => pathname === c.urlPath);
-
-    const showChildren = hasChildren;
-
-    const triggerContent = (
-      <>
-        <div className="flex items-center gap-3">
-          <Icon className="h-4 w-4" />
-          {module.label || module.name}
-        </div>
-        {showChildren && (
-          <ChevronDown
-            className={cn(
-              "h-4 w-4 transition-transform",
-              isExpanded && "rotate-180",
-            )}
-          />
-        )}
-      </>
-    );
-
-    const triggerClassName = cn(
-      "flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors",
-      isActive
-        ? "bg-sidebar-accent text-sidebar-accent-foreground"
-        : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-    );
-
-    const renderTrigger = () => {
-      if (module.urlPath && module.urlPath !== "#") {
-        return (
-          <Link
-            href={module.urlPath}
-            onClick={() => {
-              if (showChildren && !isExpanded) toggleModule(module.id);
-              setMobileSidebarOpen(false);
-            }}
-            className={triggerClassName}
-          >
-            {triggerContent}
-          </Link>
-        );
-      }
-      return (
-        <button
-          onClick={() => (showChildren ? toggleModule(module.id) : null)}
-          className={triggerClassName}
-        >
-          {triggerContent}
-        </button>
-      );
-    };
-
-    return (
-      <div key={module.id}>
-        {renderTrigger()}
-        {showChildren && isExpanded && (
-          <div className="ml-4 mt-1 space-y-1">
-            {childModules.map((child) => {
-              const ChildIcon = iconMap[child.icon || ""] || Building2;
-              return (
-                <Link
-                  key={child.id}
-                  href={child.urlPath || "#"}
-                  className={cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-                    pathname === child.urlPath
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                  )}
-                >
-                  <ChildIcon className="h-4 w-4" />
-                  {child.label || child.name}
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </div>
     );
   };
 
@@ -254,13 +149,14 @@ export function Sidebar() {
           </span>
         </div>
 
+        {/* Role Switcher */}
         <div className="border-b border-sidebar-border p-3 overflow-hidden min-h-px">
           <div className="hidden md:group-hover:block transition-all w-full animate-in fade-in zoom-in-95 duration-200">
             <RoleSwitcher />
           </div>
         </div>
 
-        {/* Navigation - dynamically rendered based on role permissions and module order */}
+        {/* Navigation */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4 overflow-x-hidden">
           {parentModules.map((module) => {
             const Icon = iconMap[module.icon || ""] || LayoutDashboard;
@@ -300,12 +196,11 @@ export function Sidebar() {
             );
 
             const renderTrigger = () => {
-              if (module.urlPath && module.urlPath !== "#") {
+              if (module.urlPath && module.urlPath !== "#" && !hasChildren) {
                 return (
                   <Link
                     href={module.urlPath}
                     onClick={() => {
-                      if (showChildren && !isExpanded) toggleModule(module.id);
                       setMobileSidebarOpen(false);
                     }}
                     className={triggerClassName}
@@ -337,6 +232,7 @@ export function Sidebar() {
                         <Link
                           key={child.id}
                           href={child.urlPath || "#"}
+                          onClick={() => setMobileSidebarOpen(false)}
                           className={cn(
                             "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
                             pathname === child.urlPath
@@ -370,11 +266,10 @@ export function Sidebar() {
             </div>
             <div className="flex-1 truncate opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <p className="text-sm font-medium text-sidebar-foreground truncate">
-                {currentRoleData?.name || "User"}
+                {currentRoleData?.name || "admin"}
               </p>
               <p className="text-xs text-sidebar-foreground/60 truncate">
-                {currentRoleData?.name.toLowerCase().replace(/\s/g, "")}
-                @8people.com
+                admin@8people.com
               </p>
             </div>
           </div>

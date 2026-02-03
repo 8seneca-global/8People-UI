@@ -1,7 +1,13 @@
 "use client";
 
+/**
+ * General Settings - Mock Mode
+ *
+ * This component now uses local React state instead of API calls.
+ * Changes are stored in memory and don't persist across page reloads.
+ */
+
 import React, { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   Card,
@@ -13,7 +19,6 @@ import {
 import { Label } from "@/modules/core/components/ui/label";
 import { Switch } from "@/modules/core/components/ui/switch";
 import { Button } from "@/modules/core/components/ui/button";
-import { api } from "@/lib/axios";
 import { Loader2 } from "lucide-react";
 
 interface SystemSettings {
@@ -25,66 +30,49 @@ interface SystemSettings {
   createEmailWorkspace: boolean;
 }
 
+// Default mock settings
+const defaultSettings: SystemSettings = {
+  id: "system-settings-1",
+  emailNotifications: true,
+  twoFactorAuth: false,
+  autoGenerateEmployeeIds: true,
+  onboardingReminders: true,
+  createEmailWorkspace: false,
+};
+
 export const GeneralSettings = () => {
-  const queryClient = useQueryClient();
-  const [formData, setFormData] = useState<Partial<SystemSettings>>({});
-
-  // Fetch current settings
-  const { data: settings, isLoading } = useQuery({
-    queryKey: ["system-settings"],
-    queryFn: async () => {
-      const response = await api.get<SystemSettings>("/settings/system");
-      setFormData(response.data);
-      return response.data;
-    },
-  });
-
-  // Update settings mutation
-  const updateMutation = useMutation({
-    mutationFn: async (data: Partial<SystemSettings>) => {
-      const response = await api.patch("/settings/system", data);
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["system-settings"] });
-      toast.success("Settings updated successfully");
-    },
-    onError: () => {
-      toast.error("Failed to update settings");
-    },
-  });
+  const [settings] = useState<SystemSettings>(defaultSettings);
+  const [formData, setFormData] = useState<SystemSettings>(defaultSettings);
+  const [isPending, setIsPending] = useState(false);
 
   const handleToggle = (field: keyof SystemSettings, value: boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
-    updateMutation.mutate(formData);
+  const handleSave = async () => {
+    setIsPending(true);
+    // Simulate API call delay
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    setIsPending(false);
+    toast.success(
+      "Settings updated successfully (mock mode - changes won't persist)",
+    );
   };
 
-  const hasChanges =
-    settings &&
-    Object.keys(formData).some(
-      (key) =>
-        formData[key as keyof SystemSettings] !==
-        settings[key as keyof SystemSettings]
-    );
-
-  if (isLoading) {
-    return (
-      <Card className="bg-card border-border">
-        <CardContent className="flex items-center justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </CardContent>
-      </Card>
-    );
-  }
+  const hasChanges = Object.keys(formData).some(
+    (key) =>
+      formData[key as keyof SystemSettings] !==
+      settings[key as keyof SystemSettings],
+  );
 
   return (
     <Card className="bg-card border-border">
       <CardHeader>
         <CardTitle className="text-card-foreground">System Settings</CardTitle>
-        <CardDescription>Configure global application settings</CardDescription>
+        <CardDescription>
+          Configure global application settings
+          <span className="ml-2 text-xs text-amber-500">(Demo Mode)</span>
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center justify-between">
@@ -166,10 +154,8 @@ export const GeneralSettings = () => {
 
         {hasChanges && (
           <div className="pt-4 flex justify-end">
-            <Button onClick={handleSave} disabled={updateMutation.isPending}>
-              {updateMutation.isPending && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
+            <Button onClick={handleSave} disabled={isPending}>
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Changes
             </Button>
           </div>

@@ -2,7 +2,6 @@
 
 import type React from "react";
 import { useStore } from "@/lib/store";
-import type { Role as RoleType } from "@/lib/rbac";
 import { cn } from "@/lib/utils";
 import {
   Check,
@@ -14,8 +13,6 @@ import {
   UserCheck,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMyRoles } from "@/modules/settings/api";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,14 +49,22 @@ const colorOptions = [
 
 import { useEffect } from "react";
 
+/**
+ * Role Switcher - Mock Mode
+ *
+ * Uses customRoles from the Zustand store instead of fetching from API.
+ */
 export function RoleSwitcher() {
-  const { currentRole, setCurrentRole } = useStore();
-  const { data: roles = [], isLoading } = useMyRoles();
+  const { currentRole, setCurrentRole, customRoles } = useStore();
   const router = useRouter();
-  const queryClient = useQueryClient();
 
-  // Find the current role data. If currentRole is a slug (default), find by name.
-  // Otherwise find by ID (UUID).
+  // Map customRoles to the format we need
+  const roles = customRoles.map((r) => ({
+    id: r.id,
+    name: r.name,
+    description: r.description,
+  }));
+
   // Map role name to the slug used by rbac.ts
   const getRoleSlug = (name: string): any => {
     const n = name.toLowerCase();
@@ -78,38 +83,25 @@ export function RoleSwitcher() {
     roles[0];
 
   useEffect(() => {
-    if (!isLoading && roles.length > 0) {
-      // If current role is still a initial value or we don't have activeRoleId, initialize
-      const isUuid =
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          currentRole,
-        );
-
+    if (roles.length > 0) {
       const { activeRoleId } = useStore.getState();
 
-      if (!isUuid || !activeRoleId) {
+      if (!activeRoleId) {
         const matchingRole =
           roles.find((r) => r.name.toLowerCase().includes(currentRole)) ||
           roles[0];
         if (matchingRole) {
-          console.log(
-            `[RoleSwitcher] Initializing currentRole with Slug: ${getRoleSlug(matchingRole.name)} and UUID: ${matchingRole.id}`,
-          );
           setCurrentRole(getRoleSlug(matchingRole.name), matchingRole.id);
         }
       }
     }
-  }, [isLoading, roles, currentRole, setCurrentRole]);
+  }, [roles, currentRole, setCurrentRole]);
 
   const handleRoleSwitch = (roleId: string) => {
-    // Clear all cached data to ensure the new role doesn't reuse unauthorized data
-    queryClient.clear();
-
     const roleData = roles.find((r) => r.id === roleId);
     if (roleData) {
       setCurrentRole(getRoleSlug(roleData.name), roleId);
     }
-
     router.push("/");
   };
 
