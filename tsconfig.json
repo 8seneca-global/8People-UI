@@ -25,6 +25,12 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@hr-system/contracts": [
+        "../../packages/contracts/src"
+      ],
+      "@hr-system/utils": [
+        "../../packages/utils/src"
       ]
     }
   },
@@ -36,6 +42,7 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    ".next"
   ]
 }

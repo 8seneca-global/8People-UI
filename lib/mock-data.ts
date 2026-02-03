@@ -2,524 +2,392 @@
 // O = Organizational Unit, S = Position, C = Job Classification, P = Person (Employee)
 
 export interface OrganizationalUnit {
-  id: string
-  code: string
-  name: string
-  abbreviation?: string
-  parentId?: string
-  costCenter?: string
-  managerPositionId?: string
-  validFrom: string
-  validTo?: string
-  status: "active" | "inactive"
-  description?: string
-  level: number // 1=Company, 2=Division, 3=Department, 4=Team
-  unitType: "company" | "division" | "department" | "team"
+  id: string;
+  code: string;
+  name: string;
+  abbreviation?: string;
+  parentId?: string;
+  costCenter?: string;
+  managerPositionId?: string;
+  validFrom: string;
+  validTo?: string;
+  status: "active" | "inactive";
+  description?: string;
+  level: number; // 1=Company, 2=Division, 3=Department, 4=Team
+  unitType: "company" | "division" | "department" | "team";
 }
 
 export interface JobClassification {
-  id: string
-  code: string
-  title: string
-  jobFamily: string
-  jobLevel: string
-  payGradeGroup: string
-  standardHours: number
-  flsaStatus: "exempt" | "non-exempt"
-  description?: string
-  requirements: string[]
-  responsibilities: string[]
-  competencies: string[]
-  status: "active" | "inactive"
+  id: string;
+  code: string;
+  title: string;
+  jobFamily: string;
+  jobLevel: string;
+  payGradeGroup: string;
+  standardHours: number;
+  flsaStatus: "exempt" | "non-exempt";
+  description?: string;
+  requirements: string[];
+  responsibilities: string[];
+  competencies: string[];
+  status: "active" | "inactive";
 }
 
 export interface Position {
-  id: string
-  code: string
-  title: string
-  jobClassificationId: string
-  jobClassificationTitle: string
-  organizationalUnitId: string
-  organizationalUnitName: string
-  parentPositionId?: string
-  parentPositionTitle?: string
-  costCenter?: string
-  fte: number
-  validFrom: string
-  validTo?: string
-  status: "active" | "inactive"
-  hiringStatus: "filled" | "vacant" | "hiring"
-  incumbentId?: string
-  incumbentName?: string
-  focusArea?: string
-  workMode?: "onsite" | "hybrid" | "remote"
-  officeLocation?: string
+  id: string;
+  code: string;
+  title: string;
+  jobClassificationId: string;
+  jobClassificationTitle: string;
+  organizationalUnitId: string;
+  organizationalUnitName: string;
+  parentPositionId?: string;
+  parentPositionTitle?: string;
+  costCenter?: string;
+  fte: number;
+  validFrom: string;
+  validTo?: string;
+  status: "active" | "inactive";
+  hiringStatus: "filled" | "vacant" | "hiring";
+  incumbentId?: string;
+  incumbentName?: string;
+  focusArea?: string;
+  workMode?: "onsite" | "hybrid" | "remote";
+  officeLocation?: string;
 }
 
 export interface EmployeeAddress {
-  fullAddress: string
+  fullAddress: string;
 }
 
 export interface EmployeeTaxInfo {
-  personalTaxCode: string
-  taxDependents: number
-  socialInsuranceBookNumber: string
-  initialRegistrationHospitalCode: string
+  personalTaxCode: string;
+  taxDependents: number;
+  socialInsuranceBookNumber: string;
+  initialRegistrationHospitalCode: string;
 }
 
 export interface EmployeeBankInfo {
-  bankName: string
-  branch: string
-  accountNumber: string
-  accountHolderName: string
+  bankName: string;
+  branch: string;
+  accountNumber: string;
+  accountHolderName: string;
 }
 
 export interface EmployeeEmergencyContact {
-  contactPersonName: string
-  relationship: string
-  phone: string
-  email: string
+  contactPersonName: string;
+  relationship: string;
+  phone: string;
+  email: string;
 }
 
 export interface EmployeeEducation {
-  degree: string
-  fieldOfStudy: string
-  institution: string
-  graduationYear: string
+  degree: string;
+  fieldOfStudy: string;
+  institution: string;
+  graduationYear: string;
 }
 
 export interface EmployeeContract {
-  id: string // Added id field for linking with transactions
-  contractNumber: string
-  contractType: string
-  startDate: string
-  endDate: string
-  signDate?: string
-  fileUrl?: string
-  fileName?: string
-  notes?: string
-  attachmentFile?: string // Deprecated, use fileUrl/fileName instead
-  status: "active" | "terminated"
+  contractNumber: string;
+  contractType: string;
+  startDate: string;
+  endDate: string;
+  signDate: string; // Added signDate field
+  attachmentFile?: string;
 }
 
-export const contractTypeOptions = ["Internship", "Probation", "Service Contract", "Full-time"] as const
+export type LeaveRequestStatus =
+  | "draft"
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "cancelled";
 
-export type TransactionAction =
-  | "hiring"
-  | "extension_of_probation"
-  | "probation_confirmation"
-  | "transfer"
-  | "contract_renewal"
-  | "promotion"
-  | "salary_change"
-  | "demotion"
-  | "job_rotation"
-  | "temporary_assignment"
-  | "disciplinary_action"
-  | "resignation"
-  | "rehire"
 
-export const transactionReasons: Record<TransactionAction, string[]> = {
-  hiring: ["New Position", "Replacement", "Project Based"],
-  extension_of_probation: ["Unsatisfactory Performance"],
-  probation_confirmation: ["Probation Completion"],
-  transfer: ["Restructuring", "Internal Recruitment", "New Acquired Skills", "Employee Request"],
-  contract_renewal: ["New Contract"],
-  promotion: ["Organizational Requirement", "Performance"],
-  salary_change: ["Annual Appraisal", "Restructuring"],
-  demotion: ["Performance", "Restructuring", "Disciplinary Action"],
-  job_rotation: ["Performance", "Restructuring", "Disciplinary Action", "Skill Enhancement"],
-  temporary_assignment: ["Acting New Role"],
-  disciplinary_action: ["Misconduct", "Theft", "Fraud", "Criminal Offense"],
-  resignation: ["Voluntary", "Involuntary"],
-  rehire: ["New Position", "Replacement", "Project Based"],
-}
-
-export const resignationSubReasons: Record<string, string[]> = {
-  Voluntary: ["Personal Matter", "Culture", "Career Development", "Salary and Benefits"],
-  Involuntary: ["Contract End", "Disciplinary"],
-}
-
-export interface EmployeeTransaction {
-  id: string
-  action: TransactionAction
-  reason: string
-  subReason?: string // For resignation sub-reasons
-  text: string // Auto-generated label based on Action & Reason
-  effectiveDate: string
-  createdAt: string
-  createdBy: string
-  notes?: string
-
-  linkedContractId?: string
-
-  // Contract info snapshot (only for transactions that involve contracts)
-  contractNumber?: string
-  contractType?: string
-  contractStartDate?: string
-  contractEndDate?: string
-  signDate?: string
-
-  // Personal info snapshot (optional, for tracking changes)
-  positionId?: string
-  positionTitle?: string
-  organizationalUnitId?: string
-  organizationalUnitName?: string
-  jobClassificationId?: string
-  jobClassificationTitle?: string
-
-  // Transfer specific fields
-  fromTeamId?: string
-  fromTeamName?: string
-  toTeamId?: string
-  toTeamName?: string
-
-  // Salary change specific
-  salaryChange?: {
-    oldSalary?: number
-    newSalary?: number
-    currency?: string
-  }
-}
-
-export interface EmployeeDependent {
-  id: string
-  fullName: string
-  relationship: string
-  dateOfBirth?: string
-  effectiveDate: string // Used for VAT reduction & payroll calculation
-  nationalIdNumber?: string
-  idNumber?: string
-  taxCode?: string
-  notes?: string
-}
-
-export interface ResignationInfo {
-  resignationAction: "Voluntary" | "Involuntary"
-  resignationReason: string
-  lastWorkingDate: string
-  exitInterviewCompleted: boolean
-  assetsReturned: boolean
-  rehireEligible: boolean // If false, employee is blacklisted
-  blacklistReason?: string
-}
-
-export type LeaveRequestStatus = "draft" | "pending" | "approved" | "rejected" | "cancelled"
 
 export interface LeaveRequest {
-  id: string
-  employeeId: string
-  employeeName: string
-  leaveTypeId: string
-  leaveTypeName: string
-  startDate: string
-  endDate: string
-  totalDays: number
-  reason: string
-  status: LeaveRequestStatus
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  leaveTypeId: string;
+  leaveTypeName: string;
+  startDate: string;
+  endDate: string;
+  totalDays: number;
+  reason: string;
+  status: LeaveRequestStatus;
   approvers: {
-    employeeId: string
-    employeeName: string
-    status: "pending" | "approved" | "rejected"
-    comment?: string
-    respondedAt?: string
-  }[]
-  ccRecipients?: {
-    employeeId: string
-    employeeName: string
-  }[]
-  notes?: string
-  createdAt: string
-  updatedAt: string
-}
-
-export interface LeavePolicyRule {
-  id: string
-  name: string
-  description: string
-  jobLevels: string[]
-  annualLeaveDays: number
-  maxCarryForwardDays: number
-  carryForwardExpiryMonth: number
-  carryForwardExpiryDay: number
-  effectiveFrom: string
-  effectiveTo?: string
-  status: "active" | "inactive"
-}
-
-export interface PublicHoliday {
-  id: string
-  name: string
-  date: string
-  year: number
-  isRecurring: boolean // If true, recurs every year
-  description?: string
-  status: "active" | "inactive"
+    employeeId: string;
+    employeeName: string;
+    status: "pending" | "approved" | "rejected";
+    comment?: string;
+    respondedAt?: string;
+  }[];
+  createdAt: string;
+  updatedAt: string;
+  notes?: string;
 }
 
 export interface LeaveBalance {
-  employeeId: string
-  employeeName?: string
-  department?: string
-  leaveTypeId: string
-  // Policy-based fields
-  leavePolicyId?: string
-  leavePolicyName?: string
-  jobLevel?: string
-  // Breakdown fields
-  carryForwardFromPrevYear: number // Leave carried from previous year (max 5 days)
-  carryForwardExpiryDate?: string // Date when carry forward expires (e.g., "2026-06-30")
-  carryForwardExpired: number // Days already expired from carry forward
-  annualEntitlement: number // Current year entitlement based on policy
-  totalEntitlement: number // carryForward + annualEntitlement
-  used: number
-  pending: number
-  carryForward: number // For backward compatibility
-  available: number
-  year: number
+  employeeId: string;
+  employeeName?: string; // Added employee name
+  department?: string; // Added department
+  leaveTypeId: string;
+  totalEntitlement: number;
+  used: number;
+  pending: number;
+  carryForward: number;
+  available: number;
+  year: number;
 }
 
 export interface AttendanceRecord {
-  id: string
-  employeeId: string
-  employeeName: string
-  department?: string // Added department field
-  organizationalUnitId?: string // Added org unit ID
-  date: string
-  clockIn?: string
-  clockOut?: string
-  status: "present" | "late" | "early_leave" | "absent" | "on_leave" | "weekend" | "holiday" | "not_checked_in"
-  totalHours?: number
-  overtime?: number
-  lateMinutes?: number
-  earlyMinutes?: number
-  source: "web" | "mobile" | "fingerprint"
-  notes?: string
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  department?: string; // Added department field
+  organizationalUnitId?: string; // Added org unit ID
+  date: string;
+  clockIn?: string;
+  clockOut?: string;
+  status:
+  | "present"
+  | "late"
+  | "early_leave"
+  | "absent"
+  | "on_leave"
+  | "weekend"
+  | "holiday"
+  | "not_checked_in";
+  totalHours?: number;
+  overtime?: number;
+  lateMinutes?: number;
+  earlyMinutes?: number;
+  source: "web" | "mobile" | "fingerprint";
+  notes?: string;
 }
 
 export interface Shift {
-  id: string
-  name: string
-  startTime: string
-  endTime: string
-  breakDuration: number
-  gracePeriod: number
-  isDefault: boolean
+  id: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  breakDuration: number;
+  gracePeriod: number;
+  isDefault: boolean;
 }
 
-export type CandidateStage = "new" | "screening" | "interviewing" | "testing" | "offering" | "hired" | "rejected"
+export type CandidateStage =
+  | "new"
+  | "screening"
+  | "interviewing"
+  | "testing"
+  | "offering"
+  | "hired"
+  | "rejected";
 
 export interface JobRequisition {
-  id: string
-  title: string
-  positionId?: string
-  positionCode?: string
-  organizationalUnitId: string
-  organizationalUnitName: string
-  jobClassificationId?: string
-  jobClassificationTitle: string // Added jobClassificationTitle (already present in updates, but good to have)
-  description: string
-  requirements: string[]
-  salaryRange?: { min: number; max: number; currency: string }
-  salaryHidden?: boolean // Added salary hidden option (deal)
-  employmentType: "full-time" | "part-time" | "contract" | "intern"
-  status: "draft" | "open" | "closed" | "on_hold"
-  openings: number
-  hired: number
-  createdBy: string
-  createdAt: string
-  closingDate?: string
-  publishPlatforms?: string[] // Added publish platforms
-  jdFile?: string // Added JD file
+  id: string;
+  title: string;
+  positionId?: string;
+  positionCode?: string;
+  organizationalUnitId: string;
+  organizationalUnitName: string;
+  jobClassificationId?: string;
+  jobClassificationTitle: string; // Added jobClassificationTitle (already present in updates, but good to have)
+  description: string;
+  requirements: string[];
+  salaryRange?: { min: number; max: number; currency: string };
+  salaryHidden?: boolean; // Added salary hidden option (deal)
+  employmentType: "full-time" | "part-time" | "contract" | "intern";
+  status: "draft" | "open" | "closed" | "on_hold";
+  openings: number;
+  hired: number;
+  createdBy: string;
+  createdAt: string;
+  closingDate?: string;
+  publishPlatforms?: string[]; // Added publish platforms
+  jdFile?: string; // Added JD file
 }
 
 export interface Candidate {
-  id: string
-  jobRequisitionId: string
-  fullName: string
-  email: string
-  phone?: string
-  resumeFile?: string
-  linkedinUrl?: string
-  portfolioUrl?: string
-  stage: CandidateStage
-  source: "career_page" | "linkedin" | "referral" | "agency" | "topcv" | "vietnamworks" | "other"
-  referredBy?: string
-  appliedAt: string
-  updatedAt: string
-  notes?: string
-  rating?: number
-  rejectionReason?: string
-  interviews?: Interview[]
-  aiCvScore?: number // AI CV score (0-100)
-  aiCvAnalysis?: string // AI analysis summary
-  offerAccepted?: boolean // Track if offer was accepted
-  offerAcceptedAt?: string
-  expectedSalary?: number
-  yearsOfExperience?: number
-  skills?: string[]
+  id: string;
+  jobRequisitionId: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  resumeFile?: string;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
+  stage: CandidateStage;
+  source:
+  | "career_page"
+  | "linkedin"
+  | "referral"
+  | "agency"
+  | "topcv"
+  | "vietnamworks"
+  | "other";
+  referredBy?: string;
+  appliedAt: string;
+  updatedAt: string;
+  notes?: string;
+  rating?: number;
+  rejectionReason?: string;
+  interviews?: Interview[];
+  aiCvScore?: number; // AI CV score (0-100)
+  aiCvAnalysis?: string; // AI analysis summary
+  offerAccepted?: boolean; // Track if offer was accepted
+  offerAcceptedAt?: string;
+  expectedSalary?: number;
+  yearsOfExperience?: number;
+  skills?: string[];
 }
 
 export interface Interview {
-  id: string
-  candidateId: string
-  scheduledAt: string
-  duration: number
-  interviewers: string[]
-  interviewerNames?: string[] // Added interviewer names
-  type: "phone" | "video" | "onsite" | "technical" | "hr"
-  status: "scheduled" | "completed" | "cancelled" | "no_show"
-  meetingLink?: string // Added meeting link
-  location?: string // Added location for onsite
+  id: string;
+  candidateId: string;
+  scheduledAt: string;
+  duration: number;
+  interviewers: string[];
+  interviewerNames?: string[]; // Added interviewer names
+  type: "phone" | "video" | "onsite" | "technical" | "hr";
+  status: "scheduled" | "completed" | "cancelled" | "no_show";
+  meetingLink?: string; // Added meeting link
+  location?: string; // Added location for onsite
   feedback?: {
-    interviewerId: string
-    rating: number
-    strengths?: string
-    weaknesses?: string
-    recommendation: "strong_hire" | "hire" | "maybe" | "no_hire"
-  }[]
+    interviewerId: string;
+    rating: number;
+    strengths?: string;
+    weaknesses?: string;
+    recommendation: "strong_hire" | "hire" | "maybe" | "no_hire";
+  }[];
 }
 
 export interface Notification {
-  id: string
-  userId: string
-  title: string
-  message: string
-  type: "leave_request" | "leave_approved" | "leave_rejected" | "interview" | "onboarding" | "announcement" | "system" | "contract_warning" | "birthday"
-  isRead: boolean
-  actionUrl?: string
-  createdAt: string
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  type:
+  | "leave_request"
+  | "leave_approved"
+  | "leave_rejected"
+  | "interview"
+  | "onboarding"
+  | "announcement"
+  | "system";
+  isRead: boolean;
+  actionUrl?: string;
+  createdAt: string;
 }
 
 export interface AuditLogEntry {
-  id: string
-  employeeId: string
-  employeeName: string
-  fieldChanged: string
-  oldValue: string
-  newValue: string
-  changedBy: string
-  changedByName: string
-  changedAt: string
-  changeType: "self" | "hr" | "admin" | "system"
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  fieldChanged: string;
+  oldValue: string;
+  newValue: string;
+  changedBy: string;
+  changedByName: string;
+  changedAt: string;
+  changeType: "self" | "hr" | "admin" | "system";
 }
 
 export interface Employee {
-  id: string
-  code: string // P-001, EMP-001
-  fullName: string
-  firstName: string
-  lastName: string
-  personalEmail: string
-  companyEmail: string
+  id: string;
+  code: string; // P-001, EMP-001
+  fullName: string;
+  firstName: string;
+  lastName: string;
+  personalEmail: string;
+  companyEmail: string;
 
   // O-S-C-P relationships
-  positionId: string
-  positionCode: string
-  positionTitle: string
-  jobClassificationId: string
-  jobClassificationTitle: string
-  organizationalUnitId: string
-  organizationalUnitName: string
-  costCenter?: string
+  positionId: string;
+  positionCode: string;
+  positionTitle: string;
+  jobClassificationId: string;
+  jobClassificationTitle: string;
+  organizationalUnitId: string;
+  organizationalUnitName: string;
+  costCenter?: string;
+
+  // Relations from API
+  organizationalUnit?: {
+    id: string;
+    name: string;
+    code: string;
+  } | null;
+  position?: {
+    id: string;
+    title: string;
+    code: string;
+  } | null;
+  jobClassification?: {
+    id: string;
+    title: string;
+    code: string;
+  } | null;
+  lineManager?: {
+    id: string;
+    fullName: string;
+  } | null;
+  user?: any;
 
   // Derived from position hierarchy
-  lineManagerId?: string
-  lineManagerName?: string
+  lineManagerId?: string;
+  lineManagerName?: string;
 
   // Matrix management (optional secondary reporting)
-  matrixManagerId?: string
-  matrixManagerName?: string
+  matrixManagerId?: string;
+  matrixManagerName?: string;
 
-  directReportIds?: string[]
-  phone?: string
-  placeOfBirth?: string
-  citizenshipIdNumber?: string
-  citizenshipIdDateOfIssue?: string
-  citizenshipIdPlaceOfIssue?: string
-  taxCode?: string
-
-  status: "pending" | "active" | "future" | "resigned"
+  status: "pending" | "active" | "terminated" | string;
   onboardingStatus: {
-    emailSent: boolean
-    accountActivated: boolean
-    profileCompleted: boolean
-  }
+    emailSent: boolean;
+    accountActivated: boolean;
+    profileCompleted: boolean;
+  };
 
-  employeeId?: string
-  jobTitle?: string
-  client?: string
-  startDate?: string
-  fte: number
+  employeeId?: string;
+  jobTitle?: string;
+  client?: string;
+  startDate?: string | Date;
+  fte: number;
 
-  companyJoinDate?: string // Ngày vào công ty (first day at company, e.g., as intern)
-  officialStartDate?: string // Ngày chính thức làm việc (official employment start date)
+  cellphone?: string;
+  dateOfBirth?: string | Date;
+  gender?: string;
+  nationality?: string;
+  maritalStatus?: string;
 
-  cellphone?: string
-  dateOfBirth?: string
-  workingDays?: number[] // Array of days of week (0=Sun, 6=Sat) considered working days
-  gender?: "male" | "female" | "other"
-  nationality?: string
-  maritalStatus?: string
-  address?: string
-  nationalIdNumber?: string
-  nationalIdIssueDate?: string
-  nationalIdIssuePlace?: string
-  passportNumber?: string
-  passportIssueDate?: string
-  passportExpiryDate?: string
+  nationalIdNumber?: string;
+  nationalIdIssueDate?: string;
+  nationalIdIssuePlace?: string;
+  citizenshipIdFile?: string;
 
-  // Contract Information
-  contractNumber?: string
-  contractType?: "full-time" | "part-time" | "contract" | "internship"
-  contractStartDate?: string
-  contractEndDate?: string
-  contractFileUrl?: string
-  contractFileName?: string
-
-  // Onboarding tracking
-  onboardingDate?: string | null // Populated when employee first logs in and completes profile
-
-  // Compensation
-  baseSalary?: number
-
-  birthRegisterAddress?: EmployeeAddress
-  permanentAddress?: EmployeeAddress
-  currentAddress?: EmployeeAddress
-  taxInfo?: EmployeeTaxInfo
-  bankInfo?: EmployeeBankInfo
-  emergencyContact?: EmployeeEmergencyContact
-  education?: EmployeeEducation[]
-  contracts?: EmployeeContract[]
-  auditLog?: AuditLogEntry[]
-
-  transactions?: EmployeeTransaction[]
-  dependents?: EmployeeDependent[]
-  resignationInfo?: ResignationInfo
+  birthRegisterAddress?: EmployeeAddress;
+  permanentAddress?: EmployeeAddress;
+  currentAddress?: EmployeeAddress;
+  taxInfo?: EmployeeTaxInfo;
+  bankInfo?: EmployeeBankInfo;
+  emergencyContact?: EmployeeEmergencyContact;
+  education?: EmployeeEducation[];
+  contracts?: EmployeeContract[];
+  auditLog?: AuditLogEntry[];
 }
 
 export interface LeaveType {
-  id: string
-  code: string
-  name: string
-  description: string
-  catalogue: string
-  genderRequirement: "All" | "Male" | "Female"
-  entitlementMethod: "By Actual Balance" | string
-  manageBalanceType: "Year" | "Days" | string
-  isPaid: boolean
-  paidPercentage: number // 0-100
-  allowOnHoliday: boolean
-  allowOnDaysOff: boolean
-  allowByHour: boolean
-  checkBalanceOnAssign: boolean
-  color: string
-  // Legacy fields preserved for compatibility during migration if needed
-  defaultDays?: number
-  carryForward?: boolean
-  maxCarryForwardDays?: number
-  applyFor?: string
-  totalDays?: number
+  id: string;
+  name: string;
+  description: string;
+  defaultDays: number;
+  carryForward: boolean;
+  maxCarryForwardDays: number;
+  color: string;
 }
 
 export const organizationalUnits: OrganizationalUnit[] = [
@@ -682,61 +550,7 @@ export const organizationalUnits: OrganizationalUnit[] = [
     level: 4,
     unitType: "team",
   },
-  // AI Department Teams
-  {
-    id: "O-032-T1",
-    code: "O-032-T1",
-    name: "ML Team",
-    abbreviation: "ML",
-    parentId: "O-032",
-    costCenter: "CC-AI-ML",
-    validFrom: "2024-01-01",
-    status: "active",
-    description: "Machine Learning and Deep Learning",
-    level: 4,
-    unitType: "team",
-  },
-  {
-    id: "O-032-T2",
-    code: "O-032-T2",
-    name: "NLP Team",
-    abbreviation: "NLP",
-    parentId: "O-032",
-    costCenter: "CC-AI-NLP",
-    validFrom: "2024-01-01",
-    status: "active",
-    description: "Natural Language Processing",
-    level: 4,
-    unitType: "team",
-  },
-  // Java Department Teams
-  {
-    id: "O-033-T1",
-    code: "O-033-T1",
-    name: "Spring Team",
-    abbreviation: "SPRING",
-    parentId: "O-033",
-    costCenter: "CC-JAVA-SPRING",
-    validFrom: "2024-01-01",
-    status: "active",
-    description: "Spring Boot Development",
-    level: 4,
-    unitType: "team",
-  },
-  {
-    id: "O-033-T2",
-    code: "O-033-T2",
-    name: "Microservices Team",
-    abbreviation: "MICRO",
-    parentId: "O-033",
-    costCenter: "CC-JAVA-MICRO",
-    validFrom: "2024-01-01",
-    status: "active",
-    description: "Microservices Architecture",
-    level: 4,
-    unitType: "team",
-  },
-]
+];
 
 export const jobClassifications: JobClassification[] = [
   {
@@ -749,8 +563,16 @@ export const jobClassifications: JobClassification[] = [
     standardHours: 40,
     flsaStatus: "exempt",
     description: "Lead the company's strategic direction and operations",
-    requirements: ["MBA or equivalent", "15+ years executive experience", "Strategic leadership"],
-    responsibilities: ["Set company vision and strategy", "Lead executive team", "Stakeholder management"],
+    requirements: [
+      "MBA or equivalent",
+      "15+ years executive experience",
+      "Strategic leadership",
+    ],
+    responsibilities: [
+      "Set company vision and strategy",
+      "Lead executive team",
+      "Stakeholder management",
+    ],
     competencies: ["Strategic Thinking", "Leadership", "Business Acumen"],
     status: "active",
   },
@@ -764,8 +586,16 @@ export const jobClassifications: JobClassification[] = [
     standardHours: 40,
     flsaStatus: "exempt",
     description: "Lead technology strategy and engineering teams",
-    requirements: ["CS degree or equivalent", "10+ years tech leadership", "Architecture expertise"],
-    responsibilities: ["Technology roadmap", "Engineering culture", "Technical decisions"],
+    requirements: [
+      "CS degree or equivalent",
+      "10+ years tech leadership",
+      "Architecture expertise",
+    ],
+    responsibilities: [
+      "Technology roadmap",
+      "Engineering culture",
+      "Technical decisions",
+    ],
     competencies: ["Technical Leadership", "Innovation", "Team Building"],
     status: "active",
   },
@@ -779,8 +609,16 @@ export const jobClassifications: JobClassification[] = [
     standardHours: 40,
     flsaStatus: "exempt",
     description: "Manage HR operations and employee relations",
-    requirements: ["HR degree or certification", "5+ years HR experience", "Employment law knowledge"],
-    responsibilities: ["HR policy development", "Employee relations", "Recruitment oversight"],
+    requirements: [
+      "HR degree or certification",
+      "5+ years HR experience",
+      "Employment law knowledge",
+    ],
+    responsibilities: [
+      "HR policy development",
+      "Employee relations",
+      "Recruitment oversight",
+    ],
     competencies: ["People Management", "Communication", "Problem Solving"],
     status: "active",
   },
@@ -795,7 +633,11 @@ export const jobClassifications: JobClassification[] = [
     flsaStatus: "non-exempt",
     description: "Support HR operations and employee services",
     requirements: ["HR degree or equivalent", "2+ years HR experience"],
-    responsibilities: ["Recruitment support", "Onboarding", "HR administration"],
+    responsibilities: [
+      "Recruitment support",
+      "Onboarding",
+      "HR administration",
+    ],
     competencies: ["Organization", "Communication", "Attention to Detail"],
     status: "active",
   },
@@ -809,8 +651,17 @@ export const jobClassifications: JobClassification[] = [
     standardHours: 40,
     flsaStatus: "exempt",
     description: "Lead a software development team",
-    requirements: ["5+ years development", "Leadership experience", "Technical expertise"],
-    responsibilities: ["Team leadership", "Code review", "Technical guidance", "Sprint planning"],
+    requirements: [
+      "5+ years development",
+      "Leadership experience",
+      "Technical expertise",
+    ],
+    responsibilities: [
+      "Team leadership",
+      "Code review",
+      "Technical guidance",
+      "Sprint planning",
+    ],
     competencies: ["Technical Leadership", "Mentoring", "Agile"],
     status: "active",
   },
@@ -824,8 +675,17 @@ export const jobClassifications: JobClassification[] = [
     standardHours: 40,
     flsaStatus: "exempt",
     description: "Design and develop complex software systems",
-    requirements: ["5+ years software development", "System design", "Mentoring ability"],
-    responsibilities: ["System design", "Code development", "Code review", "Mentor juniors"],
+    requirements: [
+      "5+ years software development",
+      "System design",
+      "Mentoring ability",
+    ],
+    responsibilities: [
+      "System design",
+      "Code development",
+      "Code review",
+      "Mentor juniors",
+    ],
     competencies: ["Technical Excellence", "Problem Solving", "Communication"],
     status: "active",
   },
@@ -840,7 +700,12 @@ export const jobClassifications: JobClassification[] = [
     flsaStatus: "non-exempt",
     description: "Develop and maintain software applications",
     requirements: ["3+ years software development", "Programming proficiency"],
-    responsibilities: ["Feature development", "Bug fixes", "Unit testing", "Documentation"],
+    responsibilities: [
+      "Feature development",
+      "Bug fixes",
+      "Unit testing",
+      "Documentation",
+    ],
     competencies: ["Coding Skills", "Problem Solving", "Teamwork"],
     status: "active",
   },
@@ -884,7 +749,11 @@ export const jobClassifications: JobClassification[] = [
     standardHours: 40,
     flsaStatus: "non-exempt",
     description: "Execute marketing campaigns and brand initiatives",
-    requirements: ["Marketing degree", "2+ years marketing experience", "Digital marketing"],
+    requirements: [
+      "Marketing degree",
+      "2+ years marketing experience",
+      "Digital marketing",
+    ],
     responsibilities: ["Campaign management", "Content creation", "Analytics"],
     competencies: ["Creativity", "Communication", "Analytics"],
     status: "active",
@@ -904,7 +773,7 @@ export const jobClassifications: JobClassification[] = [
     competencies: ["Analytical Skills", "Attention to Detail", "Excel"],
     status: "active",
   },
-]
+];
 
 export const positions: Position[] = [
   // CEO
@@ -923,27 +792,6 @@ export const positions: Position[] = [
     hiringStatus: "filled",
     incumbentId: "P-001",
     incumbentName: "Nguyen Van An",
-    workMode: "hybrid",
-    officeLocation: "Hanoi HQ",
-  },
-  // General Manager
-  {
-    id: "S-002",
-    code: "S-002",
-    title: "General Manager",
-    jobClassificationId: "C-003",
-    jobClassificationTitle: "HR Manager",
-    organizationalUnitId: "O-001",
-    organizationalUnitName: "8sPeople Company",
-    parentPositionId: "S-001",
-    parentPositionTitle: "Chief Executive Officer",
-    costCenter: "CC-ROOT",
-    fte: 1.0,
-    validFrom: "2024-01-01",
-    status: "active",
-    hiringStatus: "filled",
-    incumbentId: "P-005",
-    incumbentName: "Nguyen Thi Bao",
     workMode: "hybrid",
     officeLocation: "Hanoi HQ",
   },
@@ -968,17 +816,17 @@ export const positions: Position[] = [
     workMode: "hybrid",
     officeLocation: "Hanoi HQ",
   },
-  // Head of HR Department
+  // HR Manager
   {
     id: "S-011",
     code: "S-011",
-    title: "Head of HR Department",
+    title: "HR Manager",
     jobClassificationId: "C-003",
     jobClassificationTitle: "HR Manager",
     organizationalUnitId: "O-011",
     organizationalUnitName: "HR Department",
-    parentPositionId: "S-002",
-    parentPositionTitle: "General Manager",
+    parentPositionId: "S-001",
+    parentPositionTitle: "Chief Executive Officer",
     costCenter: "CC-HR",
     fte: 1.0,
     validFrom: "2024-01-01",
@@ -1181,210 +1029,6 @@ export const positions: Position[] = [
     workMode: "hybrid",
     officeLocation: "Hanoi HQ",
   },
-  // Frontend Team Positions
-  {
-    id: "S-031-T1-001",
-    code: "S-031-T1-001",
-    title: "Senior Frontend Developer",
-    jobClassificationId: "C-011",
-    jobClassificationTitle: "Senior Software Engineer",
-    organizationalUnitId: "O-031-T1",
-    organizationalUnitName: "Frontend Team",
-    parentPositionId: "S-031-LEAD",
-    parentPositionTitle: "JavaScript Team Lead",
-    costCenter: "CC-JS-FE",
-    fte: 1.0,
-    validFrom: "2024-01-01",
-    status: "active",
-    hiringStatus: "filled",
-    incumbentId: "P-040",
-    incumbentName: "Nguyen Van Quang",
-    focusArea: "React/TypeScript",
-    workMode: "hybrid",
-    officeLocation: "Hanoi HQ",
-  },
-  {
-    id: "S-031-T1-002",
-    code: "S-031-T1-002",
-    title: "Frontend Developer",
-    jobClassificationId: "C-012",
-    jobClassificationTitle: "Software Engineer",
-    organizationalUnitId: "O-031-T1",
-    organizationalUnitName: "Frontend Team",
-    parentPositionId: "S-031-LEAD",
-    parentPositionTitle: "JavaScript Team Lead",
-    costCenter: "CC-JS-FE",
-    fte: 1.0,
-    validFrom: "2024-01-01",
-    status: "active",
-    hiringStatus: "vacant",
-    focusArea: "Vue.js",
-    workMode: "hybrid",
-    officeLocation: "Hanoi HQ",
-  },
-  // Backend Team Positions
-  {
-    id: "S-031-T2-001",
-    code: "S-031-T2-001",
-    title: "Senior Backend Developer",
-    jobClassificationId: "C-011",
-    jobClassificationTitle: "Senior Software Engineer",
-    organizationalUnitId: "O-031-T2",
-    organizationalUnitName: "Backend Team",
-    parentPositionId: "S-031-LEAD",
-    parentPositionTitle: "JavaScript Team Lead",
-    costCenter: "CC-JS-BE",
-    fte: 1.0,
-    validFrom: "2024-01-01",
-    status: "active",
-    hiringStatus: "filled",
-    incumbentId: "P-041",
-    incumbentName: "Tran Thi Rong",
-    focusArea: "Node.js/Express",
-    workMode: "remote",
-    officeLocation: "HCMC Office",
-  },
-  {
-    id: "S-031-T2-002",
-    code: "S-031-T2-002",
-    title: "Backend Developer",
-    jobClassificationId: "C-012",
-    jobClassificationTitle: "Software Engineer",
-    organizationalUnitId: "O-031-T2",
-    organizationalUnitName: "Backend Team",
-    parentPositionId: "S-031-LEAD",
-    parentPositionTitle: "JavaScript Team Lead",
-    costCenter: "CC-JS-BE",
-    fte: 1.0,
-    validFrom: "2024-01-01",
-    status: "active",
-    hiringStatus: "hiring",
-    focusArea: "NestJS/GraphQL",
-    workMode: "hybrid",
-    officeLocation: "Hanoi HQ",
-  },
-  // ML Team Positions
-  {
-    id: "S-032-T1-001",
-    code: "S-032-T1-001",
-    title: "Senior ML Engineer",
-    jobClassificationId: "C-011",
-    jobClassificationTitle: "Senior Software Engineer",
-    organizationalUnitId: "O-032-T1",
-    organizationalUnitName: "ML Team",
-    parentPositionId: "S-032-LEAD",
-    parentPositionTitle: "AI Team Lead",
-    costCenter: "CC-AI-ML",
-    fte: 1.0,
-    validFrom: "2024-01-01",
-    status: "active",
-    hiringStatus: "filled",
-    incumbentId: "P-050",
-    incumbentName: "Le Van Son",
-    focusArea: "Deep Learning",
-    workMode: "hybrid",
-    officeLocation: "Hanoi HQ",
-  },
-  {
-    id: "S-032-T1-002",
-    code: "S-032-T1-002",
-    title: "ML Engineer",
-    jobClassificationId: "C-012",
-    jobClassificationTitle: "Software Engineer",
-    organizationalUnitId: "O-032-T1",
-    organizationalUnitName: "ML Team",
-    parentPositionId: "S-032-LEAD",
-    parentPositionTitle: "AI Team Lead",
-    costCenter: "CC-AI-ML",
-    fte: 1.0,
-    validFrom: "2024-01-01",
-    status: "active",
-    hiringStatus: "vacant",
-    focusArea: "Computer Vision",
-    workMode: "hybrid",
-    officeLocation: "Hanoi HQ",
-  },
-  // NLP Team Positions
-  {
-    id: "S-032-T2-001",
-    code: "S-032-T2-001",
-    title: "Senior NLP Engineer",
-    jobClassificationId: "C-011",
-    jobClassificationTitle: "Senior Software Engineer",
-    organizationalUnitId: "O-032-T2",
-    organizationalUnitName: "NLP Team",
-    parentPositionId: "S-032-LEAD",
-    parentPositionTitle: "AI Team Lead",
-    costCenter: "CC-AI-NLP",
-    fte: 1.0,
-    validFrom: "2024-01-01",
-    status: "active",
-    hiringStatus: "filled",
-    incumbentId: "P-051",
-    incumbentName: "Pham Thi Thao",
-    focusArea: "Transformers/LLMs",
-    workMode: "hybrid",
-    officeLocation: "Hanoi HQ",
-  },
-  // Spring Team Positions
-  {
-    id: "S-033-T1-001",
-    code: "S-033-T1-001",
-    title: "Senior Java Developer",
-    jobClassificationId: "C-011",
-    jobClassificationTitle: "Senior Software Engineer",
-    organizationalUnitId: "O-033-T1",
-    organizationalUnitName: "Spring Team",
-    parentPositionId: "S-033-LEAD",
-    parentPositionTitle: "Java Team Lead",
-    costCenter: "CC-JAVA-SPRING",
-    fte: 1.0,
-    validFrom: "2024-01-01",
-    status: "active",
-    hiringStatus: "vacant",
-    focusArea: "Spring Boot",
-    workMode: "hybrid",
-    officeLocation: "Hanoi HQ",
-  },
-  {
-    id: "S-033-T1-002",
-    code: "S-033-T1-002",
-    title: "Java Developer",
-    jobClassificationId: "C-012",
-    jobClassificationTitle: "Software Engineer",
-    organizationalUnitId: "O-033-T1",
-    organizationalUnitName: "Spring Team",
-    parentPositionId: "S-033-LEAD",
-    parentPositionTitle: "Java Team Lead",
-    costCenter: "CC-JAVA-SPRING",
-    fte: 1.0,
-    validFrom: "2024-01-01",
-    status: "active",
-    hiringStatus: "hiring",
-    focusArea: "Spring Cloud",
-    workMode: "hybrid",
-    officeLocation: "Hanoi HQ",
-  },
-  // Microservices Team Positions
-  {
-    id: "S-033-T2-001",
-    code: "S-033-T2-001",
-    title: "Senior Microservices Architect",
-    jobClassificationId: "C-011",
-    jobClassificationTitle: "Senior Software Engineer",
-    organizationalUnitId: "O-033-T2",
-    organizationalUnitName: "Microservices Team",
-    parentPositionId: "S-033-LEAD",
-    parentPositionTitle: "Java Team Lead",
-    costCenter: "CC-JAVA-MICRO",
-    fte: 1.0,
-    validFrom: "2024-01-01",
-    status: "active",
-    hiringStatus: "vacant",
-    focusArea: "Microservices/Kubernetes",
-    workMode: "hybrid",
-    officeLocation: "Hanoi HQ",
-  },
   // Marketing Specialist
   {
     id: "S-021-01",
@@ -1427,7 +1071,7 @@ export const positions: Position[] = [
     workMode: "onsite",
     officeLocation: "Hanoi HQ",
   },
-]
+];
 
 export const employees: Employee[] = [
   {
@@ -1447,111 +1091,30 @@ export const employees: Employee[] = [
     organizationalUnitName: "8sPeople Company",
     costCenter: "CC-ROOT",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2020-01-01",
-    companyJoinDate: "2020-01-01",
-    officialStartDate: "2020-01-01",
     fte: 1.0,
     cellphone: "+84 901 234 001",
     dateOfBirth: "1975-03-15",
-    gender: "male",
-    directReportIds: ["P-002", "P-003", "P-030", "P-031"],
-    workingDays: [1, 2, 3, 4, 5], // Mon-Fri
+    gender: "Male",
     contracts: [
       {
-        id: "ct-001-1", // Added id
         contractNumber: "CT-2020-001",
         contractType: "Official",
         startDate: "2020-01-01",
         endDate: "2025-12-31",
-        status: "active",
-        signDate: "2020-01-01",
-        status: "active",
-        status: "terminated",
+        signDate: "2020-01-01", // Same as startDate for the initial contract
       },
       {
-        id: "ct-001-2", // Added id
         contractNumber: "CT-2025-002",
         contractType: "Contract Extension",
         startDate: "2026-01-01",
         endDate: "2029-12-31",
-        status: "active",
-        signDate: "2025-12-15",
-        status: "active",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-001-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2020-01-01",
-        createdAt: "2020-01-01T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-001-1", // Linked to the contract
-        contractNumber: "CT-2020-001",
-        contractType: "Official",
-        contractStartDate: "2020-01-01",
-        contractEndDate: "2025-12-31",
-        signDate: "2020-01-01",
-        positionId: "S-001",
-        positionTitle: "Chief Executive Officer",
-        organizationalUnitId: "O-001",
-        organizationalUnitName: "8sPeople Company",
-        jobClassificationId: "C-001",
-        jobClassificationTitle: "Chief Executive Officer",
-      },
-      {
-        id: "tx-001-2",
-        action: "contract_renewal",
-        reason: "New Contract",
-        text: "Contract Renewal: New Contract",
-        effectiveDate: "2026-01-01",
-        createdAt: "2025-12-15T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-001-2", // Linked to the new contract
-        contractNumber: "CT-2025-002",
-        contractType: "Contract Extension",
-        contractStartDate: "2026-01-01",
-        contractEndDate: "2029-12-31",
-        signDate: "2025-12-15",
-        positionId: "S-001",
-        positionTitle: "Chief Executive Officer",
-        organizationalUnitId: "O-001",
-        organizationalUnitName: "8sPeople Company",
-        jobClassificationId: "C-001",
-        jobClassificationTitle: "Chief Executive Officer",
-      },
-    ],
-    dependents: [
-      {
-        id: "dep-001-1",
-        fullName: "Nguyen Thi Lan",
-        relationship: "Spouse",
-        dateOfBirth: "1977-05-20",
-        effectiveDate: "2020-01-01",
-        nationalIdNumber: "012345678901",
-        notes: "Wife, benefits since official employment",
-      },
-      {
-        id: "dep-001-2",
-        fullName: "Nguyen Minh Duc",
-        relationship: "Child",
-        dateOfBirth: "2010-08-10",
-        effectiveDate: "2010-08-10",
-        nationalIdNumber: "012345678902",
-        notes: "Son, dependent for tax purposes",
-      },
-      {
-        id: "dep-001-3",
-        fullName: "Nguyen Minh Hoa",
-        relationship: "Child",
-        dateOfBirth: "2013-12-05",
-        effectiveDate: "2013-12-05",
-        nationalIdNumber: "012345678903",
-        notes: "Daughter, dependent for tax purposes",
+        signDate: "2025-12-15", // Earlier than startDate
       },
     ],
   },
@@ -1574,102 +1137,30 @@ export const employees: Employee[] = [
     lineManagerName: "Nguyen Van An",
     costCenter: "CC-TECH",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2021-01-15",
-    companyJoinDate: "2021-01-15",
-    officialStartDate: "2021-01-15",
     fte: 1.0,
     cellphone: "+84 901 234 002",
     dateOfBirth: "1980-06-20",
-    gender: "female",
-    directReportIds: ["P-010", "P-011", "P-012", "P-013", "P-014", "P-020", "P-033-LEAD"],
-    workingDays: [1, 2, 3, 4, 5, 6], // Mon-Sat
+    gender: "Female",
     contracts: [
       {
-        id: "ct-002-1", // Added id
         contractNumber: "CT-2021-001",
         contractType: "Official",
         startDate: "2021-01-15",
         endDate: "2024-01-14",
-        status: "active",
         signDate: "2021-01-15",
-        status: "active",
-        status: "terminated",
       },
       {
-        id: "ct-002-2", // Added id
         contractNumber: "CT-2024-002",
         contractType: "Contract Renewal",
         startDate: "2024-01-15",
         endDate: "2027-01-14",
-        status: "active",
         signDate: "2024-01-01",
-        status: "active",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-002-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2021-01-15",
-        createdAt: "2021-01-15T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-002-1", // Linked to the contract
-        contractNumber: "CT-2021-001",
-        contractType: "Official",
-        contractStartDate: "2021-01-15",
-        contractEndDate: "2024-01-14",
-        signDate: "2021-01-15",
-        positionId: "S-030",
-        positionTitle: "Chief Technology Officer",
-        organizationalUnitId: "O-030",
-        organizationalUnitName: "Technology Division",
-        jobClassificationId: "C-002",
-        jobClassificationTitle: "Chief Technology Officer",
-      },
-      {
-        id: "tx-002-2",
-        action: "contract_renewal",
-        reason: "New Contract",
-        text: "Contract Renewal: New Contract",
-        effectiveDate: "2024-01-15",
-        createdAt: "2024-01-01T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-002-2", // Linked to the new contract
-        contractNumber: "CT-2024-002",
-        contractType: "Contract Renewal",
-        contractStartDate: "2024-01-15",
-        contractEndDate: "2027-01-14",
-        signDate: "2024-01-01",
-        positionId: "S-030",
-        positionTitle: "Chief Technology Officer",
-        organizationalUnitId: "O-030",
-        organizationalUnitName: "Technology Division",
-        jobClassificationId: "C-002",
-        jobClassificationTitle: "Chief Technology Officer",
-      },
-    ],
-    dependents: [
-      {
-        id: "dep-002-1",
-        fullName: "Tran Thanh Tung",
-        relationship: "Spouse",
-        dateOfBirth: "1982-09-15",
-        effectiveDate: "2021-01-15",
-        nationalIdNumber: "123456789012",
-        notes: "Husband, benefits since 2021",
-      },
-      {
-        id: "dep-002-2",
-        fullName: "Tran Minh Khoa",
-        relationship: "Child",
-        dateOfBirth: "2012-03-22",
-        effectiveDate: "2012-03-22",
-        nationalIdNumber: "123456789013",
-        notes: "Son, dependent for tax purposes",
       },
     ],
   },
@@ -1692,80 +1183,30 @@ export const employees: Employee[] = [
     lineManagerName: "Nguyen Van An",
     costCenter: "CC-HR",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2021-03-01",
-    companyJoinDate: "2021-03-01",
-    officialStartDate: "2021-03-01",
     fte: 1.0,
     cellphone: "+84 901 234 003",
     dateOfBirth: "1985-09-10",
-    gender: "male",
-    directReportIds: ["P-004", "P-005"],
-    workingDays: [1, 2, 3, 4, 5], // Mon-Fri
+    gender: "Male",
     contracts: [
       {
-        id: "ct-003-1", // Added id
         contractNumber: "CT-2021-002",
         contractType: "Official",
         startDate: "2021-03-01",
         endDate: "2024-02-29",
-        status: "active",
         signDate: "2021-03-01",
-        status: "active",
       },
       {
-        id: "ct-003-2", // Added id
         contractNumber: "CT-2024-003",
         contractType: "Contract Extension",
         startDate: "2024-03-01",
         endDate: "2027-02-28",
-        status: "active",
         signDate: "2024-02-20",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-003-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2021-03-01",
-        createdAt: "2021-03-01T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-003-1", // Linked to the contract
-        contractNumber: "CT-2021-002",
-        contractType: "Official",
-        contractStartDate: "2021-03-01",
-        contractEndDate: "2024-02-29",
-        signDate: "2021-03-01",
-        positionId: "S-011",
-        positionTitle: "HR Manager",
-        organizationalUnitId: "O-011",
-        organizationalUnitName: "HR Department",
-        jobClassificationId: "C-003",
-        jobClassificationTitle: "HR Manager",
-      },
-      {
-        id: "tx-003-2",
-        action: "contract_renewal",
-        reason: "New Contract",
-        text: "Contract Renewal: New Contract",
-        effectiveDate: "2024-03-01",
-        createdAt: "2024-02-20T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-003-2", // Linked to the new contract
-        contractNumber: "CT-2024-003",
-        contractType: "Contract Extension",
-        contractStartDate: "2024-03-01",
-        contractEndDate: "2027-02-28",
-        signDate: "2024-02-20",
-        positionId: "S-011",
-        positionTitle: "HR Manager",
-        organizationalUnitId: "O-011",
-        organizationalUnitName: "HR Department",
-        jobClassificationId: "C-003",
-        jobClassificationTitle: "HR Manager",
       },
     ],
   },
@@ -1788,78 +1229,30 @@ export const employees: Employee[] = [
     lineManagerName: "Le Van Cuong",
     costCenter: "CC-HR",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2022-01-10",
-    companyJoinDate: "2022-01-10",
-    officialStartDate: "2022-04-10",
     fte: 1.0,
     cellphone: "+84 901 234 004",
     dateOfBirth: "1990-12-05",
-    gender: "female",
+    gender: "Female",
     contracts: [
       {
-        id: "ct-004-1", // Added id
         contractNumber: "CT-2022-005",
         contractType: "Probation",
         startDate: "2022-01-10",
         endDate: "2022-04-09",
-        status: "active",
         signDate: "2022-01-10",
-        status: "active",
       },
       {
-        id: "ct-004-2", // Added id
         contractNumber: "CT-2022-006",
         contractType: "Official",
         startDate: "2022-04-10",
         endDate: "2025-04-09",
-        status: "active",
         signDate: "2022-04-01",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-004-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2022-01-10",
-        createdAt: "2022-01-10T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-004-1", // Linked to the contract
-        contractNumber: "CT-2022-005",
-        contractType: "Probation",
-        contractStartDate: "2022-01-10",
-        contractEndDate: "2022-04-09",
-        signDate: "2022-01-10",
-        positionId: "S-011-01",
-        positionTitle: "HR Specialist #1",
-        organizationalUnitId: "O-011",
-        organizationalUnitName: "HR Department",
-        jobClassificationId: "C-004",
-        jobClassificationTitle: "HR Specialist",
-      },
-      {
-        id: "tx-004-2",
-        action: "probation_confirmation",
-        reason: "Probation Completion",
-        text: "Probation Confirmation: Probation Completion",
-        effectiveDate: "2022-04-10",
-        createdAt: "2022-04-01T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-004-2", // Linked to the contract
-        contractNumber: "CT-2022-006",
-        contractType: "Official",
-        contractStartDate: "2022-04-10",
-        contractEndDate: "2025-04-09",
-        signDate: "2022-04-01",
-        positionId: "S-011-01",
-        positionTitle: "HR Specialist #1",
-        organizationalUnitId: "O-011",
-        organizationalUnitName: "HR Department",
-        jobClassificationId: "C-004",
-        jobClassificationTitle: "HR Specialist",
       },
     ],
   },
@@ -1882,89 +1275,37 @@ export const employees: Employee[] = [
     lineManagerName: "Tran Thi Binh",
     costCenter: "CC-JS",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2022-02-01",
-    companyJoinDate: "2021-06-01",
-    officialStartDate: "2022-02-01",
     fte: 1.0,
     cellphone: "+84 901 234 010",
     dateOfBirth: "1988-04-15",
-    gender: "male",
-    directReportIds: ["P-011", "P-012", "P-013", "P-014"],
+    gender: "Male",
     contracts: [
       {
-        id: "ct-010-1", // Added id
         contractNumber: "CT-2021-003",
         contractType: "Junior Engineer",
         startDate: "2021-06-01",
         endDate: "2022-01-31",
-        status: "active",
         signDate: "2021-06-01",
-        status: "active",
       },
       {
-        id: "ct-010-2", // Added id
         contractNumber: "CT-2022-007",
         contractType: "Mid-Level Engineer",
         startDate: "2022-02-01",
         endDate: "2023-12-31",
-        status: "active",
         signDate: "2022-02-01",
-        status: "active",
       },
       {
-        id: "ct-010-3", // Added id
         contractNumber: "CT-2024-004",
         contractType: "Promotion to Team Lead",
         startDate: "2024-01-01",
         endDate: "2027-01-01",
-        status: "active",
         signDate: "2024-01-01",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-010-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2021-06-01",
-        createdAt: "2021-06-01T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-010-1", // Linked to the contract
-        contractNumber: "CT-2021-003",
-        contractType: "Junior Engineer",
-        contractStartDate: "2021-06-01",
-        contractEndDate: "2022-01-31",
-        signDate: "2021-06-01",
-        positionId: "S-031-MID-001",
-        positionTitle: "JavaScript Developer #1",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-012",
-        jobClassificationTitle: "Software Engineer",
-      },
-      {
-        id: "tx-010-2",
-        action: "promotion",
-        reason: "Organizational Requirement",
-        text: "Promotion: Organizational Requirement",
-        effectiveDate: "2024-01-01",
-        createdAt: "2024-01-01T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-010-3", // Linked to the contract
-        contractNumber: "CT-2024-004",
-        contractType: "Promotion to Team Lead",
-        contractStartDate: "2024-01-01",
-        contractEndDate: "2027-01-01",
-        signDate: "2024-01-01",
-        positionId: "S-031-LEAD",
-        positionTitle: "JavaScript Team Lead",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-010",
-        jobClassificationTitle: "Team Lead (Software)",
       },
     ],
   },
@@ -1987,115 +1328,44 @@ export const employees: Employee[] = [
     lineManagerName: "Hoang Van Em",
     costCenter: "CC-JS",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2022-03-15",
-    companyJoinDate: "2022-01-15",
-    officialStartDate: "2022-06-15",
     fte: 1.0,
     cellphone: "+84 901 234 011",
     dateOfBirth: "1990-07-20",
-    gender: "male",
+    gender: "Male",
     contracts: [
       {
-        id: "ct-011-1", // Added id
         contractNumber: "CT-2022-001",
         contractType: "Intern",
         startDate: "2022-01-15",
         endDate: "2022-03-14",
-        status: "active",
         signDate: "2022-01-15",
-        status: "active",
       },
       {
-        id: "ct-011-2", // Added id
         contractNumber: "CT-2022-002",
         contractType: "Probation",
         startDate: "2022-03-15",
         endDate: "2022-06-14",
-        status: "active",
         signDate: "2022-03-15",
-        status: "active",
       },
       {
-        id: "ct-011-3", // Added id
         contractNumber: "CT-2022-003",
         contractType: "Official",
         startDate: "2022-06-15",
         endDate: "2025-06-14",
-        status: "active",
         signDate: "2022-06-10",
-        status: "active",
       },
       {
-        id: "ct-011-4", // Added id
         contractNumber: "CT-2025-001",
         contractType: "Salary Increase",
         startDate: "2025-01-01",
         endDate: "2028-01-01",
-        status: "active",
         signDate: "2024-12-20",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-011-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2022-01-15",
-        createdAt: "2022-01-15T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-011-1", // Linked to the contract
-        contractNumber: "CT-2022-001",
-        contractType: "Intern",
-        contractStartDate: "2022-01-15",
-        contractEndDate: "2022-03-14",
-        signDate: "2022-01-15",
-        positionId: "S-031-JR-001",
-        positionTitle: "Junior JavaScript Developer #1",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-013",
-        jobClassificationTitle: "Junior Software Engineer",
-      },
-      {
-        id: "tx-011-2",
-        action: "probation_confirmation",
-        reason: "Probation Completion",
-        text: "Probation Confirmation: Probation Completion",
-        effectiveDate: "2022-06-15",
-        createdAt: "2022-06-10T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-011-3", // Linked to the contract
-        contractNumber: "CT-2022-003",
-        contractType: "Official",
-        contractStartDate: "2022-06-15",
-        contractEndDate: "2025-06-14",
-        signDate: "2022-06-10",
-        positionId: "S-031-SR-001",
-        positionTitle: "Senior JavaScript Developer #1",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-011",
-        jobClassificationTitle: "Senior Software Engineer",
-      },
-      {
-        id: "tx-011-3",
-        action: "salary_change",
-        reason: "Annual Appraisal",
-        text: "Salary Change: Annual Appraisal",
-        effectiveDate: "2025-01-01",
-        createdAt: "2024-12-20T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-011-4", // Linked to the contract
-        salaryChange: { oldSalary: 32000000, newSalary: 35000000, currency: "VND" },
-        positionId: "S-031-SR-001",
-        positionTitle: "Senior JavaScript Developer #1",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-011",
-        jobClassificationTitle: "Senior Software Engineer",
       },
     ],
   },
@@ -2118,78 +1388,30 @@ export const employees: Employee[] = [
     lineManagerName: "Hoang Van Em",
     costCenter: "CC-JS",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2022-04-01",
-    companyJoinDate: "2022-04-01",
-    officialStartDate: "2022-04-01",
     fte: 1.0,
     cellphone: "+84 901 234 012",
     dateOfBirth: "1991-11-30",
-    gender: "female",
+    gender: "Female",
     contracts: [
       {
-        id: "ct-012-1", // Added id
         contractNumber: "CT-2022-004",
         contractType: "Official",
         startDate: "2022-04-01",
         endDate: "2025-03-31",
-        status: "active",
         signDate: "2022-04-01",
-        status: "active",
       },
       {
-        id: "ct-012-2", // Added id
         contractNumber: "CT-2024-001",
         contractType: "Promotion",
         startDate: "2024-06-01",
         endDate: "2027-06-01",
-        status: "active",
         signDate: "2024-05-25",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-012-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2022-04-01",
-        createdAt: "2022-04-01T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-012-1", // Linked to the contract
-        contractNumber: "CT-2022-004",
-        contractType: "Official",
-        contractStartDate: "2022-04-01",
-        contractEndDate: "2025-03-31",
-        signDate: "2022-04-01",
-        positionId: "S-031-SR-002",
-        positionTitle: "Senior JavaScript Developer #2",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-011",
-        jobClassificationTitle: "Senior Software Engineer",
-      },
-      {
-        id: "tx-012-2",
-        action: "promotion",
-        reason: "Performance",
-        text: "Promotion: Performance",
-        effectiveDate: "2024-06-01",
-        createdAt: "2024-05-25T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-012-2", // Linked to the contract
-        contractNumber: "CT-2024-001",
-        contractType: "Promotion",
-        contractStartDate: "2024-06-01",
-        contractEndDate: "2027-06-01",
-        signDate: "2024-05-25",
-        positionId: "S-031-SR-002",
-        positionTitle: "Senior JavaScript Developer #2",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-011",
-        jobClassificationTitle: "Senior Software Engineer",
       },
     ],
   },
@@ -2212,78 +1434,30 @@ export const employees: Employee[] = [
     lineManagerName: "Hoang Van Em",
     costCenter: "CC-JS",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2023-01-10",
-    companyJoinDate: "2023-01-10",
-    officialStartDate: "2024-01-01",
     fte: 1.0,
     cellphone: "+84 901 234 013",
     dateOfBirth: "1993-02-14",
-    gender: "male",
+    gender: "Male",
     contracts: [
       {
-        id: "ct-013-1", // Added id
         contractNumber: "CT-2023-001",
         contractType: "Junior Engineer",
         startDate: "2023-01-20",
         endDate: "2023-12-31",
-        status: "active",
         signDate: "2023-01-20",
-        status: "active",
       },
       {
-        id: "ct-013-2", // Added id
         contractNumber: "CT-2024-005",
         contractType: "Mid-Level Engineer",
         startDate: "2024-01-01",
         endDate: "2026-12-31",
-        status: "active",
         signDate: "2024-01-01",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-013-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2023-01-20",
-        createdAt: "2023-01-20T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-013-1", // Linked to the contract
-        contractNumber: "CT-2023-001",
-        contractType: "Junior Engineer",
-        contractStartDate: "2023-01-20",
-        contractEndDate: "2023-12-31",
-        signDate: "2023-01-20",
-        positionId: "S-031-MID-001",
-        positionTitle: "JavaScript Developer #1",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-012",
-        jobClassificationTitle: "Software Engineer",
-      },
-      {
-        id: "tx-013-2",
-        action: "promotion",
-        reason: "Performance",
-        text: "Promotion: Performance",
-        effectiveDate: "2024-01-01",
-        createdAt: "2024-01-01T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-013-2", // Linked to the contract
-        contractNumber: "CT-2024-005",
-        contractType: "Mid-Level Engineer",
-        contractStartDate: "2024-01-01",
-        contractEndDate: "2026-12-31",
-        signDate: "2024-01-01",
-        positionId: "S-031-MID-001",
-        positionTitle: "JavaScript Developer #1",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-012",
-        jobClassificationTitle: "Software Engineer",
       },
     ],
   },
@@ -2306,78 +1480,30 @@ export const employees: Employee[] = [
     lineManagerName: "Hoang Van Em",
     costCenter: "CC-JS",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2024-01-02",
-    companyJoinDate: "2023-07-01",
-    officialStartDate: "2024-01-02",
     fte: 1.0,
     cellphone: "+84 901 234 014",
     dateOfBirth: "1998-08-25",
-    gender: "male",
+    gender: "Male",
     contracts: [
       {
-        id: "ct-014-1", // Added id
         contractNumber: "CT-2024-006",
         contractType: "Intern",
         startDate: "2023-07-01",
         endDate: "2023-12-31",
-        status: "active",
         signDate: "2023-07-01",
-        status: "active",
       },
       {
-        id: "ct-014-2", // Added id
         contractNumber: "CT-2024-007",
         contractType: "Junior Engineer",
         startDate: "2024-01-02",
         endDate: "2025-01-01",
-        status: "active",
         signDate: "2024-01-02",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-014-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2023-07-01",
-        createdAt: "2023-07-01T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-014-1", // Linked to the contract
-        contractNumber: "CT-2024-006",
-        contractType: "Intern",
-        contractStartDate: "2023-07-01",
-        contractEndDate: "2023-12-31",
-        signDate: "2023-07-01",
-        positionId: "S-031-JR-001",
-        positionTitle: "Junior JavaScript Developer #1",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-013",
-        jobClassificationTitle: "Junior Software Engineer",
-      },
-      {
-        id: "tx-014-2",
-        action: "probation_confirmation", // This should likely be "contract_update" or similar if it's not a promotion
-        reason: "Probation Completion",
-        text: "Probation Confirmation: Probation Completion",
-        effectiveDate: "2024-01-02",
-        createdAt: "2024-01-02T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-014-2", // Linked to the contract
-        contractNumber: "CT-2024-007",
-        contractType: "Junior Engineer",
-        contractStartDate: "2024-01-02",
-        contractEndDate: "2025-01-01",
-        signDate: "2024-01-02",
-        positionId: "S-031-JR-001",
-        positionTitle: "Junior JavaScript Developer #1",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-013",
-        jobClassificationTitle: "Junior Software Engineer",
       },
     ],
   },
@@ -2400,48 +1526,23 @@ export const employees: Employee[] = [
     lineManagerName: "Tran Thi Binh",
     costCenter: "CC-AI",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2022-06-01",
-    companyJoinDate: "2022-06-01",
-    officialStartDate: "2022-06-01",
     fte: 1.0,
     cellphone: "+84 901 234 020",
     dateOfBirth: "1987-05-18",
-    gender: "female",
-    directReportIds: [],
+    gender: "Female",
     contracts: [
       {
-        id: "ct-020-1", // Added id
         contractNumber: "CT-2022-008",
         contractType: "Official",
         startDate: "2022-06-01",
         endDate: "2025-05-31",
-        status: "active",
         signDate: "2022-06-01",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-020-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2022-06-01",
-        createdAt: "2022-06-01T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-020-1", // Linked to the contract
-        contractNumber: "CT-2022-008",
-        contractType: "Official",
-        contractStartDate: "2022-06-01",
-        contractEndDate: "2025-05-31",
-        signDate: "2022-06-01",
-        positionId: "S-032-LEAD",
-        positionTitle: "AI Team Lead",
-        organizationalUnitId: "O-032",
-        organizationalUnitName: "AI Department",
-        jobClassificationId: "C-010",
-        jobClassificationTitle: "Team Lead (Software)",
       },
     ],
   },
@@ -2464,47 +1565,23 @@ export const employees: Employee[] = [
     lineManagerName: "Nguyen Van An",
     costCenter: "CC-MKT",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2023-03-01",
-    companyJoinDate: "2023-03-01",
-    officialStartDate: "2023-03-01",
     fte: 1.0,
     cellphone: "+84 901 234 030",
     dateOfBirth: "1992-10-12",
-    gender: "female",
+    gender: "Female",
     contracts: [
       {
-        id: "ct-030-1", // Added id
         contractNumber: "CT-2023-002",
         contractType: "Official",
         startDate: "2023-03-01",
         endDate: "2026-02-28",
-        status: "active",
         signDate: "2023-03-01",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-030-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2023-03-01",
-        createdAt: "2023-03-01T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-030-1", // Linked to the contract
-        contractNumber: "CT-2023-002",
-        contractType: "Official",
-        contractStartDate: "2023-03-01",
-        contractEndDate: "2026-02-28",
-        signDate: "2023-03-01",
-        positionId: "S-021-01",
-        positionTitle: "Marketing Specialist #1",
-        organizationalUnitId: "O-021",
-        organizationalUnitName: "Marketing Department",
-        jobClassificationId: "C-020",
-        jobClassificationTitle: "Marketing Specialist",
       },
     ],
   },
@@ -2527,210 +1604,23 @@ export const employees: Employee[] = [
     lineManagerName: "Nguyen Van An",
     costCenter: "CC-FIN",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2023-04-15",
-    companyJoinDate: "2023-04-15",
-    officialStartDate: "2023-04-15",
     fte: 1.0,
     cellphone: "+84 901 234 031",
     dateOfBirth: "1989-01-28",
-    gender: "male",
+    gender: "Male",
     contracts: [
       {
-        id: "ct-031-1", // Added id
         contractNumber: "CT-2023-003",
         contractType: "Official",
         startDate: "2023-04-15",
         endDate: "2026-04-14",
-        status: "active",
         signDate: "2023-04-15",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-031-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2023-04-15",
-        createdAt: "2023-04-15T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-031-1", // Linked to the contract
-        contractNumber: "CT-2023-003",
-        contractType: "Official",
-        contractStartDate: "2023-04-15",
-        contractEndDate: "2026-04-14",
-        signDate: "2023-04-15",
-        positionId: "S-012-01",
-        positionTitle: "Finance Specialist #1",
-        organizationalUnitId: "O-012",
-        organizationalUnitName: "Finance Department",
-        jobClassificationId: "C-021",
-        jobClassificationTitle: "Finance Specialist",
-      },
-    ],
-  },
-  {
-    id: "P-050",
-    code: "P-050",
-    fullName: "Tran Van Minh",
-    firstName: "Minh",
-    lastName: "Tran Van",
-    personalEmail: "minh.tran@gmail.com",
-    companyEmail: "minh.tran@8speople.com",
-    positionId: "",
-    positionCode: "",
-    positionTitle: "Former Software Engineer",
-    jobClassificationId: "C-012",
-    jobClassificationTitle: "Software Engineer",
-    organizationalUnitId: "O-031",
-    organizationalUnitName: "JavaScript Department",
-    costCenter: "CC-JS",
-    status: "resigned",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
-    startDate: "2021-06-01",
-    companyJoinDate: "2021-06-01",
-    officialStartDate: "2021-09-01",
-    fte: 0,
-    cellphone: "+84 901 234 050",
-    dateOfBirth: "1992-03-20",
-    gender: "male",
-    contracts: [
-      {
-        id: "ct-050-1", // Added id
-        contractNumber: "CT-2021-050",
-        contractType: "Probation",
-        startDate: "2021-06-01",
-        endDate: "2021-08-31",
-        status: "active",
-        signDate: "2021-06-01",
-        status: "active",
-      },
-      {
-        id: "ct-050-2", // Added id
-        contractNumber: "CT-2021-051",
-        contractType: "Official",
-        startDate: "2021-09-01",
-        endDate: "2024-08-31",
-        status: "active",
-        signDate: "2021-09-01",
-        status: "active",
-      },
-      {
-        id: "ct-term-2025-001", // Added id
-        contractNumber: "CT-TERM-2025-001",
-        contractType: "Termination",
-        startDate: "2025-01-15",
-        endDate: "2025-01-15",
-        status: "active",
-        signDate: "2025-01-10",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-050-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2021-06-01",
-        createdAt: "2021-06-01T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-050-1", // Linked to the contract
-        contractNumber: "CT-2021-050",
-        contractType: "Probation",
-        contractStartDate: "2021-06-01",
-        contractEndDate: "2021-08-31",
-        signDate: "2021-06-01",
-        positionId: "S-031-MID-001",
-        positionTitle: "JavaScript Developer #1",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-012",
-        jobClassificationTitle: "Software Engineer",
-      },
-      {
-        id: "tx-050-2",
-        action: "resignation",
-        reason: "Voluntary",
-        subReason: "Career Development",
-        text: "Resignation: Voluntary - Career Development",
-        effectiveDate: "2025-01-15",
-        createdAt: "2025-01-10T09:00:00Z",
-        createdBy: "admin",
-        notes: "Employee is leaving to pursue new career opportunities.",
-      },
-    ],
-    resignationInfo: {
-      resignationAction: "Voluntary",
-      resignationReason: "Career Development",
-      lastWorkingDate: "2025-01-15",
-      exitInterviewCompleted: true,
-      assetsReturned: true,
-      rehireEligible: true,
-    },
-  },
-  {
-    id: "P-051",
-    code: "P-051",
-    fullName: "Le Thi Hoa",
-    firstName: "Hoa",
-    lastName: "Le Thi",
-    personalEmail: "hoa.le@gmail.com",
-    companyEmail: "hoa.le@8speople.com",
-    positionId: "S-031-MID-002",
-    positionCode: "S-031-MID-002",
-    positionTitle: "JavaScript Developer #2",
-    jobClassificationId: "C-012",
-    jobClassificationTitle: "Software Engineer",
-    organizationalUnitId: "O-031",
-    organizationalUnitName: "JavaScript Department",
-    lineManagerId: "P-010",
-    lineManagerName: "Hoang Van Em",
-    costCenter: "CC-JS",
-    status: "future",
-    onboardingStatus: { emailSent: true, accountActivated: false, profileCompleted: false },
-    startDate: "2026-02-01",
-    companyJoinDate: "2026-02-01",
-    officialStartDate: "2026-02-01",
-    fte: 1.0,
-    cellphone: "+84 901 234 051",
-    dateOfBirth: "1995-07-10",
-    gender: "female",
-    contracts: [
-      {
-        id: "ct-051-1", // Added id
-        contractNumber: "CT-2026-001",
-        contractType: "Official",
-        startDate: "2026-02-01",
-        endDate: "2029-01-31",
-        status: "active",
-        signDate: "2026-01-20",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-051-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2026-02-01",
-        createdAt: "2026-01-20T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-051-1", // Linked to the contract
-        contractNumber: "CT-2026-001",
-        contractType: "Official",
-        contractStartDate: "2026-02-01",
-        contractEndDate: "2029-01-31",
-        signDate: "2026-01-20",
-        positionId: "S-031-MID-002",
-        positionTitle: "JavaScript Developer #2",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-012",
-        jobClassificationTitle: "Software Engineer",
       },
     ],
   },
@@ -2754,80 +1644,16 @@ export const employees: Employee[] = [
     lineManagerName: "Le Van Cuong",
     costCenter: "CC-HR",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2022-01-10",
-    companyJoinDate: "2022-01-10",
-    officialStartDate: "2022-04-10",
     fte: 1.0,
     cellphone: "+84 901 234 005",
     dateOfBirth: "1991-05-20",
-    gender: "female",
-    contracts: [
-      {
-        id: "ct-005-1", // Added id
-        contractNumber: "CT-2022-005-anh",
-        contractType: "Probation",
-        startDate: "2022-01-10",
-        endDate: "2022-04-09",
-        status: "active",
-        signDate: "2022-01-10",
-        status: "active",
-      },
-      {
-        id: "ct-005-2", // Added id
-        contractNumber: "CT-2022-006-anh",
-        contractType: "Official",
-        startDate: "2022-04-10",
-        endDate: "2025-04-09",
-        status: "active",
-        signDate: "2022-04-01",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-005-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2022-01-10",
-        createdAt: "2022-01-10T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-005-1", // Linked to the contract
-        contractNumber: "CT-2022-005-anh",
-        contractType: "Probation",
-        contractStartDate: "2022-01-10",
-        contractEndDate: "2022-04-09",
-        signDate: "2022-01-10",
-        positionId: "S-011-01",
-        positionTitle: "HR Specialist #1",
-        organizationalUnitId: "O-011",
-        organizationalUnitName: "HR Department",
-        jobClassificationId: "C-004",
-        jobClassificationTitle: "HR Specialist",
-      },
-      {
-        id: "tx-005-2",
-        action: "probation_confirmation",
-        reason: "Probation Completion",
-        text: "Probation Confirmation: Probation Completion",
-        effectiveDate: "2022-04-10",
-        createdAt: "2022-04-01T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-005-2", // Linked to the contract
-        contractNumber: "CT-2022-006-anh",
-        contractType: "Official",
-        contractStartDate: "2022-04-10",
-        contractEndDate: "2025-04-09",
-        signDate: "2022-04-01",
-        positionId: "S-011-01",
-        positionTitle: "HR Specialist #1",
-        organizationalUnitId: "O-011",
-        organizationalUnitName: "HR Department",
-        jobClassificationId: "C-004",
-        jobClassificationTitle: "HR Specialist",
-      },
-    ],
+    gender: "Female",
   },
   {
     id: "P-006",
@@ -2848,80 +1674,16 @@ export const employees: Employee[] = [
     lineManagerName: "Hoang Van Em",
     costCenter: "CC-JS",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2024-01-02",
-    companyJoinDate: "2024-01-02",
-    officialStartDate: "2024-01-02",
     fte: 1.0,
     cellphone: "+84 901 234 006",
     dateOfBirth: "1999-03-10",
-    gender: "female",
-    contracts: [
-      {
-        id: "ct-006-1", // Added id
-        contractNumber: "CT-2024-006-ngoc",
-        contractType: "Intern",
-        startDate: "2024-01-02",
-        endDate: "2024-06-30",
-        status: "active",
-        signDate: "2024-01-02",
-        status: "active",
-      },
-      {
-        id: "ct-006-2", // Added id
-        contractNumber: "CT-2024-007-ngoc",
-        contractType: "Junior Engineer",
-        startDate: "2024-07-01",
-        endDate: "2025-06-30",
-        status: "active",
-        signDate: "2024-07-01",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-006-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2024-01-02",
-        createdAt: "2024-01-02T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-006-1", // Linked to the contract
-        contractNumber: "CT-2024-006-ngoc",
-        contractType: "Intern",
-        contractStartDate: "2024-01-02",
-        contractEndDate: "2024-06-30",
-        signDate: "2024-01-02",
-        positionId: "S-031-JR-001",
-        positionTitle: "Junior JavaScript Developer #1",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-013",
-        jobClassificationTitle: "Junior Software Engineer",
-      },
-      {
-        id: "tx-006-2",
-        action: "promotion", // This might represent a change in contract type/level rather than a promotion to a new title
-        reason: "Performance",
-        text: "Promotion: Performance",
-        effectiveDate: "2024-07-01",
-        createdAt: "2024-07-01T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-006-2", // Linked to the contract
-        contractNumber: "CT-2024-007-ngoc",
-        contractType: "Junior Engineer",
-        contractStartDate: "2024-07-01",
-        contractEndDate: "2025-06-30",
-        signDate: "2024-07-01",
-        positionId: "S-031-JR-001",
-        positionTitle: "Junior JavaScript Developer #1",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-013",
-        jobClassificationTitle: "Junior Software Engineer",
-      },
-    ],
+    gender: "Female",
   },
   {
     id: "P-007",
@@ -2942,49 +1704,16 @@ export const employees: Employee[] = [
     lineManagerName: "Nguyen Van An",
     costCenter: "CC-MKT",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2023-03-01",
-    companyJoinDate: "2023-03-01",
-    officialStartDate: "2023-03-01",
     fte: 1.0,
     cellphone: "+84 901 234 007",
     dateOfBirth: "1993-08-15",
-    gender: "male",
-    contracts: [
-      {
-        id: "ct-007-1", // Added id
-        contractNumber: "CT-2023-002-giang",
-        contractType: "Official",
-        startDate: "2023-03-01",
-        endDate: "2026-02-28",
-        status: "active",
-        signDate: "2023-03-01",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-007-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2023-03-01",
-        createdAt: "2023-03-01T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-007-1", // Linked to the contract
-        contractNumber: "CT-2023-002-giang",
-        contractType: "Official",
-        contractStartDate: "2023-03-01",
-        contractEndDate: "2026-02-28",
-        signDate: "2023-03-01",
-        positionId: "S-021-01",
-        positionTitle: "Marketing Specialist #1",
-        organizationalUnitId: "O-021",
-        organizationalUnitName: "Marketing Department",
-        jobClassificationId: "C-020",
-        jobClassificationTitle: "Marketing Specialist",
-      },
-    ],
+    gender: "Male",
   },
   {
     id: "P-008",
@@ -3005,49 +1734,16 @@ export const employees: Employee[] = [
     lineManagerName: "Nguyen Van An",
     costCenter: "CC-FIN",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2023-04-15",
-    companyJoinDate: "2023-04-15",
-    officialStartDate: "2023-04-15",
     fte: 1.0,
     cellphone: "+84 901 234 008",
     dateOfBirth: "1990-11-01",
-    gender: "female",
-    contracts: [
-      {
-        id: "ct-008-1", // Added id
-        contractNumber: "CT-2023-003-hoa",
-        contractType: "Official",
-        startDate: "2023-04-15",
-        endDate: "2026-04-14",
-        status: "active",
-        signDate: "2023-04-15",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-008-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2023-04-15",
-        createdAt: "2023-04-15T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-008-1", // Linked to the contract
-        contractNumber: "CT-2023-003-hoa",
-        contractType: "Official",
-        contractStartDate: "2023-04-15",
-        contractEndDate: "2026-04-14",
-        signDate: "2023-04-15",
-        positionId: "S-012-01",
-        positionTitle: "Finance Specialist #1",
-        organizationalUnitId: "O-012",
-        organizationalUnitName: "Finance Department",
-        jobClassificationId: "C-021",
-        jobClassificationTitle: "Finance Specialist",
-      },
-    ],
+    gender: "Female",
   },
   {
     id: "P-009",
@@ -3068,80 +1764,16 @@ export const employees: Employee[] = [
     lineManagerName: "Hoang Van Em",
     costCenter: "CC-JS",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2023-01-10",
-    companyJoinDate: "2023-01-10",
-    officialStartDate: "2024-01-01",
     fte: 1.0,
     cellphone: "+84 901 234 009",
     dateOfBirth: "1992-07-07",
-    gender: "male",
-    contracts: [
-      {
-        id: "ct-009-1", // Added id
-        contractNumber: "CT-2023-001-ich",
-        contractType: "Junior Engineer",
-        startDate: "2023-01-20",
-        endDate: "2023-12-31",
-        status: "active",
-        signDate: "2023-01-20",
-        status: "active",
-      },
-      {
-        id: "ct-009-2", // Added id
-        contractNumber: "CT-2024-005-ich",
-        contractType: "Mid-Level Engineer",
-        startDate: "2024-01-01",
-        endDate: "2026-12-31",
-        status: "active",
-        signDate: "2024-01-01",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-009-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2023-01-20",
-        createdAt: "2023-01-20T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-009-1", // Linked to the contract
-        contractNumber: "CT-2023-001-ich",
-        contractType: "Junior Engineer",
-        contractStartDate: "2023-01-20",
-        contractEndDate: "2023-12-31",
-        signDate: "2023-01-20",
-        positionId: "S-031-MID-001",
-        positionTitle: "JavaScript Developer #1",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-012",
-        jobClassificationTitle: "Software Engineer",
-      },
-      {
-        id: "tx-009-2",
-        action: "promotion",
-        reason: "Performance",
-        text: "Promotion: Performance",
-        effectiveDate: "2024-01-01",
-        createdAt: "2024-01-01T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-009-2", // Linked to the contract
-        contractNumber: "CT-2024-005-ich",
-        contractType: "Mid-Level Engineer",
-        contractStartDate: "2024-01-01",
-        contractEndDate: "2026-12-31",
-        signDate: "2024-01-01",
-        positionId: "S-031-MID-001",
-        positionTitle: "JavaScript Developer #1",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-012",
-        jobClassificationTitle: "Software Engineer",
-      },
-    ],
+    gender: "Male",
   },
   // Re-adding P-006 with a different name to avoid duplicate IDs for demonstration purposes.
   // In a real scenario, duplicate IDs should be resolved.
@@ -3164,452 +1796,39 @@ export const employees: Employee[] = [
     lineManagerName: "Hoang Van Em",
     costCenter: "CC-JS",
     status: "active",
-    onboardingStatus: { emailSent: true, accountActivated: true, profileCompleted: true },
+    onboardingStatus: {
+      emailSent: true,
+      accountActivated: true,
+      profileCompleted: true,
+    },
     startDate: "2024-01-02",
-    companyJoinDate: "2024-01-02",
-    officialStartDate: "2024-01-02",
     fte: 1.0,
     cellphone: "+84 901 234 006-alt",
     dateOfBirth: "1999-03-10",
-    gender: "female",
-    contracts: [
-      {
-        id: "ct-006-alt-1", // Added id
-        contractNumber: "CT-2024-006-alt",
-        contractType: "Intern",
-        startDate: "2024-01-02",
-        endDate: "2024-06-30",
-        status: "active",
-        signDate: "2024-01-02",
-        status: "active",
-      },
-      {
-        id: "ct-006-alt-2", // Added id
-        contractNumber: "CT-2024-007-alt",
-        contractType: "Junior Engineer",
-        startDate: "2024-07-01",
-        endDate: "2025-06-30",
-        status: "active",
-        signDate: "2024-07-01",
-        status: "active",
-      },
-    ],
-    transactions: [
-      {
-        id: "tx-006-alt-1",
-        action: "hiring",
-        reason: "New Position",
-        text: "Hired: New Position",
-        effectiveDate: "2024-01-02",
-        createdAt: "2024-01-02T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-006-alt-1", // Linked to the contract
-        contractNumber: "CT-2024-006-alt",
-        contractType: "Intern",
-        contractStartDate: "2024-01-02",
-        contractEndDate: "2024-06-30",
-        signDate: "2024-01-02",
-        positionId: "S-031-JR-001",
-        positionTitle: "Junior JavaScript Developer #1",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-013",
-        jobClassificationTitle: "Junior Software Engineer",
-      },
-      {
-        id: "tx-006-alt-2",
-        action: "promotion", // Similar to P-006, this might be a contract update
-        reason: "Performance",
-        text: "Promotion: Performance",
-        effectiveDate: "2024-07-01",
-        createdAt: "2024-07-01T09:00:00Z",
-        createdBy: "admin",
-        linkedContractId: "ct-006-alt-2", // Linked to the contract
-        contractNumber: "CT-2024-007-alt",
-        contractType: "Junior Engineer",
-        contractStartDate: "2024-07-01",
-        contractEndDate: "2025-06-30",
-        signDate: "2024-07-01",
-        positionId: "S-031-JR-001",
-        positionTitle: "Junior JavaScript Developer #1",
-        organizationalUnitId: "O-031",
-        organizationalUnitName: "JavaScript Department",
-        jobClassificationId: "C-013",
-        jobClassificationTitle: "Junior Software Engineer",
-      },
-    ],
+    gender: "Female",
   },
-]
+];
 
 export const leaveTypes: LeaveType[] = [
   {
     id: "lt-1",
-    code: "AL",
     name: "Annual Leave",
-    description: "Paid time off for vacation and personal matters",
-    catalogue: "Annual Leave",
-    genderRequirement: "All",
-    entitlementMethod: "By Actual Balance",
-    manageBalanceType: "Year",
-    isPaid: true,
-    paidPercentage: 100,
-    allowOnHoliday: false,
-    allowOnDaysOff: false,
-    allowByHour: true,
-    checkBalanceOnAssign: true,
+    description: "Paid time off",
+    defaultDays: 14,
+    carryForward: true,
+    maxCarryForwardDays: 5,
     color: "#3B82F6",
   },
   {
     id: "lt-2",
-    code: "BD",
-    name: "Birthday leave",
-    description: "Paid day off for birthday",
-    catalogue: "Other",
-    genderRequirement: "All",
-    entitlementMethod: "By Actual Balance",
-    manageBalanceType: "Year",
-    isPaid: true,
-    paidPercentage: 100,
-    allowOnHoliday: false,
-    allowOnDaysOff: false,
-    allowByHour: true,
-    checkBalanceOnAssign: true,
-    color: "#EC4899",
-  },
-  {
-    id: "lt-3",
-    code: "CL",
-    name: "Compensation leave",
-    description: "Leave granted for overtime worked",
-    catalogue: "Compensation Leave",
-    genderRequirement: "All",
-    entitlementMethod: "By Actual Balance",
-    manageBalanceType: "Year",
-    isPaid: true,
-    paidPercentage: 100,
-    allowOnHoliday: false,
-    allowOnDaysOff: false,
-    allowByHour: true,
-    checkBalanceOnAssign: true,
-    color: "#10B981",
-  },
-  {
-    id: "lt-4",
-    code: "ML",
-    name: "Maternity leave",
-    description: "Maternity leave for female employees",
-    catalogue: "Maternity Leave",
-    genderRequirement: "Female",
-    entitlementMethod: "By Actual Balance",
-    manageBalanceType: "Days",
-    isPaid: true,
-    paidPercentage: 100,
-    allowOnHoliday: true,
-    allowOnDaysOff: true,
-    allowByHour: false,
-    checkBalanceOnAssign: true,
-    color: "#F472B6",
-  },
-  {
-    id: "lt-5",
-    code: "PM",
-    name: "Paternity leave",
-    description: "Paternity leave for male employees",
-    catalogue: "Other",
-    genderRequirement: "Male",
-    entitlementMethod: "By Actual Balance",
-    manageBalanceType: "Days",
-    isPaid: true,
-    paidPercentage: 100,
-    allowOnHoliday: false,
-    allowOnDaysOff: false,
-    allowByHour: false,
-    checkBalanceOnAssign: true,
-    color: "#60A5FA",
-  },
-  {
-    id: "lt-6",
-    code: "SFL",
-    name: "Summer flexi leave",
-    description: "Flexible leave for summer period",
-    catalogue: "Other",
-    genderRequirement: "All",
-    entitlementMethod: "By Actual Balance",
-    manageBalanceType: "Year",
-    isPaid: true,
-    paidPercentage: 100,
-    allowOnHoliday: false,
-    allowOnDaysOff: false,
-    allowByHour: true,
-    checkBalanceOnAssign: true,
-    color: "#F59E0B",
-  },
-  {
-    id: "lt-7",
-    code: "SLUP",
-    name: "Sick leave paid by Social Insurance",
-    description: "Sick leave compensated by social insurance fund",
-    catalogue: "Sick Leave",
-    genderRequirement: "All",
-    entitlementMethod: "By Actual Balance",
-    manageBalanceType: "Days",
-    isPaid: false,
-    paidPercentage: 0,
-    allowOnHoliday: false,
-    allowOnDaysOff: false,
-    allowByHour: false,
-    checkBalanceOnAssign: true,
-    color: "#EF4444",
-  },
-  {
-    id: "lt-8",
-    code: "STUL",
-    name: "Study leave-Non Actuary",
-    description: "Study leave for non-actuarial exams",
-    catalogue: "Other",
-    genderRequirement: "All",
-    entitlementMethod: "By Actual Balance",
-    manageBalanceType: "Year",
-    isPaid: true,
-    paidPercentage: 100,
-    allowOnHoliday: false,
-    allowOnDaysOff: false,
-    allowByHour: true,
-    checkBalanceOnAssign: true,
-    color: "#8B5CF6",
-  },
-  {
-    id: "lt-9",
-    code: "UP",
-    name: "Unpaid leave",
-    description: "Time off without pay",
-    catalogue: "Unpaid Leave",
-    genderRequirement: "All",
-    entitlementMethod: "By Actual Balance",
-    manageBalanceType: "Year",
-    isPaid: false,
-    paidPercentage: 0,
-    allowOnHoliday: false,
-    allowOnDaysOff: false,
-    allowByHour: true,
-    checkBalanceOnAssign: true,
+    name: "Sick Leave",
+    description: "Medical leave",
+    defaultDays: 0,
+    carryForward: false,
+    maxCarryForwardDays: 0,
     color: "#9CA3AF",
   },
-  {
-    id: "lt-10",
-    code: "WB",
-    name: "Well-being leave",
-    description: "Time off for mental health and well-being",
-    catalogue: "Other",
-    genderRequirement: "All",
-    entitlementMethod: "By Actual Balance",
-    manageBalanceType: "Year",
-    isPaid: true,
-    paidPercentage: 100,
-    allowOnHoliday: false,
-    allowOnDaysOff: false,
-    allowByHour: true,
-    checkBalanceOnAssign: true,
-    color: "#06B6D4",
-  },
-  {
-    id: "lt-11",
-    code: "SPL",
-    name: "Special Leave",
-    description: "Bereavement, wedding, or other special occasions",
-    catalogue: "Other",
-    genderRequirement: "All",
-    entitlementMethod: "By Actual Balance",
-    manageBalanceType: "Days",
-    isPaid: true,
-    paidPercentage: 100,
-    allowOnHoliday: false,
-    allowOnDaysOff: false,
-    allowByHour: false,
-    checkBalanceOnAssign: true,
-    color: "#F97316",
-  },
-  {
-    id: "lt-12",
-    code: "SLFC",
-    name: "Sick leave full paid by Company",
-    description: "Sick leave fully compensated by the organization",
-    catalogue: "Sick Leave",
-    genderRequirement: "All",
-    entitlementMethod: "By Actual Balance",
-    manageBalanceType: "Year",
-    isPaid: true,
-    paidPercentage: 100,
-    allowOnHoliday: false,
-    allowOnDaysOff: false,
-    allowByHour: true,
-    checkBalanceOnAssign: true,
-    color: "#EF4444",
-  },
-  {
-    id: "lt-13",
-    code: "ELNA",
-    name: "Exam Leave-Non Actuary",
-    description: "Time off for non-actuarial examinations",
-    catalogue: "Other",
-    genderRequirement: "All",
-    entitlementMethod: "By Actual Balance",
-    manageBalanceType: "Year",
-    isPaid: true,
-    paidPercentage: 100,
-    allowOnHoliday: false,
-    allowOnDaysOff: false,
-    allowByHour: true,
-    checkBalanceOnAssign: true,
-    color: "#8B5CF6",
-  },
-  {
-    id: "lt-14",
-    code: "SLA",
-    name: "Study Leave-Actuary",
-    description: "Study leave for actuarial exams",
-    catalogue: "Other",
-    genderRequirement: "All",
-    entitlementMethod: "By Actual Balance",
-    manageBalanceType: "Year",
-    isPaid: true,
-    paidPercentage: 100,
-    allowOnHoliday: false,
-    allowOnDaysOff: false,
-    allowByHour: true,
-    checkBalanceOnAssign: true,
-    color: "#06B6D4",
-  },
-  {
-    id: "lt-15",
-    code: "ELA",
-    name: "Exam Leave-Actuary",
-    description: "Time off for actuarial examinations",
-    catalogue: "Other",
-    genderRequirement: "All",
-    entitlementMethod: "By Actual Balance",
-    manageBalanceType: "Year",
-    isPaid: true,
-    paidPercentage: 100,
-    allowOnHoliday: false,
-    allowOnDaysOff: false,
-    allowByHour: true,
-    checkBalanceOnAssign: true,
-    color: "#3B82F6",
-  },
-]
-
-
-export const leavePolicyRules: LeavePolicyRule[] = [
-  {
-    id: "lp-1",
-    name: "Standard Full-time Policy",
-    description: "Standard policy for full-time employees",
-    jobLevels: ["Mid-level", "Professional", "Junior"],
-    annualLeaveDays: 14,
-    maxCarryForwardDays: 5,
-    carryForwardExpiryMonth: 3,
-    carryForwardExpiryDay: 31,
-    effectiveFrom: "2024-01-01",
-    status: "active",
-  },
-  {
-    id: "lp-2",
-    name: "Management Policy",
-    description: "Policy for directors and managers",
-    jobLevels: ["Executive", "Manager", "Lead", "Senior"],
-    annualLeaveDays: 18,
-    maxCarryForwardDays: 10,
-    carryForwardExpiryMonth: 3,
-    carryForwardExpiryDay: 31,
-    effectiveFrom: "2024-01-01",
-    status: "active",
-  },
-]
-
-export const publicHolidays: PublicHoliday[] = [
-  {
-    id: "ph-1",
-    name: "New Year's Day",
-    date: "2026-01-01",
-    year: 2026,
-    isRecurring: true,
-    description: "International New Year celebration",
-    status: "active",
-  },
-  {
-    id: "ph-2",
-    name: "Lunar New Year Eve",
-    date: "2026-02-16",
-    year: 2026,
-    isRecurring: false,
-    description: "Vietnamese Lunar New Year - Tet Holiday",
-    status: "active",
-  },
-  {
-    id: "ph-3",
-    name: "Lunar New Year Day 1",
-    date: "2026-02-17",
-    year: 2026,
-    isRecurring: false,
-    description: "Vietnamese Lunar New Year - Tet Holiday",
-    status: "active",
-  },
-  {
-    id: "ph-4",
-    name: "Lunar New Year Day 2",
-    date: "2026-02-18",
-    year: 2026,
-    isRecurring: false,
-    description: "Vietnamese Lunar New Year - Tet Holiday",
-    status: "active",
-  },
-  {
-    id: "ph-5",
-    name: "Lunar New Year Day 3",
-    date: "2026-02-19",
-    year: 2026,
-    isRecurring: false,
-    description: "Vietnamese Lunar New Year - Tet Holiday",
-    status: "active",
-  },
-  {
-    id: "ph-6",
-    name: "Hung Kings Commemoration Day",
-    date: "2026-04-15",
-    year: 2026,
-    isRecurring: false,
-    description: "Anniversary of the Hung Kings",
-    status: "active",
-  },
-  {
-    id: "ph-7",
-    name: "Reunification Day",
-    date: "2026-04-30",
-    year: 2026,
-    isRecurring: true,
-    description: "Liberation Day / Reunification Day",
-    status: "active",
-  },
-  {
-    id: "ph-8",
-    name: "International Labor Day",
-    date: "2026-05-01",
-    year: 2026,
-    isRecurring: true,
-    description: "International Workers' Day",
-    status: "active",
-  },
-  {
-    id: "ph-9",
-    name: "National Day",
-    date: "2026-09-02",
-    year: 2026,
-    isRecurring: true,
-    description: "Vietnam National Day",
-    status: "active",
-  },
-]
+];
 
 export const leaveRequests: LeaveRequest[] = [
   {
@@ -3624,9 +1843,13 @@ export const leaveRequests: LeaveRequest[] = [
     reason: "Family vacation to Da Lat",
     status: "approved",
     approvers: [
-      { employeeId: "P-010", employeeName: "Hoang Van Em", status: "approved", respondedAt: "2026-01-10T09:00:00Z" },
+      {
+        employeeId: "P-010",
+        employeeName: "Hoang Van Em",
+        status: "approved",
+        respondedAt: "2026-01-10T09:00:00Z",
+      },
     ],
-    ccRecipients: [{ employeeId: "P-002", employeeName: "Tran Thi Binh" }],
     createdAt: "2026-01-08T10:00:00Z",
     updatedAt: "2026-01-10T09:00:00Z",
   },
@@ -3643,7 +1866,12 @@ export const leaveRequests: LeaveRequest[] = [
     notes: "morning",
     status: "approved",
     approvers: [
-      { employeeId: "P-010", employeeName: "Hoang Van Em", status: "approved", respondedAt: "2026-01-12T14:00:00Z" },
+      {
+        employeeId: "P-010",
+        employeeName: "Hoang Van Em",
+        status: "approved",
+        respondedAt: "2026-01-12T14:00:00Z",
+      },
     ],
     createdAt: "2026-01-10T08:00:00Z",
     updatedAt: "2026-01-12T14:00:00Z",
@@ -3659,7 +1887,9 @@ export const leaveRequests: LeaveRequest[] = [
     totalDays: 3,
     reason: "Personal matters - handling visa documents",
     status: "pending",
-    approvers: [{ employeeId: "P-002", employeeName: "Tran Thi Binh", status: "pending" }],
+    approvers: [
+      { employeeId: "P-002", employeeName: "Tran Thi Binh", status: "pending" },
+    ],
     createdAt: "2026-01-11T11:00:00Z",
     updatedAt: "2026-01-11T11:00:00Z",
   },
@@ -3675,7 +1905,12 @@ export const leaveRequests: LeaveRequest[] = [
     reason: "Attending cousin's wedding in Hue",
     status: "approved",
     approvers: [
-      { employeeId: "P-001", employeeName: "Nguyen Van An", status: "approved", respondedAt: "2026-01-03T10:00:00Z" },
+      {
+        employeeId: "P-001",
+        employeeName: "Nguyen Van An",
+        status: "approved",
+        respondedAt: "2026-01-03T10:00:00Z",
+      },
     ],
     createdAt: "2026-01-02T09:00:00Z",
     updatedAt: "2026-01-03T10:00:00Z",
@@ -3693,7 +1928,12 @@ export const leaveRequests: LeaveRequest[] = [
     notes: "afternoon",
     status: "approved",
     approvers: [
-      { employeeId: "P-002", employeeName: "Tran Thi Binh", status: "approved", respondedAt: "2026-01-10T11:00:00Z" },
+      {
+        employeeId: "P-002",
+        employeeName: "Tran Thi Binh",
+        status: "approved",
+        respondedAt: "2026-01-10T11:00:00Z",
+      },
     ],
     createdAt: "2026-01-09T14:00:00Z",
     updatedAt: "2026-01-10T11:00:00Z",
@@ -3710,7 +1950,12 @@ export const leaveRequests: LeaveRequest[] = [
     reason: "Moving to new apartment",
     status: "approved",
     approvers: [
-      { employeeId: "P-002", employeeName: "Tran Thi Binh", status: "approved", respondedAt: "2026-01-15T09:00:00Z" },
+      {
+        employeeId: "P-002",
+        employeeName: "Tran Thi Binh",
+        status: "approved",
+        respondedAt: "2026-01-15T09:00:00Z",
+      },
     ],
     createdAt: "2026-01-14T10:00:00Z",
     updatedAt: "2026-01-15T09:00:00Z",
@@ -3727,7 +1972,12 @@ export const leaveRequests: LeaveRequest[] = [
     reason: "Lunar New Year early celebration with family",
     status: "approved",
     approvers: [
-      { employeeId: "P-002", employeeName: "Tran Thi Binh", status: "approved", respondedAt: "2026-01-20T14:00:00Z" },
+      {
+        employeeId: "P-002",
+        employeeName: "Tran Thi Binh",
+        status: "approved",
+        respondedAt: "2026-01-20T14:00:00Z",
+      },
     ],
     createdAt: "2026-01-18T09:00:00Z",
     updatedAt: "2026-01-20T14:00:00Z",
@@ -3738,13 +1988,18 @@ export const leaveRequests: LeaveRequest[] = [
     employeeName: "Pham Thi Dung",
     leaveTypeId: "lt-1",
     leaveTypeName: "Annual Leave",
-    startDate: "2026-01-06",
-    endDate: "2026-01-06",
+    startDate: "2026-01-08",
+    endDate: "2026-01-08",
     totalDays: 1,
     reason: "Personal day off",
     status: "approved",
     approvers: [
-      { employeeId: "P-001", employeeName: "Nguyen Van An", status: "approved", respondedAt: "2026-01-05T10:00:00Z" },
+      {
+        employeeId: "P-001",
+        employeeName: "Nguyen Van An",
+        status: "approved",
+        respondedAt: "2026-01-05T10:00:00Z",
+      },
     ],
     createdAt: "2026-01-04T11:00:00Z",
     updatedAt: "2026-01-05T10:00:00Z",
@@ -3762,7 +2017,12 @@ export const leaveRequests: LeaveRequest[] = [
     notes: "morning",
     status: "approved",
     approvers: [
-      { employeeId: "P-002", employeeName: "Tran Thi Binh", status: "approved", respondedAt: "2026-01-12T08:00:00Z" },
+      {
+        employeeId: "P-002",
+        employeeName: "Tran Thi Binh",
+        status: "approved",
+        respondedAt: "2026-01-12T08:00:00Z",
+      },
     ],
     createdAt: "2026-01-11T15:00:00Z",
     updatedAt: "2026-01-12T08:00:00Z",
@@ -3778,74 +2038,45 @@ export const leaveRequests: LeaveRequest[] = [
     totalDays: 3,
     reason: "Short trip with friends",
     status: "pending",
-    approvers: [{ employeeId: "P-001", employeeName: "Nguyen Van An", status: "pending" }],
+    approvers: [
+      { employeeId: "P-001", employeeName: "Nguyen Van An", status: "pending" },
+    ],
     createdAt: "2026-01-12T10:00:00Z",
     updatedAt: "2026-01-12T10:00:00Z",
   },
-]
+];
 
 export const leaveBalances: LeaveBalance[] = employees.map((emp) => {
-  const empNum = Number.parseInt(emp.id.replace("P-", "")) || 0
-
-  // Find job classification to get job level
-  const jobClass = jobClassifications.find((jc) => jc.id === emp.jobClassificationId)
-  const jobLevel = jobClass?.jobLevel || "Mid-level"
-
-  // Use default entitlement (formerly from policy)
-  const annualEntitlement = 14
-  const maxCarryForward = 5
-
-  // Calculate carry forward from previous year (simulated)
-  const carryForwardFromPrevYear = Math.min(empNum % 5, maxCarryForward)
-
-  const usedDays = (empNum * 3) % 10
-  const pendingDays = empNum % 3
-  const totalEntitlement = carryForwardFromPrevYear + annualEntitlement
-
-  // Determine carry forward expiry date (default to June 30)
-  const currentYear = new Date().getFullYear()
-  const carryForwardExpiryDate = `${currentYear}-06-30`
-
-
-  // Calculate expired carry forward days (simplified simulation)
-  const carryForwardExpired =
-    carryForwardFromPrevYear > 0 && carryForwardExpiryDate && new Date(carryForwardExpiryDate) < new Date()
-      ? carryForwardFromPrevYear
-      : 0
-
+  const empNum = Number.parseInt(emp.id.replace("P-", "")) || 0;
+  const usedDays = (empNum * 3) % 10; // deterministic used days
+  const pendingDays = empNum % 3; // deterministic pending days
   return {
     employeeId: emp.id,
     employeeName: emp.fullName,
     department: emp.organizationalUnitName,
     leaveTypeId: "lt-1",
-    jobLevel: jobLevel,
-    // Breakdown
-    carryForwardFromPrevYear: carryForwardFromPrevYear,
-    carryForwardExpiryDate: carryForwardExpiryDate, // Date when carry forward expires
-    carryForwardExpired: carryForwardExpired, // Days already expired from carry forward
-    annualEntitlement: annualEntitlement,
-    totalEntitlement: totalEntitlement,
+    totalEntitlement: 14,
     used: usedDays,
     pending: pendingDays,
-    carryForward: carryForwardFromPrevYear, // For backward compatibility
-    available: Math.max(0, totalEntitlement - usedDays - pendingDays - carryForwardExpired),
+    carryForward: empNum % 4,
+    available: Math.max(0, 14 - usedDays - pendingDays),
     year: 2026,
-  }
-})
+  };
+});
 
 export interface LeaveHistoryEntry {
-  id: string
-  employeeId: string
-  leaveTypeId: string
-  leaveTypeName: string
-  startDate: string
-  endDate: string
-  totalDays: number
-  reason: string
-  status: "approved" | "rejected" | "cancelled"
-  approvedBy: string
-  approvedAt: string
-  notes?: string
+  id: string;
+  employeeId: string;
+  leaveTypeId: string;
+  leaveTypeName: string;
+  startDate: string;
+  endDate: string;
+  totalDays: number;
+  reason: string;
+  status: "approved" | "rejected" | "cancelled";
+  approvedBy: string;
+  approvedAt: string;
+  notes?: string;
 }
 
 export const leaveHistory: LeaveHistoryEntry[] = [
@@ -3970,13 +2201,37 @@ export const leaveHistory: LeaveHistoryEntry[] = [
     approvedBy: "Le Van Cuong",
     approvedAt: "2025-10-10T09:00:00Z",
   },
-  // P-005 Nguyen Thi Anh - Assuming 0 days used for this placeholder employee
-  // No leave history entries for P-005 in this example, as it's assumed to be a newer employee or has no prior leave history.
-
-  // P-006 Vo Thi Bich Ngoc - 8 days used
+  // P-005 Hoang Van Em - 5 days used (NOTE: Employee ID P-005 was Nguyen Thi Anh in original, but data implies Hoang Van Em is meant here based on leave history.)
+  {
+    id: "lh-005-1",
+    employeeId: "P-010", // Corrected to P-010 based on common line manager 'Hoang Van Em'
+    leaveTypeId: "lt-1",
+    leaveTypeName: "Annual Leave",
+    startDate: "2025-06-09",
+    endDate: "2025-06-11",
+    totalDays: 3,
+    reason: "Mid-year vacation",
+    status: "approved",
+    approvedBy: "Tran Thi Binh",
+    approvedAt: "2025-06-01T10:00:00Z",
+  },
+  {
+    id: "lh-005-2",
+    employeeId: "P-010", // Corrected to P-010
+    leaveTypeId: "lt-1",
+    leaveTypeName: "Annual Leave",
+    startDate: "2025-11-20",
+    endDate: "2025-11-21",
+    totalDays: 2,
+    reason: "Personal matters",
+    status: "approved",
+    approvedBy: "Tran Thi Binh",
+    approvedAt: "2025-11-15T09:00:00Z",
+  },
+  // P-006 Nguyen Thi Phuong - 8 days used (NOTE: Employee ID P-006 was Vo Thi Bich Ngoc in original, but data implies Nguyen Thi Phuong based on leave history.)
   {
     id: "lh-006-1",
-    employeeId: "P-006",
+    employeeId: "P-006", // Assuming P-006 refers to Nguyen Thi Phuong based on context of used days
     leaveTypeId: "lt-1",
     leaveTypeName: "Annual Leave",
     startDate: "2025-03-10",
@@ -3989,7 +2244,7 @@ export const leaveHistory: LeaveHistoryEntry[] = [
   },
   {
     id: "lh-006-2",
-    employeeId: "P-006",
+    employeeId: "P-006", // Assuming P-006 refers to Nguyen Thi Phuong
     leaveTypeId: "lt-1",
     leaveTypeName: "Annual Leave",
     startDate: "2025-08-18",
@@ -4000,7 +2255,7 @@ export const leaveHistory: LeaveHistoryEntry[] = [
     approvedBy: "Tran Thi Binh",
     approvedAt: "2025-08-10T10:00:00Z",
   },
-  // P-007 Pham Van Giang - 1 day used
+  // P-007 Tran Van Giang - 1 day used
   {
     id: "lh-007-1",
     employeeId: "P-007",
@@ -4014,7 +2269,7 @@ export const leaveHistory: LeaveHistoryEntry[] = [
     approvedBy: "Hoang Van Em",
     approvedAt: "2025-09-12T09:00:00Z",
   },
-  // P-008 Hoang Thi Hoa - 4 days used
+  // P-008 Le Thi Huong - 4 days used
   {
     id: "lh-008-1",
     employeeId: "P-008",
@@ -4041,7 +2296,7 @@ export const leaveHistory: LeaveHistoryEntry[] = [
     approvedBy: "Hoang Van Em",
     approvedAt: "2025-09-25T09:00:00Z",
   },
-  // P-009 Vu Van Ich - 7 days used
+  // P-009 Pham Van Ich - 7 days used
   {
     id: "lh-009-1",
     employeeId: "P-009",
@@ -4068,33 +2323,8 @@ export const leaveHistory: LeaveHistoryEntry[] = [
     approvedBy: "Le Van Cuong",
     approvedAt: "2025-07-15T10:00:00Z",
   },
-  // P-010 Hoang Van Em - 5 days used (Corrected to P-010 as this is the Team Lead)
-  {
-    id: "lh-010-1",
-    employeeId: "P-010",
-    leaveTypeId: "lt-1",
-    leaveTypeName: "Annual Leave",
-    startDate: "2025-06-09",
-    endDate: "2025-06-11",
-    totalDays: 3,
-    reason: "Mid-year vacation",
-    status: "approved",
-    approvedBy: "Tran Thi Binh",
-    approvedAt: "2025-06-01T10:00:00Z",
-  },
-  {
-    id: "lh-010-2",
-    employeeId: "P-010",
-    leaveTypeId: "lt-1",
-    leaveTypeName: "Annual Leave",
-    startDate: "2025-11-20",
-    endDate: "2025-11-21",
-    totalDays: 2,
-    reason: "Personal matters",
-    status: "approved",
-    approvedBy: "Tran Thi Binh",
-    approvedAt: "2025-11-15T09:00:00Z",
-  },
+  // P-010 Nguyen Thi Kim - 0 days used (new employee or saving leave) - Assuming P-010 refers to this new employee.
+  // No leave history entries for this placeholder ID.
 
   // P-011 Nguyen Van Phuc - 3 days used
   {
@@ -4163,103 +2393,468 @@ export const leaveHistory: LeaveHistoryEntry[] = [
     approvedBy: "Le Van Cuong",
     approvedAt: "2025-08-01T09:00:00Z",
   },
-]
+];
 
-// Helper to generate attendance records for Jan 2026
-const generateJan2026Records = (): AttendanceRecord[] => {
-  const records: AttendanceRecord[] = []
-  const startDate = new Date("2026-01-01")
-  const endDate = new Date("2026-01-16") // Generate up to today (Jan 16)
-
-  // Specific overrides map
-  const overrides: Record<string, AttendanceRecord> = {}
-
-  const specificList: AttendanceRecord[] = [
-    // P-001: Early Leave on Jan 14
-    {
-      id: "att-001-14",
-      employeeId: "P-001",
-      employeeName: "Nguyen Van An",
-      date: "2026-01-14",
-      clockIn: "08:00",
-      clockOut: "12:00",
-      status: "early_leave",
-      totalHours: 4,
-      source: "fingerprint",
-    },
-    // P-003: Late on Jan 6
-    {
-      id: "att-003-06",
-      employeeId: "P-003",
-      employeeName: "Le Van Cuong",
-      date: "2026-01-06",
-      clockIn: "08:45",
-      clockOut: "17:30",
-      status: "late",
-      lateMinutes: 15,
-      totalHours: 7.75,
-      source: "fingerprint",
-    }
-  ]
-
-  specificList.forEach(r => {
-    overrides[`${r.employeeId}_${r.date}`] = r
-  })
-
-  employees.forEach(emp => {
-    const workingDays = emp.workingDays || [1, 2, 3, 4, 5] // Default Mon-Fri
-
-    const curr = new Date(startDate)
-    while (curr <= endDate) {
-      const dateStr = curr.toISOString().split('T')[0]
-      const key = `${emp.id}_${dateStr}`
-
-      // Check override
-      if (overrides[key]) {
-        records.push(overrides[key])
-      } else {
-        // Check if working day
-        const dayOfWeek = curr.getDay() // 0=Sun, 6=Sat
-        if (workingDays.includes(dayOfWeek)) {
-          // Check holiday
-          const isHoliday = publicHolidays.some(h => h.date === dateStr && h.status === 'active')
-          if (isHoliday) {
-            records.push({
-              id: `att-${emp.id}-${dateStr}`,
-              employeeId: emp.id,
-              employeeName: emp.fullName,
-              date: dateStr,
-              status: "holiday",
-              totalHours: 0,
-              source: "web"
-            })
-          } else {
-            // Generate Present
-            records.push({
-              id: `att-${emp.id}-${dateStr}`,
-              employeeId: emp.id,
-              employeeName: emp.fullName,
-              date: dateStr,
-              clockIn: "08:00",
-              clockOut: "17:00",
-              status: "present",
-              totalHours: 8,
-              source: "fingerprint"
-            })
-          }
-        }
-      }
-
-      // Next day
-      curr.setDate(curr.getDate() + 1)
-    }
-  })
-
-  return records
-}
-
-export const attendanceRecords: AttendanceRecord[] = generateJan2026Records()
-
+export const attendanceRecords: AttendanceRecord[] = [
+  // January 2026 data
+  {
+    id: "att-1",
+    employeeId: "P-011",
+    employeeName: "Nguyen Van Phuc",
+    department: "JavaScript Department",
+    organizationalUnitId: "O-031",
+    date: "2026-01-06",
+    clockIn: "08:55",
+    clockOut: "18:05",
+    status: "present",
+    totalHours: 8.17,
+    source: "fingerprint",
+  },
+  {
+    id: "att-2",
+    employeeId: "P-011",
+    employeeName: "Nguyen Van Phuc",
+    department: "JavaScript Department",
+    organizationalUnitId: "O-031",
+    date: "2026-01-07",
+    clockIn: "08:50",
+    clockOut: "18:30",
+    status: "present",
+    totalHours: 8.67,
+    overtime: 0.5,
+    source: "fingerprint",
+  },
+  {
+    id: "att-3",
+    employeeId: "P-011",
+    employeeName: "Nguyen Van Phuc",
+    department: "JavaScript Department",
+    organizationalUnitId: "O-031",
+    date: "2026-01-08",
+    clockIn: "09:20",
+    clockOut: "18:00",
+    status: "late",
+    totalHours: 7.67,
+    lateMinutes: 20,
+    source: "fingerprint",
+  },
+  {
+    id: "att-4",
+    employeeId: "P-012",
+    employeeName: "Tran Thi Giang",
+    department: "JavaScript Department",
+    organizationalUnitId: "O-031",
+    date: "2026-01-06",
+    clockIn: "08:45",
+    clockOut: "18:15",
+    status: "present",
+    totalHours: 8.5,
+    source: "fingerprint",
+  },
+  {
+    id: "att-5",
+    employeeId: "P-012",
+    employeeName: "Tran Thi Giang",
+    department: "JavaScript Department",
+    organizationalUnitId: "O-031",
+    date: "2026-01-07",
+    clockIn: "08:58",
+    clockOut: "19:00",
+    status: "present",
+    totalHours: 9.03,
+    overtime: 1,
+    source: "fingerprint",
+  },
+  {
+    id: "att-6",
+    employeeId: "P-012",
+    employeeName: "Tran Thi Giang",
+    department: "JavaScript Department",
+    organizationalUnitId: "O-031",
+    date: "2026-01-08",
+    clockIn: "08:55",
+    clockOut: "18:00",
+    status: "present",
+    totalHours: 8.08,
+    source: "fingerprint",
+  },
+  {
+    id: "att-7",
+    employeeId: "P-013",
+    employeeName: "Le Van Hung",
+    department: "JavaScript Department",
+    organizationalUnitId: "O-031",
+    date: "2026-01-06",
+    clockIn: "09:05",
+    clockOut: "18:00",
+    status: "late",
+    totalHours: 7.92,
+    lateMinutes: 5,
+    source: "fingerprint",
+  },
+  {
+    id: "att-8",
+    employeeId: "P-013",
+    employeeName: "Le Van Hung",
+    department: "JavaScript Department",
+    organizationalUnitId: "O-031",
+    date: "2026-01-07",
+    clockIn: "08:50",
+    clockOut: "18:00",
+    status: "present",
+    totalHours: 8.17,
+    source: "fingerprint",
+  },
+  {
+    id: "att-9",
+    employeeId: "P-014",
+    employeeName: "Pham Van Khanh",
+    department: "JavaScript Department",
+    organizationalUnitId: "O-031",
+    date: "2026-01-06",
+    clockIn: "08:30",
+    clockOut: "17:45",
+    status: "early_leave",
+    totalHours: 8.25,
+    earlyMinutes: 15,
+    source: "fingerprint",
+  },
+  {
+    id: "att-10",
+    employeeId: "P-014",
+    employeeName: "Pham Van Khanh",
+    department: "JavaScript Department",
+    organizationalUnitId: "O-031",
+    date: "2026-01-07",
+    clockIn: "08:55",
+    clockOut: "18:10",
+    status: "present",
+    totalHours: 8.25,
+    source: "fingerprint",
+  },
+  {
+    id: "att-11",
+    employeeId: "P-020",
+    employeeName: "Vo Thi Lan",
+    department: "AI Department",
+    organizationalUnitId: "O-032",
+    date: "2026-01-06",
+    clockIn: "08:40",
+    clockOut: "18:30",
+    status: "present",
+    totalHours: 8.83,
+    overtime: 0.5,
+    source: "fingerprint",
+  },
+  {
+    id: "att-12",
+    employeeId: "P-020",
+    employeeName: "Vo Thi Lan",
+    department: "AI Department",
+    organizationalUnitId: "O-032",
+    date: "2026-01-07",
+    clockIn: "08:55",
+    clockOut: "19:15",
+    status: "present",
+    totalHours: 9.33,
+    overtime: 1.25,
+    source: "fingerprint",
+  },
+  {
+    id: "att-13",
+    employeeId: "P-030",
+    employeeName: "Nguyen Thi Mai",
+    department: "Marketing Department",
+    organizationalUnitId: "O-021",
+    date: "2026-01-06",
+    clockIn: "08:50",
+    clockOut: "18:00",
+    status: "present",
+    totalHours: 8.17,
+    source: "fingerprint",
+  },
+  {
+    id: "att-14",
+    employeeId: "P-030",
+    employeeName: "Nguyen Thi Mai",
+    department: "Marketing Department",
+    organizationalUnitId: "O-021",
+    date: "2026-01-07",
+    status: "on_leave",
+    source: "fingerprint",
+    notes: "Annual Leave",
+  },
+  {
+    id: "att-15",
+    employeeId: "P-031",
+    employeeName: "Tran Van Nam",
+    department: "Finance Department",
+    organizationalUnitId: "O-012",
+    date: "2026-01-06",
+    clockIn: "08:45",
+    clockOut: "18:05",
+    status: "present",
+    totalHours: 8.33,
+    source: "fingerprint",
+  },
+  {
+    id: "att-16",
+    employeeId: "P-031",
+    employeeName: "Tran Van Nam",
+    department: "Finance Department",
+    organizationalUnitId: "O-012",
+    date: "2026-01-07",
+    clockIn: "08:58",
+    clockOut: "18:00",
+    status: "present",
+    totalHours: 8.03,
+    source: "fingerprint",
+  },
+  {
+    id: "att-17",
+    employeeId: "P-003",
+    employeeName: "Le Van Cuong",
+    department: "HR Department",
+    organizationalUnitId: "O-011",
+    date: "2026-01-06",
+    clockIn: "08:30",
+    clockOut: "18:30",
+    status: "present",
+    totalHours: 9,
+    overtime: 0.5,
+    source: "fingerprint",
+  },
+  {
+    id: "att-18",
+    employeeId: "P-004",
+    employeeName: "Pham Thi Dung",
+    department: "HR Department",
+    organizationalUnitId: "O-011",
+    date: "2026-01-06",
+    clockIn: "08:55",
+    clockOut: "18:00",
+    status: "present",
+    totalHours: 8.08,
+    source: "fingerprint",
+  },
+  {
+    id: "att-19",
+    employeeId: "P-010", // Hoang Van Em
+    employeeName: "Hoang Van Em",
+    department: "JavaScript Department",
+    organizationalUnitId: "O-031",
+    date: "2026-01-06",
+    clockIn: "08:35",
+    clockOut: "19:00",
+    status: "present",
+    totalHours: 9.42,
+    overtime: 1,
+    source: "fingerprint",
+  },
+  {
+    id: "att-20",
+    employeeId: "P-010", // Hoang Van Em
+    employeeName: "Hoang Van Em",
+    department: "JavaScript Department",
+    organizationalUnitId: "O-031",
+    date: "2026-01-07",
+    clockIn: "08:40",
+    clockOut: "18:45",
+    status: "present",
+    totalHours: 9.08,
+    overtime: 0.75,
+    source: "fingerprint",
+  },
+  // Add January 8 and 9 data
+  {
+    id: "att-21",
+    employeeId: "P-003",
+    employeeName: "Le Van Cuong",
+    department: "HR Department",
+    organizationalUnitId: "O-011",
+    date: "2026-01-07",
+    clockIn: "08:45",
+    clockOut: "18:15",
+    status: "present",
+    totalHours: 8.5,
+    source: "fingerprint",
+  },
+  {
+    id: "att-22",
+    employeeId: "P-003",
+    employeeName: "Le Van Cuong",
+    department: "HR Department",
+    organizationalUnitId: "O-011",
+    date: "2026-01-08",
+    clockIn: "08:50",
+    clockOut: "18:00",
+    status: "present",
+    totalHours: 8.17,
+    source: "fingerprint",
+  },
+  {
+    id: "att-23",
+    employeeId: "P-004",
+    employeeName: "Pham Thi Dung",
+    department: "HR Department",
+    organizationalUnitId: "O-011",
+    date: "2026-01-07",
+    clockIn: "09:10",
+    clockOut: "18:00",
+    status: "late",
+    totalHours: 7.83,
+    lateMinutes: 10,
+    source: "fingerprint",
+  },
+  // Real-time dashboard data for January 12, 2026
+  {
+    id: "att-today-1",
+    employeeId: "P-001",
+    employeeName: "Nguyen Van An",
+    department: "Executive",
+    organizationalUnitId: "O-001",
+    date: "2026-01-12",
+    clockIn: "07:50",
+    status: "present",
+    source: "fingerprint",
+  },
+  {
+    id: "att-today-2",
+    employeeId: "P-002",
+    employeeName: "Tran Thi Binh",
+    department: "Technology Division",
+    organizationalUnitId: "O-030",
+    date: "2026-01-12",
+    clockIn: "08:05",
+    clockOut: "18:30",
+    status: "present",
+    totalHours: 10.42,
+    source: "fingerprint",
+  },
+  {
+    id: "att-today-3",
+    employeeId: "P-003",
+    employeeName: "Le Van Cuong",
+    department: "HR Department",
+    organizationalUnitId: "O-011",
+    date: "2026-01-12",
+    clockIn: "08:45",
+    clockOut: "18:00",
+    status: "present",
+    totalHours: 8.25,
+    source: "fingerprint",
+  },
+  {
+    id: "att-today-4",
+    employeeId: "P-011",
+    employeeName: "Nguyen Van Phuc",
+    department: "JavaScript Department",
+    organizationalUnitId: "O-031",
+    date: "2026-01-12",
+    clockIn: "09:15",
+    status: "late",
+    totalHours: undefined,
+    lateMinutes: 15,
+    source: "fingerprint",
+  },
+  {
+    id: "att-today-5",
+    employeeId: "P-012",
+    employeeName: "Tran Thi Giang",
+    department: "JavaScript Department",
+    organizationalUnitId: "O-031",
+    date: "2026-01-12",
+    clockIn: "08:55",
+    clockOut: "18:15",
+    status: "present",
+    totalHours: 8.33,
+    source: "fingerprint",
+  },
+  {
+    id: "att-today-6",
+    employeeId: "P-013",
+    employeeName: "Le Van Hung",
+    department: "JavaScript Department",
+    organizationalUnitId: "O-031",
+    date: "2026-01-12",
+    clockIn: "08:30",
+    status: "present",
+    source: "fingerprint",
+  },
+  {
+    id: "att-today-7",
+    employeeId: "P-014",
+    employeeName: "Pham Van Khanh",
+    department: "JavaScript Department",
+    organizationalUnitId: "O-031",
+    date: "2026-01-12",
+    status: "not_checked_in",
+    source: "fingerprint",
+  },
+  {
+    id: "att-today-8",
+    employeeId: "P-020",
+    employeeName: "Vo Thi Lan",
+    department: "AI Department",
+    organizationalUnitId: "O-032",
+    date: "2026-01-12",
+    clockIn: "08:40",
+    clockOut: "18:45",
+    status: "present",
+    totalHours: 10.08,
+    overtime: 0.5,
+    source: "fingerprint",
+  },
+  {
+    id: "att-today-9",
+    employeeId: "P-030",
+    employeeName: "Nguyen Thi Mai",
+    department: "Marketing Department",
+    organizationalUnitId: "O-021",
+    date: "2026-01-12",
+    clockIn: "09:05",
+    clockOut: "17:50",
+    status: "early_leave",
+    totalHours: 7.75,
+    earlyMinutes: 10,
+    source: "fingerprint",
+  },
+  {
+    id: "att-today-10",
+    employeeId: "P-031",
+    employeeName: "Tran Van Nam",
+    department: "Finance Department",
+    organizationalUnitId: "O-012",
+    date: "2026-01-12",
+    clockIn: "08:35",
+    status: "present",
+    source: "fingerprint",
+  },
+  {
+    id: "att-today-11",
+    employeeId: "P-040", // Added P-040 for new Sales Department data
+    employeeName: "Vu Thi Hoa",
+    department: "Sales Department",
+    organizationalUnitId: "O-022", // Assuming O-022 for Sales Department
+    date: "2026-01-12",
+    status: "absent",
+    source: "fingerprint",
+    notes: "No clock-in record",
+  },
+  {
+    id: "att-today-12",
+    employeeId: "P-041", // Added P-041 for new Customer Service data
+    employeeName: "Hoang Van Duy",
+    department: "Customer Service",
+    organizationalUnitId: "O-040", // Assuming O-040 for Customer Service
+    date: "2026-01-12",
+    clockIn: "08:50",
+    clockOut: "18:20",
+    status: "present",
+    totalHours: 8.5,
+    source: "fingerprint",
+  },
+];
 
 export const jobRequisitions: JobRequisition[] = [
   {
@@ -4394,7 +2989,7 @@ export const jobRequisitions: JobRequisition[] = [
     createdAt: "2025-12-10T10:00:00Z",
     publishPlatforms: ["linkedin", "itviec"],
   },
-]
+];
 
 export const candidates: Candidate[] = [
   {
@@ -4414,7 +3009,14 @@ export const candidates: Candidate[] = [
       "Strong candidate with 6 years of JavaScript experience. Skills align well with Senior JavaScript Developer requirements. Excellent React and Node.js proficiency demonstrated through portfolio projects.",
     expectedSalary: 35000000,
     yearsOfExperience: 6,
-    skills: ["React", "Next.js", "Node.js", "TypeScript", "PostgreSQL", "Redis"],
+    skills: [
+      "React",
+      "Next.js",
+      "Node.js",
+      "TypeScript",
+      "PostgreSQL",
+      "Redis",
+    ],
     interviews: [
       {
         id: "int-1",
@@ -4481,7 +3083,14 @@ export const candidates: Candidate[] = [
       "Excellent candidate for AI/ML Engineer position. PhD in Machine Learning with 5 years industry experience. Strong publication record and hands-on experience with production ML systems.",
     expectedSalary: 45000000,
     yearsOfExperience: 5,
-    skills: ["Python", "PyTorch", "TensorFlow", "MLOps", "Computer Vision", "NLP"],
+    skills: [
+      "Python",
+      "PyTorch",
+      "TensorFlow",
+      "MLOps",
+      "Computer Vision",
+      "NLP",
+    ],
     interviews: [
       {
         id: "int-3",
@@ -4539,7 +3148,7 @@ export const candidates: Candidate[] = [
     updatedAt: "2026-01-08T10:00:00Z",
     aiCvScore: 68,
     aiCvAnalysis:
-      "Fresh graduate with good foundation in React basics. 1 internship experience. Shows enthusiasm to learn and has completed several personal projects.",
+      "Fresh graduate with good foundation in React basics. 1 internship experience. Shows willingness to learn and has completed several personal projects.",
     yearsOfExperience: 0,
     skills: ["React", "JavaScript", "HTML", "CSS"],
   },
@@ -4653,7 +3262,8 @@ export const candidates: Candidate[] = [
     appliedAt: "2025-12-15T10:00:00Z",
     updatedAt: "2025-12-20T10:00:00Z",
     aiCvScore: 55,
-    aiCvAnalysis: "Experience level does not meet Senior Developer requirements. Only 2 years of experience.",
+    aiCvAnalysis:
+      "Experience level does not meet Senior Developer requirements. Only 2 years of experience.",
     rejectionReason: "Experience Insufficient",
     yearsOfExperience: 2,
     skills: ["JavaScript", "React"],
@@ -4669,14 +3279,15 @@ export const candidates: Candidate[] = [
     updatedAt: "2025-12-20T10:00:00Z",
     rating: 4,
     aiCvScore: 82,
-    aiCvAnalysis: "Strong marketing background with 3 years experience. Good fit for Marketing Executive role.",
+    aiCvAnalysis:
+      "Strong marketing background with 3 years experience. Good fit for Marketing Executive role.",
     offerAccepted: true,
     offerAcceptedAt: "2025-12-20T10:00:00Z",
     expectedSalary: 20000000,
     yearsOfExperience: 3,
     skills: ["Digital Marketing", "Content Writing", "SEO", "Social Media"],
   },
-]
+];
 
 export const notifications: Notification[] = [
   {
@@ -4693,35 +3304,16 @@ export const notifications: Notification[] = [
     id: "notif-2",
     userId: "P-003",
     title: "Interview Scheduled",
-    message: "Interview with Nguyen Minh Tuan scheduled for tomorrow at 10:00 AM",
+    message:
+      "Interview with Nguyen Minh Tuan scheduled for tomorrow at 10:00 AM",
     type: "interview",
     isRead: false,
     actionUrl: "/recruitment/interviews",
     createdAt: "2026-01-07T15:00:00Z",
   },
-  {
-    id: "notif-3",
-    userId: "P-003",
-    title: "Contract Expiring Soon",
-    message: "Nguyen Van A's probation contract expires in 7 days (2026-01-25)",
-    type: "contract_warning",
-    isRead: false,
-    actionUrl: "/employees?id=P-001", // Assuming P-001 is Nguyen Van A
-    createdAt: "2026-01-18T09:00:00Z",
-  },
-  {
-    id: "notif-4",
-    userId: "P-003",
-    title: "Employee Birthday",
-    message: "Today is Tran Thi B's birthday! 🎂",
-    type: "birthday",
-    isRead: false,
-    actionUrl: "/employees?id=P-002",
-    createdAt: "2026-01-18T00:00:00Z",
-  },
-]
+];
 
-export const auditLogs: AuditLogEntry[] = []
+export const auditLogs: AuditLogEntry[] = [];
 
 export const shifts: Shift[] = [
   {
@@ -4751,4 +3343,4 @@ export const shifts: Shift[] = [
     gracePeriod: 15,
     isDefault: false,
   },
-]
+];

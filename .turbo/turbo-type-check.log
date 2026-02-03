@@ -1,0 +1,5 @@
+
+
+> @hr-system/web@0.1.0 type-check /Users/8seneca/Documents/hrm/8seneca-hrm/apps/web
+> tsc --noEmit
+
