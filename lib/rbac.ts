@@ -141,47 +141,14 @@ export const defaultModules: ModuleConfig[] = [
   },
   {
     id: "attendance",
-    name: "Attendance",
+    name: "Attendance Tracking",
     icon: "Clock",
+    href: "/attendance",
     order: 6,
     isActive: true,
   },
-  {
-    id: "attendance-clock",
-    name: "Clock In/Out",
-    icon: "Clock",
-    href: "/attendance/clock",
-    order: 0,
-    parentId: "attendance",
-    isActive: true,
-  },
-  {
-    id: "attendance-records",
-    name: "Attendance Records",
-    icon: "ClipboardList",
-    href: "/attendance/records",
-    order: 1,
-    parentId: "attendance",
-    isActive: true,
-  },
-  {
-    id: "attendance-reports",
-    name: "Reports",
-    icon: "FileBarChart",
-    href: "/attendance/reports",
-    order: 2,
-    parentId: "attendance",
-    isActive: false,
-  },
-  {
-    id: "attendance-timesheet",
-    name: "Monthly Timesheet",
-    icon: "Calendar",
-    href: "/attendance/timesheet",
-    order: 3,
-    parentId: "attendance",
-    isActive: true,
-  },
+  // Sub-modules removed per user request (Single page mode)
+
   {
     id: "recruitment",
     name: "Recruitment",
@@ -280,9 +247,8 @@ export const defaultRoleModulePermissions: Record<Role, RoleModulePermissions> =
     "leave-calendar": ["view"],
     "leave-balances": ["view", "edit"],
     attendance: ["view", "create", "edit", "delete"],
-    "attendance-records": ["view", "edit", "delete"],
-    "attendance-reports": ["view"],
-    "attendance-timesheet": ["view", "edit"],
+    // Cleaned up sub-permissions
+
     recruitment: ["view", "create", "edit", "delete"],
     "recruitment-jobs": ["view", "create", "edit", "delete"],
     "recruitment-candidates": ["view", "create", "edit", "delete"],
@@ -307,9 +273,6 @@ export const defaultRoleModulePermissions: Record<Role, RoleModulePermissions> =
     "leave-calendar": ["view"],
     "leave-balances": ["view", "edit"],
     attendance: ["view", "create", "edit"],
-    "attendance-records": ["view", "edit"],
-    "attendance-reports": ["view"],
-    "attendance-timesheet": ["view", "edit"],
     recruitment: ["view", "create", "edit"],
     "recruitment-jobs": ["view", "create", "edit", "delete"],
     "recruitment-candidates": ["view", "create", "edit"],
@@ -329,7 +292,6 @@ export const defaultRoleModulePermissions: Record<Role, RoleModulePermissions> =
     leave: ["view"],
     "leave-my-requests": ["view", "create", "edit"],
     attendance: ["view"],
-    "attendance-records": ["view"],
   },
 }
 
@@ -457,13 +419,9 @@ export const modules: Module[] = [
   },
   {
     id: "attendance",
-    name: "Attendance",
+    name: "Attendance Tracking",
     icon: "Clock",
-    features: [
-      { id: "attendance-clock", name: "Clock In/Out", href: "/attendance/clock" },
-      { id: "attendance-records", name: "Attendance History", href: "/attendance/records" },
-      { id: "attendance-reports", name: "Reports", href: "/attendance/reports" },
-    ],
+    href: "/attendance",
     allowedRoles: ["admin", "hr", "employee"],
   },
   {

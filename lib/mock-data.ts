@@ -286,12 +286,12 @@ export interface AttendanceRecord {
   date: string
   clockIn?: string
   clockOut?: string
-  status: "present" | "late" | "early_leave" | "absent" | "on_leave" | "weekend" | "holiday" | "not_checked_in"
+  status: "present" | "late" | "early_leave" | "absent" | "missing" | "on_leave" | "weekend" | "holiday" | "not_checked_in" | "annual_leave" | "unpaid_leave" | "work_from_home" | "sick_leave" | "marriage_leave" | "social_insurance_paid"
   totalHours?: number
   overtime?: number
   lateMinutes?: number
   earlyMinutes?: number
-  source: "web" | "mobile" | "fingerprint"
+  source: "web" | "mobile" | "fingerprint" | "import"
   notes?: string
 }
 
@@ -3950,92 +3950,179 @@ export const leaveHistory: LeaveHistoryEntry[] = [
   },
 ]
 
-// Helper to generate attendance records for Jan 2026
-const generateJan2026Records = (): AttendanceRecord[] => {
+// Helper to generate attendance records for Jan-Feb 2026
+const generateAttendanceRecords = (): AttendanceRecord[] => {
   const records: AttendanceRecord[] = []
   const startDate = new Date("2026-01-01")
-  const endDate = new Date("2026-01-16") // Generate up to today (Jan 16)
+  const endDate = new Date("2026-02-28")
 
-  // Specific overrides map
-  const overrides: Record<string, AttendanceRecord> = {}
+  const employeesToGenerate = employees.filter(e => e.status !== 'future')
 
-  const specificList: AttendanceRecord[] = [
-    // P-001: Early Leave on Jan 14
-    {
-      id: "att-001-14",
-      employeeId: "P-001",
-      employeeName: "Nguyen Van An",
-      date: "2026-01-14",
-      clockIn: "08:00",
-      clockOut: "12:00",
-      status: "early_leave",
-      totalHours: 4,
-      source: "fingerprint",
-    },
-    // P-003: Late on Jan 6
-    {
-      id: "att-003-06",
-      employeeId: "P-003",
-      employeeName: "Le Van Cuong",
-      date: "2026-01-06",
-      clockIn: "08:45",
-      clockOut: "17:30",
-      status: "late",
-      lateMinutes: 15,
-      totalHours: 7.75,
-      source: "fingerprint",
-    }
-  ]
-
-  specificList.forEach(r => {
-    overrides[`${r.employeeId}_${r.date}`] = r
-  })
-
-  employees.forEach(emp => {
+  employeesToGenerate.forEach(emp => {
     const workingDays = emp.workingDays || [1, 2, 3, 4, 5] // Default Mon-Fri
 
     const curr = new Date(startDate)
     while (curr <= endDate) {
       const dateStr = curr.toISOString().split('T')[0]
-      const key = `${emp.id}_${dateStr}`
+      const dayOfWeek = curr.getDay()
 
-      // Check override
-      if (overrides[key]) {
-        records.push(overrides[key])
-      } else {
-        // Check if working day
-        const dayOfWeek = curr.getDay() // 0=Sun, 6=Sat
-        if (workingDays.includes(dayOfWeek)) {
-          // Check holiday
-          const isHoliday = publicHolidays.some(h => h.date === dateStr && h.status === 'active')
-          if (isHoliday) {
-            records.push({
-              id: `att-${emp.id}-${dateStr}`,
-              employeeId: emp.id,
-              employeeName: emp.fullName,
-              date: dateStr,
-              status: "holiday",
-              totalHours: 0,
-              source: "web"
-            })
-          } else {
-            // Generate Present
-            records.push({
-              id: `att-${emp.id}-${dateStr}`,
-              employeeId: emp.id,
-              employeeName: emp.fullName,
-              date: dateStr,
-              clockIn: "08:00",
-              clockOut: "17:00",
-              status: "present",
-              totalHours: 8,
-              source: "fingerprint"
-            })
-          }
+      // 1. Check Public Holiday
+      const isHoliday = publicHolidays.some(h => h.date === dateStr && h.status === 'active')
+      if (isHoliday) {
+        // Optionally create holiday record or skip
+        curr.setDate(curr.getDate() + 1)
+        continue
+      }
+
+      // 2. Check Leave Requests (Approved) - Takes Priority
+      const leave = leaveRequests.find(req =>
+        req.employeeId === emp.id &&
+        req.status === 'approved' &&
+        dateStr >= req.startDate &&
+        dateStr <= req.endDate
+      )
+
+      if (leave) {
+        let status: any = 'on_leave'
+        const typeName = leave.leaveTypeName.toLowerCase()
+        if (typeName.includes('annual')) status = 'annual_leave'
+        else if (typeName.includes('unpaid')) status = 'unpaid_leave'
+        else if (typeName.includes('sick') || typeName.includes('social')) status = 'sick_leave' // or social_insurance_paid
+        else if (typeName.includes('marriage')) status = 'marriage_leave'
+        else if (typeName.includes('work from home')) status = 'work_from_home'
+
+        // If WFH, we might want to simulate clock-in, but usually leave supersedes or is treated as a status.
+        // User requested WFH as status label.
+        // If it's a "Leave Request" for WFH, we treat it as such.
+
+        records.push({
+          id: `att-${emp.id}-${dateStr}`,
+          employeeId: emp.id,
+          employeeName: emp.fullName,
+          date: dateStr,
+          clockIn: status === 'work_from_home' ? "08:00" : undefined, // WFH implies working?
+          clockOut: status === 'work_from_home' ? "17:00" : undefined,
+          status: status,
+          totalHours: status === 'work_from_home' ? 8 : 0,
+          source: "web"
+        })
+      }
+      // 3. Normal Attendance Generation (if working day)
+      else if (workingDays.includes(dayOfWeek)) {
+        // Pseudo-random generation based on employee ID and date for deterministic results (avoids hydration errors)
+        const seedStr = `${emp.id}-${dateStr}`
+        let hash = 0
+        for (let i = 0; i < seedStr.length; i++) {
+          hash = ((hash << 5) - hash) + seedStr.charCodeAt(i)
+          hash |= 0
+        }
+        const rand = Math.abs(hash) / 2147483647
+
+        // A. Missing (No Check-in/out) - 2% chance
+        if (rand < 0.02) {
+          // Creates a "Missing" record (User wants to see "Missing" status if incomplete)
+          // Case 1: No punch at all implies "Absent" usually, but user requirement says:
+          // "Missing: ko check in hoặc check in thiếu thời gian vào/ra"
+          // Let's simulate incomplete punch
+          records.push({
+            id: `att-${emp.id}-${dateStr}`,
+            employeeId: emp.id,
+            employeeName: emp.fullName,
+            date: dateStr,
+            clockIn: "08:00", // Forgot out
+            status: "missing",
+            totalHours: 0,
+            source: "fingerprint"
+          })
+        }
+        // B. Late (> 9:00) - 5% chance
+        else if (rand < 0.07) {
+          const lateMin = (Math.floor(rand * 1000) % 60) + 1 // 1-60m
+          const h = 9, m = lateMin
+          const clockIn = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
+          const clockOut = "18:00"
+
+          // Calc hours: (18 - (9 + m/60)) - 1
+          const hours = (18 - (9 + lateMin / 60)) - 1
+
+          records.push({
+            id: `att-${emp.id}-${dateStr}`,
+            employeeId: emp.id,
+            employeeName: emp.fullName,
+            date: dateStr,
+            clockIn,
+            clockOut,
+            status: "late",
+            lateMinutes: lateMin,
+            totalHours: Number(hours.toFixed(2)),
+            source: "fingerprint"
+          })
+        }
+        // C. Early Leave (Total < 8h) - 5% chance
+        else if (rand < 0.12) {
+          // Arrive 08:00
+          // Leave such that hours < 8.
+          const hoursWorked = 4 + (Math.floor(rand * 100) % 35) / 10 // 4.0 to 7.5 hours
+          const endHour = 8 + 1 + Math.floor(hoursWorked) // simplified break logic
+          const endMin = Math.floor((hoursWorked % 1) * 60)
+
+          records.push({
+            id: `att-${emp.id}-${dateStr}`,
+            employeeId: emp.id,
+            employeeName: emp.fullName,
+            date: dateStr,
+            clockIn: "08:00",
+            clockOut: `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`,
+            status: "early_leave",
+            totalHours: hoursWorked,
+            source: "fingerprint"
+          })
+        }
+        // D. Present (Normal)
+        else {
+          // 5. Present (>= 8 hours) - Random variations
+          // Arrive between 07:45 and 08:59 (Strictly < 09:00)
+          const arriveHour = 8
+          // Random minute between -15 (07:45) and 59 (08:59)
+          const arriveMinOffset = (Math.floor(rand * 1000) % 75) - 15
+
+          const arriveDate = new Date(`2000-01-01T08:00:00`)
+          arriveDate.setMinutes(arriveDate.getMinutes() + arriveMinOffset)
+
+          // Manual 24h formatting to avoid locale issues
+          const inHH = arriveDate.getHours().toString().padStart(2, '0')
+          const inMM = arriveDate.getMinutes().toString().padStart(2, '0')
+          const clockIn = `${inHH}:${inMM}`
+
+          // Work duration: 8 hours + random overtime (0-2 hours)
+          // Use a different hash based component for variation
+          const hoursWorked = 8 + (Math.floor(rand * 500) % 200) / 100
+
+          const leaveDate = new Date(arriveDate)
+          leaveDate.setMinutes(leaveDate.getMinutes() + (hoursWorked + 1) * 60) // +1 hour lunch break
+
+          const outHH = leaveDate.getHours().toString().padStart(2, '0')
+          const outMM = leaveDate.getMinutes().toString().padStart(2, '0')
+          const clockOut = `${outHH}:${outMM}`
+
+          const inTime = arriveDate.getHours() + arriveDate.getMinutes() / 60
+          const outTime = leaveDate.getHours() + leaveDate.getMinutes() / 60
+          const total = Math.max(0, (outTime - inTime) - 1)
+
+          records.push({
+            id: `att-${emp.id}-${dateStr}`,
+            employeeId: emp.id,
+            employeeName: emp.fullName,
+            date: dateStr,
+            clockIn,
+            clockOut,
+            status: "present",
+            totalHours: Number(total.toFixed(2)),
+            source: "fingerprint"
+          })
         }
       }
 
-      // Next day
       curr.setDate(curr.getDate() + 1)
     }
   })
@@ -4043,7 +4130,7 @@ const generateJan2026Records = (): AttendanceRecord[] => {
   return records
 }
 
-export const attendanceRecords: AttendanceRecord[] = generateJan2026Records()
+export const attendanceRecords: AttendanceRecord[] = generateAttendanceRecords()
 
 
 export const jobRequisitions: JobRequisition[] = [
