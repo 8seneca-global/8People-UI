@@ -1,0 +1,54 @@
+
+
+> @hr-system/web@0.1.0 build /Users/8seneca/Documents/hrm/8seneca-hrm/apps/web
+> next build
+
+ [33m[1m⚠[22m[39m Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/8seneca/pnpm-lock.yaml as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /Users/8seneca/Documents/hrm/8seneca-hrm/apps/web/pnpm-lock.yaml
+   * /Users/8seneca/Documents/hrm/8seneca-hrm/pnpm-lock.yaml
+
+   [1m[38;2;173;127;168m▲ Next.js 16.0.10[39m[22m (Turbopack)
+   - Environments: .env
+
+ [37m[1m [22m[39m Creating an optimized production build ...
+ [32m[1m✓[22m[39m Compiled successfully in 14.3s
+ [37m[1m [22m[39m Skipping validation of types
+[?25l [37m[1m [22m[39m Collecting page data using 7 workers  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting page data using 7 workers  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting page data using 7 workers  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting page data using 7 workers  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting page data using 7 workers  [36m..[39m[2K[1G[?25h [37m[1m [22m[39m Collecting page data using 7 workers in 916.9ms     [32m[1m✓[22m[39m Collecting page data using 7 workers in 916.9ms 
+[?25l [37m[1m [22m[39m Generating static pages using 7 workers (0/26)  [36m[    ][39m[2K[1G [37m[1m [22m[39m Generating static pages using 7 workers (0/26)  [36m[=   ][39m[2K[1G [37m[1m [22m[39m Generating static pages using 7 workers (0/26)  [36m[==  ][39m[2K[1G [37m[1m [22m[39m Generating static pages using 7 workers (0/26)  [36m[=== ][39m[2K[1G [37m[1m [22m[39m Generating static pages using 7 workers (0/26)  [36m[ ===][39m[2K[1G [37m[1m [22m[39m Generating static pages using 7 workers (8/26)  [36m[  ==][39m[2K[1G [37m[1m [22m[39m Generating static pages using 7 workers (20/26)  [36m[   =][39m[2K[1G[?25h [32m[1m✓[22m[39m Generating static pages using 7 workers (26/26) in 1343.3ms
+[?25l [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G[?25h [37m[1m [22m[39m Finalizing page optimization in 1164.2ms     [32m[1m✓[22m[39m Finalizing page optimization in 1164.2ms 
+
+[4mRoute (app)[24m
+┌ ○ /
+├ ○ /_not-found
+├ ○ /attendance
+├ ○ /attendance/records
+├ ○ /attendance/reports
+├ ○ /colleagues
+├ ○ /dashboard
+├ ○ /employees
+├ ○ /leave/balances
+├ ○ /leave/calendar
+├ ○ /leave/my-requests
+├ ○ /leave/requests
+├ ○ /login
+├ ○ /my-profile
+├ ○ /notifications
+├ ○ /onboarding
+├ ○ /organization
+├ ○ /organization/jobs
+├ ○ /organization/org-units
+├ ○ /organization/positions
+├ ○ /recruitment/candidates
+├ ○ /recruitment/interviews
+├ ○ /recruitment/jobs
+├ ○ /recruitment/pool
+└ ○ /settings
+
+
+○  (Static)  prerendered as static content
+
+[?25h

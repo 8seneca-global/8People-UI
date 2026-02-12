@@ -1,13 +1,13 @@
 // Role-based Access Control System
 // Structure: User -> Roles -> Modules -> Features -> Actions
 
-export type Role = "admin" | "hr" | "employee"
+export type Role = "admin" | "hr" | "employee";
 
-export type ActionType = "view" | "create" | "edit" | "delete"
+export type ActionType = "view" | "create" | "edit" | "delete";
 
 export interface ModuleAction {
-  id: ActionType
-  name: string
+  id: ActionType;
+  name: string;
 }
 
 export const moduleActions: ModuleAction[] = [
@@ -15,220 +15,230 @@ export const moduleActions: ModuleAction[] = [
   { id: "create", name: "Create" },
   { id: "edit", name: "Edit" },
   { id: "delete", name: "Delete" },
-]
+];
 
 export interface ModuleConfig {
-  id: string
-  name: string
-  icon: string
-  href?: string
-  order: number
-  parentId?: string
-  isActive: boolean
+  id: string;
+  name: string;
+  label: string;
+  icon: string;
+  urlPath?: string;
+  bePath?: string;
+  order: number;
+  parentId?: string;
+  isActive: boolean;
 }
 
-// Default modules configuration - O-S-C-P Model
+// Default modules configuration - matching the sidebar design
 export const defaultModules: ModuleConfig[] = [
+  // Dashboard
   {
     id: "dashboard",
-    name: "Dashboard",
+    name: "dashboard",
+    label: "Dashboard",
     icon: "LayoutDashboard",
-    href: "/",
+    urlPath: "/dashboard",
     order: 0,
     isActive: true,
   },
+
+  // Organization
   {
     id: "organization",
-    name: "Organization",
+    name: "organization",
+    label: "Organization",
     icon: "Building2",
     order: 1,
     isActive: true,
   },
   {
     id: "org-chart",
-    name: "Org Chart",
+    name: "org-chart",
+    label: "Org Chart",
     icon: "Network",
-    href: "/organization",
+    urlPath: "/organization",
     order: 0,
     parentId: "organization",
     isActive: true,
   },
   {
-    id: "org-view",
-    name: "Org Structure",
+    id: "org-units",
+    name: "org-units",
+    label: "Org Units",
     icon: "Building2",
-    href: "/organization/org-view",
+    urlPath: "/organization/org-units",
     order: 1,
     parentId: "organization",
     isActive: true,
   },
-  {
-    id: "jobs",
-    name: "Job Classifications",
-    icon: "FileText",
-    href: "/organization/jobs",
-    order: 3,
-    parentId: "organization",
-    isActive: true,
-  },
-  {
-    id: "positions",
-    name: "Positions",
-    icon: "Briefcase",
-    href: "/organization/positions",
-    order: 4,
-    parentId: "organization",
-    isActive: true,
-  },
+
+  // Employees
   {
     id: "employees",
-    name: "Employees",
+    name: "employees",
+    label: "Employees",
     icon: "Users",
-    href: "/employees",
     order: 2,
     isActive: true,
   },
   {
-    id: "my-profile",
-    name: "My Profile",
+    id: "employees-transactions",
+    name: "employees-transactions",
+    label: "Transactions",
+    icon: "FileText",
+    urlPath: "/employees/transactions",
+    order: 0,
+    parentId: "employees",
+    isActive: true,
+  },
+  {
+    id: "employees-profile",
+    name: "employees-profile",
+    label: "Employee profile",
     icon: "User",
-    href: "/my-profile",
+    urlPath: "/employees",
+    order: 1,
+    parentId: "employees",
+    isActive: true,
+  },
+
+  // Recruitment
+  {
+    id: "recruitment",
+    name: "recruitment",
+    label: "Recruitment",
+    icon: "UserSearch",
     order: 3,
     isActive: true,
   },
   {
+    id: "recruitment-candidates",
+    name: "recruitment-candidates",
+    label: "Applying Candidates",
+    icon: "UserSearch",
+    urlPath: "/recruitment/candidates",
+    order: 0,
+    parentId: "recruitment",
+    isActive: true,
+  },
+  {
+    id: "recruitment-pool",
+    name: "recruitment-pool",
+    label: "Candidates Pool",
+    icon: "Users",
+    urlPath: "/recruitment/pool",
+    order: 1,
+    parentId: "recruitment",
+    isActive: true,
+  },
+  {
+    id: "recruitment-interviews",
+    name: "recruitment-interviews",
+    label: "Interviews",
+    icon: "Video",
+    urlPath: "/recruitment/interviews",
+    order: 2,
+    parentId: "recruitment",
+    isActive: true,
+  },
+  {
+    id: "recruitment-jobs",
+    name: "recruitment-jobs",
+    label: "Recruitment Jobs",
+    icon: "Briefcase",
+    urlPath: "/recruitment/jobs",
+    order: 3,
+    parentId: "recruitment",
+    isActive: true,
+  },
+
+  // Leave
+  {
     id: "leave",
-    name: "Leave",
+    name: "leave",
+    label: "Leave",
     icon: "CalendarDays",
-    order: 5,
+    order: 4,
     isActive: true,
   },
   {
     id: "leave-requests",
-    name: "Leave Requests",
-    icon: "CalendarDays",
-    href: "/leave/requests",
+    name: "leave-requests",
+    label: "Leave Requests",
+    icon: "FileText",
+    urlPath: "/leave/requests",
     order: 0,
     parentId: "leave",
     isActive: true,
   },
   {
     id: "leave-my-requests",
-    name: "My Requests",
+    name: "leave-my-requests",
+    label: "My Requests",
     icon: "CalendarCheck",
-    href: "/leave/my-requests",
+    urlPath: "/leave/my-requests",
     order: 1,
     parentId: "leave",
     isActive: true,
   },
   {
     id: "leave-calendar",
-    name: "Leave Calendar",
+    name: "leave-calendar",
+    label: "Leave Calendar",
     icon: "Calendar",
-    href: "/leave/calendar",
+    urlPath: "/leave/calendar",
     order: 2,
     parentId: "leave",
     isActive: true,
   },
   {
     id: "leave-balances",
-    name: "Leave Balances",
+    name: "leave-balances",
+    label: "Leave Balances",
     icon: "PieChart",
-    href: "/leave/balances",
+    urlPath: "/leave/balances",
     order: 3,
     parentId: "leave",
     isActive: true,
   },
+
+  // Settings
+  {
+    id: "settings",
+    name: "settings",
+    label: "Settings",
+    icon: "Settings",
+    urlPath: "/settings",
+    order: 5,
+    isActive: true,
+  },
+
+  // Attendance
   {
     id: "attendance",
+    label: "Attendance",
     name: "Attendance Tracking",
     icon: "Clock",
-    href: "/attendance",
+    urlPath: "/attendance",
     order: 6,
     isActive: true,
   },
   // Sub-modules removed per user request (Single page mode)
 
   {
-    id: "recruitment",
-    name: "Recruitment",
-    icon: "UserSearch",
+    id: "onboarding",
+    name: "onboarding",
+    label: "Onboarding",
+    icon: "UserPlus",
+    urlPath: "/onboarding",
     order: 7,
     isActive: true,
   },
-  {
-    id: "recruitment-jobs",
-    name: "Job Openings",
-    icon: "FileText",
-    href: "/recruitment/jobs",
-    order: 0,
-    parentId: "recruitment",
-    isActive: true,
-  },
-  {
-    id: "recruitment-candidates",
-    name: "Applying Candidates",
-    icon: "UserSearch",
-    href: "/recruitment/candidates",
-    order: 1,
-    parentId: "recruitment",
-    isActive: true,
-  },
-  {
-    id: "recruitment-pool",
-    name: "Candidates Pool",
-    icon: "Users",
-    href: "/recruitment/pool",
-    order: 2,
-    parentId: "recruitment",
-    isActive: true,
-  },
-  {
-    id: "recruitment-interviews",
-    name: "Interviews",
-    icon: "Video",
-    href: "/recruitment/interviews",
-    order: 3,
-    parentId: "recruitment",
-    isActive: true,
-  },
-  {
-    id: "onboarding",
-    name: "Onboarding",
-    icon: "UserPlus",
-    href: "/onboarding",
-    order: 8,
-    isActive: true,
-  },
-  {
-    id: "company-forum",
-    name: "Company Forum",
-    icon: "MessageSquare",
-    href: "/forum",
-    order: 8.5,
-    isActive: true,
-  },
-  {
-    id: "documents",
-    name: "Documents",
-    icon: "FileText",
-    href: "/documents",
-    order: 8.7,
-    isActive: true,
-  },
-  {
-    id: "settings",
-    name: "Settings",
-    icon: "Settings",
-    href: "/settings",
-    order: 9,
-    isActive: true,
-  },
-]
+];
 
 // Role permission structure
 export interface RoleModulePermissions {
-  [moduleId: string]: ActionType[]
+  [moduleId: string]: ActionType[];
 }
 
 export const defaultRoleModulePermissions: Record<Role, RoleModulePermissions> = {
@@ -295,7 +305,10 @@ export const defaultRoleModulePermissions: Record<Role, RoleModulePermissions> =
   },
 }
 
-export const roleInfo: Record<Role, { name: string; description: string; color: string }> = {
+export const roleInfo: Record<
+  Role,
+  { name: string; description: string; color: string }
+> = {
   admin: {
     name: "Administrator",
     description: "Full access to all modules, settings, and permissions",
@@ -311,7 +324,7 @@ export const roleInfo: Record<Role, { name: string; description: string; color: 
     description: "View organization structure and manage personal profile",
     color: "bg-emerald-500/20 text-emerald-400",
   },
-}
+};
 
 // Legacy support
 export type FeaturePermission =
@@ -326,7 +339,7 @@ export type FeaturePermission =
   | "onboarding.view"
   | "onboarding.manage"
   | "settings.view"
-  | "settings.edit"
+  | "settings.edit";
 
 export const rolePermissions: Record<Role, FeaturePermission[]> = {
   admin: [
@@ -354,21 +367,21 @@ export const rolePermissions: Record<Role, FeaturePermission[]> = {
     "onboarding.manage",
   ],
   employee: ["organization.view"],
-}
+};
 
 export interface Feature {
-  id: string
-  name: string
-  href: string
+  id: string;
+  name: string;
+  href: string;
 }
 
 export interface Module {
-  id: string
-  name: string
-  icon: string
-  href?: string
-  features?: Feature[]
-  allowedRoles: Role[]
+  id: string;
+  name: string;
+  icon: string;
+  href?: string;
+  features?: Feature[];
+  allowedRoles: Role[];
 }
 
 export const modules: Module[] = [
@@ -376,7 +389,7 @@ export const modules: Module[] = [
     id: "dashboard",
     name: "Dashboard",
     icon: "LayoutDashboard",
-    href: "/",
+    href: "/dashboard",
     allowedRoles: ["admin", "hr", "employee"],
   },
   {
@@ -385,9 +398,7 @@ export const modules: Module[] = [
     icon: "Building2",
     features: [
       { id: "org-chart", name: "Org Chart", href: "/organization" },
-      { id: "org-view", name: "Org Structure", href: "/organization/org-view" },
-      { id: "jobs", name: "Job Classifications", href: "/organization/jobs" },
-      { id: "positions", name: "Positions", href: "/organization/positions" },
+      { id: "org-units", name: "Org Units", href: "/organization/org-units" },
     ],
     allowedRoles: ["admin", "hr", "employee"],
   },
@@ -395,15 +406,43 @@ export const modules: Module[] = [
     id: "employees",
     name: "Employees",
     icon: "Users",
-    href: "/employees",
+    features: [
+      {
+        id: "employees-transactions",
+        name: "Transactions",
+        href: "/employees/transactions",
+      },
+      { id: "employees-profile", name: "Employee profile", href: "/employees" },
+    ],
     allowedRoles: ["admin", "hr"],
   },
   {
-    id: "my-profile",
-    name: "My Profile",
-    icon: "User",
-    href: "/my-profile",
-    allowedRoles: ["employee", "hr"],
+    id: "recruitment",
+    name: "Recruitment",
+    icon: "UserSearch",
+    features: [
+      {
+        id: "recruitment-candidates",
+        name: "Applying Candidates",
+        href: "/recruitment/candidates",
+      },
+      {
+        id: "recruitment-pool",
+        name: "Candidates Pool",
+        href: "/recruitment/pool",
+      },
+      {
+        id: "recruitment-interviews",
+        name: "Interviews",
+        href: "/recruitment/interviews",
+      },
+      {
+        id: "recruitment-jobs",
+        name: "Recruitment Jobs",
+        href: "/recruitment/jobs",
+      },
+    ],
+    allowedRoles: ["admin", "hr"],
   },
   {
     id: "leave",
@@ -411,7 +450,11 @@ export const modules: Module[] = [
     icon: "CalendarDays",
     features: [
       { id: "leave-requests", name: "Leave Requests", href: "/leave/requests" },
-      { id: "leave-my-requests", name: "My Requests", href: "/leave/my-requests" },
+      {
+        id: "leave-my-requests",
+        name: "My Requests",
+        href: "/leave/my-requests",
+      },
       { id: "leave-calendar", name: "Leave Calendar", href: "/leave/calendar" },
       { id: "leave-balances", name: "Leave Balances", href: "/leave/balances" },
     ],
@@ -464,23 +507,55 @@ export const modules: Module[] = [
     href: "/settings",
     allowedRoles: ["admin"],
   },
-]
+  {
+    id: "attendance",
+    name: "Attendance",
+    icon: "Clock",
+    features: [
+      { id: "attendance-clock", name: "Clock In/Out", href: "/attendance" },
+      {
+        id: "attendance-records",
+        name: "Attendance Records",
+        href: "/attendance/records",
+      },
+      {
+        id: "attendance-reports",
+        name: "Reports",
+        href: "/attendance/reports",
+      },
+    ],
+    allowedRoles: ["admin", "hr", "employee"],
+  },
+  {
+    id: "onboarding",
+    name: "Onboarding",
+    icon: "UserPlus",
+    href: "/onboarding",
+    allowedRoles: ["admin", "hr"],
+  },
+];
 
 export function getAccessibleModules(role: Role): Module[] {
-  return modules.filter((module) => module.allowedRoles.includes(role))
+  return modules.filter((module) => module.allowedRoles.includes(role));
 }
 
 export function hasAccessToPath(role: Role, path: string): boolean {
-  const accessibleModules = getAccessibleModules(role)
+  const accessibleModules = getAccessibleModules(role);
 
   for (const module of accessibleModules) {
-    if (module.href === path) return true
-    if (module.features?.some((f) => f.href === path)) return true
+    if (module.href === path) return true;
+    if (module.features?.some((f) => f.href === path)) return true;
   }
 
-  return false
+  return false;
 }
 
-export function hasPermission(role: Role, permission: FeaturePermission): boolean {
-  return rolePermissions[role].includes(permission)
+export function hasPermission(
+  role: Role,
+  permission: FeaturePermission,
+): boolean {
+  if (!role || !rolePermissions[role]) {
+    return false;
+  }
+  return rolePermissions[role].includes(permission);
 }
