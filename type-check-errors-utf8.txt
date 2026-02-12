@@ -1,0 +1,162 @@
+﻿
+> @hr-system/web@0.1.0 type-check
+> tsc --noEmit
+
+app/(authorized)/attendance/page.tsx(90,45): error TS2339: Property 'workingDays' does not exist on type 'Employee'.
+app/(authorized)/attendance/records/page.tsx(81,11): error TS2740: Type '{ present: { variant: "default"; label: string; }; late: { variant: "secondary"; label: string; }; early_leave: { variant: "secondary"; label: string; }; absent: { variant: "destructive"; label: string; }; on_leave: { ...; }; weekend: { ...; }; holiday: { ...; }; not_checked_in: { ...; }; }' is missing the following properties from type 'Record<"present" | "late" | "early_leave" | "absent" | "missing" | "on_leave" | "weekend" | "holiday" | "not_checked_in" | "annual_leave" | "unpaid_leave" | "work_from_home" | "sick_leave" | "marriage_leave" | "social_insurance_paid", { ...; }>': missing, annual_leave, unpaid_leave, work_from_home, and 3 more.
+app/(authorized)/leave/calendar/page.tsx(26,31): error TS2307: Cannot find module '@hr-system/utils' or its corresponding type declarations.
+components/attendance/import-attendance-modal.tsx(15,23): error TS2307: Cannot find module 'xlsx' or its corresponding type declarations.
+components/dashboard/dashboard-banner.tsx(6,13): error TS2339: Property 'banners' does not exist on type 'StoreState'.
+components/dashboard/dashboard-banner.tsx(10,18): error TS7006: Parameter 'b' implicitly has an 'any' type.
+components/dashboard/dashboard-banner.tsx(11,16): error TS7006: Parameter 'a' implicitly has an 'any' type.
+components/dashboard/dashboard-banner.tsx(11,19): error TS7006: Parameter 'b' implicitly has an 'any' type.
+components/dashboard/onboarding-checklist-modal.tsx(20,13): error TS2339: Property 'onboardingSteps' does not exist on type 'StoreState'.
+components/employees/employee-detail-modal.tsx(39,3): error TS2305: Module '"@/lib/mock-data"' has no exported member 'EmployeeTransaction'.
+components/employees/employee-detail-modal.tsx(40,3): error TS2305: Module '"@/lib/mock-data"' has no exported member 'EmployeeDependent'.
+components/employees/employee-detail-modal.tsx(41,3): error TS2305: Module '"@/lib/mock-data"' has no exported member 'TransactionAction'.
+components/employees/employee-detail-modal.tsx(43,10): error TS2305: Module '"@/lib/mock-data"' has no exported member 'transactionReasons'.
+components/employees/employee-detail-modal.tsx(43,30): error TS2305: Module '"@/lib/mock-data"' has no exported member 'resignationSubReasons'.
+components/employees/employee-detail-modal.tsx(43,53): error TS2305: Module '"@/lib/mock-data"' has no exported member 'contractTypeOptions'.
+components/employees/employee-detail-modal.tsx(213,32): error TS2339: Property 'transactions' does not exist on type 'Employee'.
+components/employees/employee-detail-modal.tsx(214,30): error TS2339: Property 'dependents' does not exist on type 'Employee'.
+components/employees/employee-detail-modal.tsx(215,9): error TS2322: Type 'null' is not assignable to type '(string & File) | undefined'.
+components/employees/employee-detail-modal.tsx(217,35): error TS2339: Property 'directReportIds' does not exist on type 'Employee'.
+components/employees/employee-detail-modal.tsx(242,19): error TS2345: Argument of type '(prev: Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }) => { ...; }' is not assignable to parameter of type 'SetStateAction<Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }>'.
+  Type '(prev: Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }) => { ...; }' is not assignable to type '(prevState: Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }) => Partial<...> & { ...; }'.
+    Type '{ citizenshipIdFile: File; id?: string | undefined; code?: string | undefined; fullName?: string | undefined; firstName?: string | undefined; lastName?: string | undefined; personalEmail?: string | undefined; ... 43 more ...; directReportIds?: string[]; }' is not assignable to type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+      Type '{ citizenshipIdFile: File; id?: string | undefined; code?: string | undefined; fullName?: string | undefined; firstName?: string | undefined; lastName?: string | undefined; personalEmail?: string | undefined; ... 43 more ...; directReportIds?: string[]; }' is not assignable to type 'Partial<Employee>'.
+        Types of property 'citizenshipIdFile' are incompatible.
+          Type 'File' is not assignable to type 'string'.
+components/employees/employee-detail-modal.tsx(249,17): error TS2345: Argument of type '(prev: Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }) => { ...; }' is not assignable to parameter of type 'SetStateAction<Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }>'.
+  Type '(prev: Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }) => { ...; }' is not assignable to type '(prevState: Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }) => Partial<...> & { ...; }'.
+    Type '{ citizenshipIdFile: null; id?: string | undefined; code?: string | undefined; fullName?: string | undefined; firstName?: string | undefined; lastName?: string | undefined; personalEmail?: string | undefined; ... 43 more ...; directReportIds?: string[]; }' is not assignable to type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+      Type '{ citizenshipIdFile: null; id?: string | undefined; code?: string | undefined; fullName?: string | undefined; firstName?: string | undefined; lastName?: string | undefined; personalEmail?: string | undefined; ... 43 more ...; directReportIds?: string[]; }' is not assignable to type 'Partial<Employee>'.
+        Types of property 'citizenshipIdFile' are incompatible.
+          Type 'null' is not assignable to type 'string | undefined'.
+components/employees/employee-detail-modal.tsx(273,23): error TS7053: Element implicitly has an 'any' type because expression of type '"taxInfo" | "bankInfo" | "emergencyContact" | "resignationInfo"' can't be used to index type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+  Property 'resignationInfo' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(331,7): error TS2353: Object literal may only specify known properties, and 'notes' does not exist in type 'EmployeeContract'.
+components/employees/employee-detail-modal.tsx(331,26): error TS2339: Property 'notes' does not exist on type 'EmployeeContract & { file?: File | null | undefined; }'.
+components/employees/employee-detail-modal.tsx(370,9): error TS2353: Object literal may only specify known properties, and 'notes' does not exist in type 'EmployeeContract'.
+components/employees/employee-detail-modal.tsx(370,32): error TS2339: Property 'notes' does not exist on type 'EmployeeContract & { file?: File | null | undefined; }'.
+components/employees/employee-detail-modal.tsx(371,101): error TS2339: Property 'fileUrl' does not exist on type 'EmployeeContract & { file?: File | null | undefined; }'.
+components/employees/employee-detail-modal.tsx(372,65): error TS2339: Property 'fileName' does not exist on type 'EmployeeContract & { file?: File | null | undefined; }'.
+components/employees/employee-detail-modal.tsx(444,31): error TS2339: Property 'transactions' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(466,34): error TS2339: Property 'transactions' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(466,59): error TS7006: Parameter 'txn' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(490,27): error TS2339: Property 'transactions' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(490,55): error TS7006: Parameter 't' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(517,29): error TS2339: Property 'dependents' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(528,25): error TS2339: Property 'dependents' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(528,51): error TS7006: Parameter 'd' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(568,25): error TS2339: Property 'resignationInfo' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(692,64): error TS2339: Property 'name' does not exist on type 'JobClassification'.
+components/employees/employee-detail-modal.tsx(704,43): error TS2339: Property 'name' does not exist on type 'JobClassification'.
+components/employees/employee-detail-modal.tsx(808,37): error TS2339: Property 'companyJoinDate' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(818,37): error TS2339: Property 'officialStartDate' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(828,89): error TS2339: Property 'officialStartDate' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(868,39): error TS2339: Property 'phone' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(878,23): error TS2322: Type 'string | Date' is not assignable to type 'string | number | readonly string[] | undefined'.
+  Type 'Date' is not assignable to type 'string | number | readonly string[] | undefined'.
+    Type 'Date' is missing the following properties from type 'readonly string[]': length, concat, join, slice, and 26 more.
+components/employees/employee-detail-modal.tsx(935,39): error TS2339: Property 'placeOfBirth' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(957,39): error TS2339: Property 'citizenshipIdNumber' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(968,39): error TS2551: Property 'citizenshipIdDateOfIssue' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'. Did you mean 'citizenshipIdFile'?
+components/employees/employee-detail-modal.tsx(977,39): error TS2551: Property 'citizenshipIdPlaceOfIssue' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'. Did you mean 'citizenshipIdFile'?
+components/employees/employee-detail-modal.tsx(1431,30): error TS2339: Property 'dependents' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(1435,34): error TS2339: Property 'dependents' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(1435,57): error TS7006: Parameter 'dep' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(1524,57): error TS7006: Parameter 'type' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(1581,48): error TS2339: Property 'notes' does not exist on type 'EmployeeContract & { file?: File | null | undefined; }'.
+components/employees/employee-detail-modal.tsx(1679,53): error TS2339: Property 'fileName' does not exist on type 'EmployeeContract'.
+components/employees/employee-detail-modal.tsx(1723,81): error TS7006: Parameter 'type' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(1783,93): error TS2339: Property 'fileName' does not exist on type 'EmployeeContract & { file?: File | null | undefined; }'.
+components/employees/employee-detail-modal.tsx(1785,111): error TS2339: Property 'fileName' does not exist on type 'EmployeeContract & { file?: File | null | undefined; }'.
+components/employees/employee-detail-modal.tsx(1792,76): error TS2339: Property 'notes' does not exist on type 'EmployeeContract & { file?: File | null | undefined; }'.
+components/employees/employee-detail-modal.tsx(1855,59): error TS2339: Property 'fileName' does not exist on type 'EmployeeContract'.
+components/employees/employee-detail-modal.tsx(1862,104): error TS2339: Property 'fileName' does not exist on type 'EmployeeContract'.
+components/employees/employee-detail-modal.tsx(1863,65): error TS2339: Property 'fileUrl' does not exist on type 'EmployeeContract'.
+components/employees/employee-detail-modal.tsx(1866,76): error TS2339: Property 'fileUrl' does not exist on type 'EmployeeContract'.
+components/employees/employee-detail-modal.tsx(1867,80): error TS2339: Property 'fileName' does not exist on type 'EmployeeContract'.
+components/employees/employee-detail-modal.tsx(1878,59): error TS2339: Property 'notes' does not exist on type 'EmployeeContract'.
+components/employees/employee-detail-modal.tsx(1883,99): error TS2339: Property 'notes' does not exist on type 'EmployeeContract'.
+components/employees/employee-detail-modal.tsx(2005,89): error TS7006: Parameter 'reason' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2041,86): error TS7006: Parameter 'subReason' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2141,61): error TS7006: Parameter 'type' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2210,30): error TS2339: Property 'transactions' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(2216,36): error TS2339: Property 'transactions' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(2217,34): error TS7006: Parameter 'a' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2217,37): error TS7006: Parameter 'b' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2218,33): error TS7006: Parameter 'txn' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2289,78): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2313,78): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2323,58): error TS7006: Parameter 'reason' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2340,78): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2358,80): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2368,60): error TS7006: Parameter 'subReason' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2391,82): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2422,82): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2457,78): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2470,78): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2479,81): error TS7006: Parameter 'type' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2494,76): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2642,43): error TS2339: Property 'resignationInfo' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(2665,43): error TS2339: Property 'resignationInfo' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(2667,59): error TS2339: Property 'resignationInfo' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(2673,39): error TS2339: Property 'resignationInfo' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(2674,62): error TS2339: Property 'resignationInfo' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(2674,103): error TS7006: Parameter 'reason' implicitly has an 'any' type.
+components/employees/employee-detail-modal.tsx(2687,43): error TS2339: Property 'resignationInfo' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(2700,45): error TS2339: Property 'resignationInfo' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(2716,45): error TS2339: Property 'resignationInfo' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(2743,51): error TS2339: Property 'resignationInfo' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(2754,51): error TS2339: Property 'resignationInfo' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(2764,35): error TS2339: Property 'resignationInfo' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/employees/employee-detail-modal.tsx(2768,47): error TS2339: Property 'resignationInfo' does not exist on type 'Partial<Employee> & { citizenshipIdFile?: File | null | undefined; contractFile?: File | null | undefined; directReportIds?: string[] | undefined; }'.
+components/layout/role-switcher.tsx(28,53): error TS2339: Property 'simulationMode' does not exist on type 'StoreState'.
+components/layout/role-switcher.tsx(28,69): error TS2339: Property 'setSimulationMode' does not exist on type 'StoreState'.
+components/layout/role-switcher.tsx(34,5): error TS2554: Expected 2 arguments, but got 1.
+components/layout/role-switcher.tsx(55,162): error TS2339: Property 'color' does not exist on type 'CustomRole'.
+components/layout/role-switcher.tsx(74,92): error TS2339: Property 'color' does not exist on type 'CustomRole'.
+components/layout/sidebar.tsx(63,46): error TS2339: Property 'simulationMode' does not exist on type 'StoreState'.
+components/layout/sidebar.tsx(134,29): error TS2339: Property 'href' does not exist on type 'ModuleConfig'.
+components/layout/sidebar.tsx(134,56): error TS2339: Property 'href' does not exist on type 'ModuleConfig'.
+components/layout/sidebar.tsx(134,103): error TS2339: Property 'href' does not exist on type 'ModuleConfig'.
+components/layout/sidebar.tsx(162,33): error TS2339: Property 'href' does not exist on type 'ModuleConfig'.
+components/layout/sidebar.tsx(165,42): error TS2339: Property 'href' does not exist on type 'ModuleConfig'.
+components/layout/sidebar.tsx(184,22): error TS2339: Property 'href' does not exist on type 'ModuleConfig'.
+components/layout/sidebar.tsx(187,31): error TS2339: Property 'href' does not exist on type 'ModuleConfig'.
+components/layout/top-bar.tsx(54,3): error TS2353: Object literal may only specify known properties, and 'contract_warning' does not exist in type 'Record<"leave_request" | "leave_approved" | "leave_rejected" | "interview" | "onboarding" | "announcement" | "system", ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>>'.
+components/layout/top-bar.tsx(92,12): error TS2678: Type '"contract_warning"' is not comparable to type '"leave_request" | "leave_approved" | "leave_rejected" | "interview" | "onboarding" | "announcement" | "system"'.
+components/layout/top-bar.tsx(94,12): error TS2678: Type '"birthday"' is not comparable to type '"leave_request" | "leave_approved" | "leave_rejected" | "interview" | "onboarding" | "announcement" | "system"'.
+components/recruitment/position-selector.tsx(11,61): error TS2307: Cannot find module '@/lib/hierarchy-utils' or its corresponding type declarations.
+modules/attendance/components/import-attendance-modal.tsx(15,23): error TS2307: Cannot find module 'xlsx' or its corresponding type declarations.
+modules/employees/api/api.ts(2,57): error TS2307: Cannot find module '@hr-system/contracts' or its corresponding type declarations.
+modules/leaves/api/mutations.ts(51,9): error TS2322: Type 'import("C:/Users/conoc/8people/8People-UI/lib/mock-data").LeaveBalance[]' is not assignable to type 'import("C:/Users/conoc/8people/8People-UI/modules/leaves/api/types").LeaveBalance[]'.
+  Type 'LeaveBalance' is missing the following properties from type 'LeaveBalance': id, prevYear, currentYear, employee, leaveType
+modules/leaves/api/mutations.ts(73,9): error TS2322: Type 'import("C:/Users/conoc/8people/8People-UI/lib/mock-data").LeaveRequest[]' is not assignable to type 'import("C:/Users/conoc/8people/8People-UI/modules/leaves/api/types").LeaveRequest[]'.
+  Type 'LeaveRequest' is missing the following properties from type 'LeaveRequest': timeOfDay, employee, leaveType
+modules/leaves/api/mutations.ts(94,27): error TS2339: Property 'employeeId' does not exist on type 'LeaveRequestInput'.
+modules/leaves/api/mutations.ts(95,29): error TS2339: Property 'employeeName' does not exist on type 'LeaveRequestInput'.
+modules/leaves/api/mutations.ts(97,30): error TS2339: Property 'leaveTypeName' does not exist on type 'LeaveRequestInput'.
+modules/leaves/api/mutations.ts(100,26): error TS2339: Property 'totalDays' does not exist on type 'LeaveRequestInput'.
+modules/leaves/api/mutations.ts(101,9): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+modules/leaves/api/mutations.ts(103,26): error TS2339: Property 'approvers' does not exist on type 'LeaveRequestInput'.
+modules/leaves/api/mutations.ts(106,43): error TS2345: Argument of type 'Omit<import("C:/Users/conoc/8people/8People-UI/modules/leaves/api/types").LeaveRequest, "id" | "createdAt" | "updatedAt">' is not assignable to parameter of type 'Omit<import("C:/Users/conoc/8people/8People-UI/lib/mock-data").LeaveRequest, "id" | "createdAt" | "updatedAt">'.
+  Type 'Omit<LeaveRequest, "id" | "createdAt" | "updatedAt">' is missing the following properties from type 'Omit<LeaveRequest, "id" | "createdAt" | "updatedAt">': employeeName, leaveTypeName
+modules/leaves/api/mutations.ts(120,16): error TS2554: Expected 4 arguments, but got 3.
+modules/leaves/api/mutations.ts(142,16): error TS2554: Expected 4 arguments, but got 3.
+modules/leaves/api/mutations.ts(161,16): error TS2554: Expected 4 arguments, but got 3.
+modules/organization/components/detail/unit-detail-view.tsx(82,26): error TS2551: Property 'parent' does not exist on type '{ employees: Employee[]; positions: Position[]; employeeCount: number; positionCount: number; id: string; code: string; name: string; abbreviation?: string | undefined; parentId?: string | undefined; ... 7 more ...; unitType: "company" | ... 2 more ... | "team"; }'. Did you mean 'parentId'?
+modules/organization/components/detail/unit-detail-view.tsx(83,27): error TS2339: Property 'manager' does not exist on type '{ employees: Employee[]; positions: Position[]; employeeCount: number; positionCount: number; id: string; code: string; name: string; abbreviation?: string | undefined; parentId?: string | undefined; ... 7 more ...; unitType: "company" | ... 2 more ... | "team"; }'.
+modules/organization/components/detail/unit-detail-view.tsx(91,23): error TS2352: Conversion of type '{ employees: Employee[]; positions: Position[]; employeeCount: number; positionCount: number; id: string; code: string; name: string; abbreviation?: string | undefined; ... 8 more ...; unitType: "company" | ... 2 more ... | "team"; } | null | undefined' to type 'OrgUnitDetail' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ employees: Employee[]; positions: Position[]; employeeCount: number; positionCount: number; id: string; code: string; name: string; abbreviation?: string | undefined; parentId?: string | undefined; ... 7 more ...; unitType: "company" | ... 2 more ... | "team"; }' is missing the following properties from type 'OrgUnitDetail': parent, manager, headcount
+modules/settings/api/api.ts(8,8): error TS2307: Cannot find module '@hr-system/contracts' or its corresponding type declarations.
+modules/settings/api/mutations.ts(41,16): error TS2554: Expected 4 arguments, but got 3.
+modules/settings/api/mutations.ts(71,16): error TS2554: Expected 4 arguments, but got 3.
+modules/settings/api/mutations.ts(89,16): error TS2554: Expected 4 arguments, but got 3.
+modules/settings/api/mutations.ts(124,16): error TS2554: Expected 4 arguments, but got 3.
+modules/settings/api/mutations.ts(159,16): error TS2554: Expected 4 arguments, but got 3.
+modules/settings/api/mutations.ts(177,16): error TS2554: Expected 4 arguments, but got 3.
+modules/settings/api/mutations.ts(210,16): error TS2554: Expected 4 arguments, but got 3.

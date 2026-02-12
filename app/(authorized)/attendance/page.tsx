@@ -2,10 +2,10 @@
 
 import { useState, useMemo } from "react"
 import { AdminLayout } from "@/components/layout/admin-layout"
-import { EmployeeTimesheetModal } from "@/components/attendance/employee-timesheet-modal"
-import { ImportAttendanceModal } from "@/components/attendance/import-attendance-modal"
-import { AttendanceFilter, FilterState } from "@/components/attendance/attendance-filter"
-import { DateRangePicker } from "@/components/attendance/date-range-picker"
+import { EmployeeTimesheetModal } from "@/modules/attendance/components/employee-timesheet-modal"
+import { ImportAttendanceModal } from "@/modules/attendance/components/import-attendance-modal"
+import { AttendanceFilter, FilterState } from "@/modules/attendance/components/attendance-filter"
+import { DateRangePicker } from "@/modules/attendance/components/date-range-picker"
 import { useStore } from "@/lib/store"
 import {
     Table,
@@ -21,7 +21,7 @@ import { Send, Upload } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { format, eachDayOfInterval, isSameDay, startOfWeek, endOfWeek, differenceInDays } from "date-fns"
 import type { Employee } from "@/lib/mock-data"
-import { SendReportModal } from "@/components/attendance/send-report-modal"
+import { SendReportModal } from "@/modules/attendance/components/send-report-modal"
 import { DateRange } from "react-day-picker"
 
 export default function AttendancePage() {
@@ -92,7 +92,9 @@ export default function AttendancePage() {
             const dailyStatuses = daysInRange.map(day => {
                 const dateStr = format(day, "yyyy-MM-dd")
                 const dayOfWeek = day.getDay()
-                const isOffDay = !empWorkingDays.includes(dayOfWeek) // True if weekend/off-day for this employee
+                const isOffDay = Array.isArray(empWorkingDays)
+                    ? !empWorkingDays.includes(dayOfWeek)
+                    : empWorkingDays !== dayOfWeek;
 
                 // 1. Check Leave Requests first (Priority)
                 const leave = leaveRequests.find(req =>

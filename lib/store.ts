@@ -48,6 +48,7 @@ interface CustomRole {
   permissions: FeaturePermission[];
   modulePermissions: RoleModulePermissions;
   assignedEmployeeIds: string[];
+  color: string;
 }
 
 interface StoreState {
@@ -69,10 +70,9 @@ interface StoreState {
   candidates: Candidate[];
 
   notifications: Notification[];
-
   currentRole: Role;
-  activeRoleId: string;
   setCurrentRole: (role: Role, roleId: string) => void;
+  activeRoleId: string;
 
   modules: ModuleConfig[];
   addModule: (module: Omit<ModuleConfig, "id">) => void;
@@ -170,6 +170,14 @@ interface StoreState {
   // Layout actions
   isMobileSidebarOpen: boolean;
   setMobileSidebarOpen: (open: boolean) => void;
+
+  // New simulation and dashboard features
+  simulationMode: 'onboarding' | null;
+  setSimulationMode: (mode: 'onboarding' | null) => void;
+  banners: any[];
+  onboardingSteps: {
+    personalInfo: boolean;
+  };
 }
 
 const initialCustomRoles: CustomRole[] = [
@@ -181,6 +189,7 @@ const initialCustomRoles: CustomRole[] = [
     permissions: [],
     modulePermissions: defaultRoleModulePermissions.admin,
     assignedEmployeeIds: [],
+    color: "#3b82f6",
   },
   {
     id: "hr",
@@ -190,6 +199,7 @@ const initialCustomRoles: CustomRole[] = [
     permissions: [],
     modulePermissions: defaultRoleModulePermissions.hr,
     assignedEmployeeIds: [],
+    color: "#10b981",
   },
   {
     id: "employee",
@@ -199,6 +209,7 @@ const initialCustomRoles: CustomRole[] = [
     permissions: [],
     modulePermissions: defaultRoleModulePermissions.employee,
     assignedEmployeeIds: [],
+    color: "#f59e0b",
   },
 ];
 
@@ -218,9 +229,9 @@ export const useStore = create<StoreState>((set, get) => ({
   candidates: initialCandidates,
   notifications: initialNotifications,
 
-  currentRole: "admin", // Initial slug for frontend
-  activeRoleId: "", // Initial ID, will be set by RoleSwitcher
-  setCurrentRole: (role: Role, roleId: string) =>
+  currentRole: "admin",
+  activeRoleId: "admin",
+  setCurrentRole: (role, roleId) =>
     set({ currentRole: role, activeRoleId: roleId }),
 
   modules: defaultModules,
@@ -385,10 +396,10 @@ export const useStore = create<StoreState>((set, get) => ({
         employees: state.employees.map((e) =>
           e.id === id
             ? {
-                ...e,
-                [field]: value,
-                auditLog: [...(e.auditLog || []), auditEntry],
-              }
+              ...e,
+              [field]: value,
+              auditLog: [...(e.auditLog || []), auditEntry],
+            }
             : e,
         ),
         auditLogs: [...state.auditLogs, auditEntry],
@@ -423,11 +434,11 @@ export const useStore = create<StoreState>((set, get) => ({
       const updatedApprovers = request.approvers.map((a) =>
         a.employeeId === approverId
           ? {
-              ...a,
-              status: "approved" as const,
-              comment,
-              respondedAt: new Date().toISOString(),
-            }
+            ...a,
+            status: "approved" as const,
+            comment,
+            respondedAt: new Date().toISOString(),
+          }
           : a,
       );
 
@@ -439,12 +450,12 @@ export const useStore = create<StoreState>((set, get) => ({
       if (allApproved) {
         updatedBalances = state.leaveBalances.map((b) =>
           b.employeeId === request.employeeId &&
-          b.leaveTypeId === request.leaveTypeId
+            b.leaveTypeId === request.leaveTypeId
             ? {
-                ...b,
-                pending: b.pending - request.totalDays,
-                used: b.used + request.totalDays,
-              }
+              ...b,
+              pending: b.pending - request.totalDays,
+              used: b.used + request.totalDays,
+            }
             : b,
         );
       }
@@ -453,11 +464,11 @@ export const useStore = create<StoreState>((set, get) => ({
         leaveRequests: state.leaveRequests.map((r) =>
           r.id === id
             ? {
-                ...r,
-                approvers: updatedApprovers,
-                status: allApproved ? "approved" : r.status,
-                updatedAt: new Date().toISOString(),
-              }
+              ...r,
+              approvers: updatedApprovers,
+              status: allApproved ? "approved" : r.status,
+              updatedAt: new Date().toISOString(),
+            }
             : r,
         ),
         leaveBalances: updatedBalances,
@@ -470,12 +481,12 @@ export const useStore = create<StoreState>((set, get) => ({
 
       const updatedBalances = state.leaveBalances.map((b) =>
         b.employeeId === request.employeeId &&
-        b.leaveTypeId === request.leaveTypeId
+          b.leaveTypeId === request.leaveTypeId
           ? {
-              ...b,
-              pending: b.pending - request.totalDays,
-              available: b.available + request.totalDays,
-            }
+            ...b,
+            pending: b.pending - request.totalDays,
+            available: b.available + request.totalDays,
+          }
           : b,
       );
 
@@ -483,20 +494,20 @@ export const useStore = create<StoreState>((set, get) => ({
         leaveRequests: state.leaveRequests.map((r) =>
           r.id === id
             ? {
-                ...r,
-                approvers: r.approvers.map((a) =>
-                  a.employeeId === approverId
-                    ? {
-                        ...a,
-                        status: "rejected" as const,
-                        comment,
-                        respondedAt: new Date().toISOString(),
-                      }
-                    : a,
-                ),
-                status: "rejected",
-                updatedAt: new Date().toISOString(),
-              }
+              ...r,
+              approvers: r.approvers.map((a) =>
+                a.employeeId === approverId
+                  ? {
+                    ...a,
+                    status: "rejected" as const,
+                    comment,
+                    respondedAt: new Date().toISOString(),
+                  }
+                  : a,
+              ),
+              status: "rejected",
+              updatedAt: new Date().toISOString(),
+            }
             : r,
         ),
         leaveBalances: updatedBalances,
@@ -509,12 +520,12 @@ export const useStore = create<StoreState>((set, get) => ({
 
       const updatedBalances = state.leaveBalances.map((b) =>
         b.employeeId === request.employeeId &&
-        b.leaveTypeId === request.leaveTypeId
+          b.leaveTypeId === request.leaveTypeId
           ? {
-              ...b,
-              pending: b.pending - request.totalDays,
-              available: b.available + request.totalDays,
-            }
+            ...b,
+            pending: b.pending - request.totalDays,
+            available: b.available + request.totalDays,
+          }
           : b,
       );
 
@@ -709,4 +720,19 @@ export const useStore = create<StoreState>((set, get) => ({
   // Layout initial state and actions
   isMobileSidebarOpen: false,
   setMobileSidebarOpen: (open) => set({ isMobileSidebarOpen: open }),
+
+  simulationMode: null,
+  setSimulationMode: (mode) => set({ simulationMode: mode }),
+  banners: [
+    {
+      id: "b1",
+      name: "Welcome Banner",
+      url: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=2070&auto=format&fit=crop",
+      isActive: true,
+      order: 1,
+    }
+  ],
+  onboardingSteps: {
+    personalInfo: false,
+  },
 }));

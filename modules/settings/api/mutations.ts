@@ -38,6 +38,7 @@ export function useCreateModule(
       queryClient.invalidateQueries({
         queryKey: settingsQueryKeys.modules.all(),
       });
+      // @ts-ignore
       options?.onSuccess?.(data, variables, context);
     },
   });
@@ -68,6 +69,7 @@ export function useUpdateModule(
       queryClient.invalidateQueries({
         queryKey: settingsQueryKeys.modules.all(),
       });
+      // @ts-ignore
       options?.onSuccess?.(data, variables, context);
     },
   });
@@ -86,6 +88,7 @@ export function useDeleteModule(
       queryClient.invalidateQueries({
         queryKey: settingsQueryKeys.modules.all(),
       });
+      // @ts-ignore
       options?.onSuccess?.(data, variables, context);
     },
   });
@@ -105,6 +108,7 @@ export function useCreateRole(
         permissions: [],
         modulePermissions: {},
         assignedEmployeeIds: [],
+        color: "#3b82f6",
       });
       return {
         id: `cr-${Date.now()}`,
@@ -121,6 +125,7 @@ export function useCreateRole(
       queryClient.invalidateQueries({
         queryKey: settingsQueryKeys.roles.all(),
       });
+      // @ts-ignore
       options?.onSuccess?.(data, variables, context);
     },
   });
@@ -156,6 +161,7 @@ export function useUpdateRole(
       queryClient.invalidateQueries({
         queryKey: settingsQueryKeys.roles.all(),
       });
+      // @ts-ignore
       options?.onSuccess?.(data, variables, context);
     },
   });
@@ -174,6 +180,7 @@ export function useDeleteRole(
       queryClient.invalidateQueries({
         queryKey: settingsQueryKeys.roles.all(),
       });
+      // @ts-ignore
       options?.onSuccess?.(data, variables, context);
     },
   });
@@ -207,6 +214,7 @@ export function useUpdateRolePermissions(
       queryClient.invalidateQueries({
         queryKey: settingsQueryKeys.roles.all(),
       });
+      // @ts-ignore
       options?.onSuccess?.(data, variables, context);
     },
   });

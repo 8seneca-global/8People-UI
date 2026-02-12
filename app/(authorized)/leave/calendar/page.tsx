@@ -23,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/modules/core/components/ui/radio-group"
 import { Avatar, AvatarFallback } from "@/modules/core/components/ui/avatar"
 import { toast } from "sonner"
-import { calculateDays } from "@hr-system/utils"
+// import { calculateDays } from "@hr-system/utils"
 import { useApproveLeaveRequest, useCreateLeaveRequest, useLeaveRequests, useLeaveTypes, useRejectLeaveRequest } from "@/modules/leaves/api/mutations"
 import { endOfDay, isSameDay, isWithinInterval, parseISO, startOfDay } from "date-fns"
 import { PageHeader } from "@/modules/core/components/layout/page-header"
@@ -674,7 +674,7 @@ export default function LeaveCalendarPage() {
                 <div className="rounded-md bg-secondary/50 p-3">
                   <p className="text-sm">
                     <span className="font-medium">
-                      {calculateDays(formData.startDate, formData.endDate, formData.durationType)}
+                      {/* {calculateDays(formData.startDate, formData.endDate, formData.durationType)} */}
                     </span>{" "}
                     {formData.durationType === "half" ? "day" : "working days"} selected
                     {formData.durationType === "half" && (

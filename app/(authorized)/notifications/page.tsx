@@ -20,6 +20,8 @@ import {
   Megaphone,
   Settings,
   Bell,
+  AlertCircle,
+  Gift,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -33,6 +35,8 @@ const notificationIcons: Record<Notification["type"], typeof Calendar> = {
   onboarding: UserPlus,
   announcement: Megaphone,
   system: Settings,
+  contract_warning: AlertCircle,
+  birthday: Gift,
 };
 
 export default function NotificationsPage() {
@@ -68,6 +72,10 @@ export default function NotificationsPage() {
         return "text-primary bg-primary/10";
       case "onboarding":
         return "text-info bg-info/10";
+      case "contract_warning":
+        return "text-warning bg-warning/10";
+      case "birthday":
+        return "text-pink-500 bg-pink-50";
       default:
         return "text-muted-foreground bg-secondary";
     }
@@ -82,6 +90,8 @@ export default function NotificationsPage() {
       onboarding: "Onboarding",
       announcement: "Announcement",
       system: "System",
+      contract_warning: "Contract",
+      birthday: "Birthday",
     };
     return labels[type];
   };
@@ -143,7 +153,7 @@ export default function NotificationsPage() {
                         className={cn(
                           "flex items-start gap-4 rounded-lg border border-border p-4 transition-colors hover:bg-secondary/30",
                           !notification.isRead &&
-                            "bg-primary/5 border-primary/20",
+                          "bg-primary/5 border-primary/20",
                         )}
                       >
                         <div

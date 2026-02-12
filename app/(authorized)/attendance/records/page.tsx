@@ -89,10 +89,17 @@ export default function AttendanceRecordsPage() {
       late: { variant: "secondary", label: "Late" },
       early_leave: { variant: "secondary", label: "Early Leave" },
       absent: { variant: "destructive", label: "Absent" },
+      missing: { variant: "destructive", label: "Missing" },
       on_leave: { variant: "outline", label: "On Leave" },
       weekend: { variant: "outline", label: "Weekend" },
       holiday: { variant: "outline", label: "Holiday" },
       not_checked_in: { variant: "outline", label: "Not Checked In" },
+      annual_leave: { variant: "outline", label: "Annual Leave" },
+      unpaid_leave: { variant: "destructive", label: "Unpaid Leave" },
+      work_from_home: { variant: "default", label: "Work From Home" },
+      sick_leave: { variant: "outline", label: "Sick Leave" },
+      marriage_leave: { variant: "outline", label: "Marriage Leave" },
+      social_insurance_paid: { variant: "default", label: "SI Paid" },
     };
     const { variant, label } = variants[status];
     return <Badge variant={variant}>{label}</Badge>;

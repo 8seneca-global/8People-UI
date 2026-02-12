@@ -14,6 +14,8 @@ import {
   Sun,
   Menu,
   X,
+  AlertCircle,
+  Gift,
 } from "lucide-react";
 import { Input } from "@/modules/core/components/ui/input";
 import { Button } from "@/modules/core/components/ui/button";
@@ -37,6 +39,8 @@ const notificationIcons: Record<Notification["type"], typeof Calendar> = {
   onboarding: UserPlus,
   announcement: Megaphone,
   system: Settings,
+  contract_warning: AlertCircle,
+  birthday: Gift,
 };
 
 interface TopBarProps {
@@ -85,6 +89,10 @@ export function TopBar({ title, subtitle, sidebarOpen, onSidebarToggle }: TopBar
         return "text-primary";
       case "onboarding":
         return "text-info";
+      case "contract_warning":
+        return "text-warning";
+      case "birthday":
+        return "text-pink-500";
       default:
         return "text-muted-foreground";
     }

@@ -15,6 +15,14 @@ export interface OrganizationalUnit {
   description?: string;
   level: number; // 1=Company, 2=Division, 3=Department, 4=Team
   unitType: "company" | "division" | "department" | "team";
+  parent?: { id: string; name: string; code: string };
+  manager?: { id: string; fullName: string; email: string; positionTitle: string };
+  headcount?: {
+    total: number;
+    filled: number;
+    hiring: number;
+    vacant: number;
+  };
 }
 
 export interface JobClassification {
@@ -31,6 +39,7 @@ export interface JobClassification {
   responsibilities: string[];
   competencies: string[];
   status: "active" | "inactive";
+  name: string;
 }
 
 export interface Position {
@@ -93,8 +102,11 @@ export interface EmployeeContract {
   contractType: string;
   startDate: string;
   endDate: string;
-  signDate: string; // Added signDate field
+  signDate: string;
   attachmentFile?: string;
+  notes?: string;
+  fileName?: string;
+  fileUrl?: string;
 }
 
 export type LeaveRequestStatus =
@@ -269,11 +281,96 @@ export interface Notification {
   | "interview"
   | "onboarding"
   | "announcement"
-  | "system";
+  | "system"
+  | "contract_warning"
+  | "birthday";
   isRead: boolean;
   actionUrl?: string;
   createdAt: string;
 }
+
+export type TransactionAction =
+  | "hiring"
+  | "extension_of_probation"
+  | "probation_confirmation"
+  | "transfer"
+  | "contract_renewal"
+  | "promotion"
+  | "salary_change"
+  | "demotion"
+  | "job_rotation"
+  | "temporary_assignment"
+  | "disciplinary_action"
+  | "resignation"
+  | "rehire";
+
+export interface EmployeeTransaction {
+  id: string;
+  action: TransactionAction;
+  reason: string;
+  subReason?: string;
+  text: string;
+  effectiveDate: string;
+  createdAt: string;
+  createdBy: string;
+  notes?: string;
+  contractNumber?: string;
+  contractType?: string;
+  contractStartDate?: string;
+  contractEndDate?: string;
+  signDate?: string;
+  positionId?: string;
+  positionTitle?: string;
+  organizationalUnitId?: string;
+  organizationalUnitName?: string;
+  fromTeamId?: string;
+  fromTeamName?: string;
+  toTeamId?: string;
+  toTeamName?: string;
+}
+
+export interface EmployeeDependent {
+  id: string;
+  fullName: string;
+  relationship: string;
+  effectiveDate: string;
+  dateOfBirth?: string;
+  idNumber?: string;
+  taxCode?: string;
+}
+
+export const transactionReasons = [
+  "New Hire",
+  "Performance",
+  "Promotion",
+  "Restructuring",
+  "Role Change",
+  "Personal Request",
+  "End of Contract",
+  "Other",
+];
+
+export const resignationSubReasons = [
+  "Career Change",
+  "Better Offer",
+  "Personal Reasons",
+  "Relocation",
+  "Health Reasons",
+  "Further Education",
+  "Retirement",
+  "Dissatisfaction",
+  "Other",
+];
+
+export const contractTypeOptions = [
+  "Probationary",
+  "Fixed-term (1 year)",
+  "Fixed-term (2 years)",
+  "Indefinite",
+  "Part-time",
+  "Internship",
+  "Consultant",
+];
 
 export interface AuditLogEntry {
   id: string;
@@ -337,7 +434,7 @@ export interface Employee {
   matrixManagerId?: string;
   matrixManagerName?: string;
 
-  status: "pending" | "active" | "terminated" | string;
+  status: "pending" | "active" | "terminated" | "resigned" | string;
   onboardingStatus: {
     emailSent: boolean;
     accountActivated: boolean;
@@ -348,18 +445,25 @@ export interface Employee {
   jobTitle?: string;
   client?: string;
   startDate?: string | Date;
+  companyJoinDate?: string;
+  officialStartDate?: string;
   fte: number;
 
   cellphone?: string;
+  phone?: string;
   dateOfBirth?: string | Date;
   gender?: string;
   nationality?: string;
   maritalStatus?: string;
+  placeOfBirth?: string;
 
   nationalIdNumber?: string;
   nationalIdIssueDate?: string;
   nationalIdIssuePlace?: string;
-  citizenshipIdFile?: string;
+  citizenshipIdNumber?: string;
+  citizenshipIdDateOfIssue?: string;
+  citizenshipIdPlaceOfIssue?: string;
+  citizenshipIdFile?: string | File | null;
 
   birthRegisterAddress?: EmployeeAddress;
   permanentAddress?: EmployeeAddress;
@@ -369,6 +473,21 @@ export interface Employee {
   emergencyContact?: EmployeeEmergencyContact;
   education?: EmployeeEducation[];
   contracts?: EmployeeContract[];
+  contractFile?: string | File | null;
+  transactions?: EmployeeTransaction[];
+  dependents?: EmployeeDependent[];
+  directReportIds?: string[];
+  workingDays?: number;
+  resignationInfo?: {
+    lastWorkingDay?: string;
+    resignationDate?: string;
+    reason?: string;
+    subReason?: string;
+    notes?: string;
+    rehireEligible?: boolean;
+    handoverComplete?: boolean;
+    itAccessRevoked?: boolean;
+  };
   auditLog?: AuditLogEntry[];
 }
 
@@ -549,6 +668,7 @@ export const jobClassifications: JobClassification[] = [
     id: "C-001",
     code: "C-001",
     title: "Chief Executive Officer",
+    name: "Chief Executive Officer",
     jobFamily: "Executive",
     jobLevel: "Executive",
     payGradeGroup: "E1",
@@ -572,6 +692,7 @@ export const jobClassifications: JobClassification[] = [
     id: "C-002",
     code: "C-002",
     title: "Chief Technology Officer",
+    name: "Chief Technology Officer",
     jobFamily: "Executive",
     jobLevel: "Executive",
     payGradeGroup: "E2",
@@ -595,6 +716,7 @@ export const jobClassifications: JobClassification[] = [
     id: "C-003",
     code: "C-003",
     title: "HR Manager",
+    name: "HR Manager",
     jobFamily: "Human Resources",
     jobLevel: "Manager",
     payGradeGroup: "M1",
@@ -618,6 +740,7 @@ export const jobClassifications: JobClassification[] = [
     id: "C-004",
     code: "C-004",
     title: "HR Specialist",
+    name: "HR Specialist",
     jobFamily: "Human Resources",
     jobLevel: "Professional",
     payGradeGroup: "P2",
@@ -637,6 +760,7 @@ export const jobClassifications: JobClassification[] = [
     id: "C-010",
     code: "C-010",
     title: "Team Lead (Software)",
+    name: "Team Lead (Software)",
     jobFamily: "Engineering Management",
     jobLevel: "Lead",
     payGradeGroup: "M2",
@@ -661,6 +785,7 @@ export const jobClassifications: JobClassification[] = [
     id: "C-011",
     code: "C-011",
     title: "Senior Software Engineer",
+    name: "Senior Software Engineer",
     jobFamily: "Engineering",
     jobLevel: "Senior",
     payGradeGroup: "S1",
@@ -685,6 +810,7 @@ export const jobClassifications: JobClassification[] = [
     id: "C-012",
     code: "C-012",
     title: "Software Engineer",
+    name: "Software Engineer",
     jobFamily: "Engineering",
     jobLevel: "Mid-level",
     payGradeGroup: "P3",
@@ -705,6 +831,7 @@ export const jobClassifications: JobClassification[] = [
     id: "C-013",
     code: "C-013",
     title: "Junior Software Engineer",
+    name: "Junior Software Engineer",
     jobFamily: "Engineering",
     jobLevel: "Junior",
     payGradeGroup: "P4",
@@ -720,6 +847,7 @@ export const jobClassifications: JobClassification[] = [
     id: "C-014",
     code: "C-014",
     title: "Software Intern",
+    name: "Software Intern",
     jobFamily: "Engineering",
     jobLevel: "Intern",
     payGradeGroup: "I1",
@@ -735,6 +863,7 @@ export const jobClassifications: JobClassification[] = [
     id: "C-020",
     code: "C-020",
     title: "Marketing Specialist",
+    name: "Marketing Specialist",
     jobFamily: "Marketing",
     jobLevel: "Professional",
     payGradeGroup: "P2",
@@ -754,6 +883,7 @@ export const jobClassifications: JobClassification[] = [
     id: "C-021",
     code: "C-021",
     title: "Finance Specialist",
+    name: "Finance Specialist",
     jobFamily: "Finance",
     jobLevel: "Professional",
     payGradeGroup: "P2",
