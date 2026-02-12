@@ -2396,7 +2396,7 @@ const generateAttendanceRecords = (): AttendanceRecord[] => {
   const employeesToGenerate = employees.filter(e => e.status !== 'future')
 
   employeesToGenerate.forEach(emp => {
-    const workingDays = emp.workingDays || [1, 2, 3, 4, 5] // Default Mon-Fri
+    // const workingDays = emp.workingDays || [1, 2, 3, 4, 5] // Default Mon-Fri
 
     const curr = new Date(startDate)
     while (curr <= endDate) {
@@ -2404,12 +2404,12 @@ const generateAttendanceRecords = (): AttendanceRecord[] => {
       const dayOfWeek = curr.getDay()
 
       // 1. Check Public Holiday
-      const isHoliday = publicHolidays.some(h => h.date === dateStr && h.status === 'active')
-      if (isHoliday) {
-        // Optionally create holiday record or skip
-        curr.setDate(curr.getDate() + 1)
-        continue
-      }
+      // const isHoliday = publicHolidays.some(h => h.date === dateStr && h.status === 'active')
+      // if (isHoliday) {
+      //   // Optionally create holiday record or skip
+      //   curr.setDate(curr.getDate() + 1)
+      //   continue
+      // }
 
       // 2. Check Leave Requests (Approved) - Takes Priority
       const leave = leaveRequests.find(req =>
@@ -2445,120 +2445,120 @@ const generateAttendanceRecords = (): AttendanceRecord[] => {
         })
       }
       // 3. Normal Attendance Generation (if working day)
-      else if (workingDays.includes(dayOfWeek)) {
-        // Pseudo-random generation based on employee ID and date for deterministic results (avoids hydration errors)
-        const seedStr = `${emp.id}-${dateStr}`
-        let hash = 0
-        for (let i = 0; i < seedStr.length; i++) {
-          hash = ((hash << 5) - hash) + seedStr.charCodeAt(i)
-          hash |= 0
-        }
-        const rand = Math.abs(hash) / 2147483647
+      // else if (workingDays.includes(dayOfWeek)) {
+      //   // Pseudo-random generation based on employee ID and date for deterministic results (avoids hydration errors)
+      //   const seedStr = `${emp.id}-${dateStr}`
+      //   let hash = 0
+      //   for (let i = 0; i < seedStr.length; i++) {
+      //     hash = ((hash << 5) - hash) + seedStr.charCodeAt(i)
+      //     hash |= 0
+      //   }
+      //   const rand = Math.abs(hash) / 2147483647
 
-        // A. Missing (No Check-in/out) - 2% chance
-        if (rand < 0.02) {
-          // Creates a "Missing" record (User wants to see "Missing" status if incomplete)
-          // Case 1: No punch at all implies "Absent" usually, but user requirement says:
-          // "Missing: ko check in hoặc check in thiếu thời gian vào/ra"
-          // Let's simulate incomplete punch
-          records.push({
-            id: `att-${emp.id}-${dateStr}`,
-            employeeId: emp.id,
-            employeeName: emp.fullName,
-            date: dateStr,
-            clockIn: "08:00", // Forgot out
-            status: "missing",
-            totalHours: 0,
-            source: "fingerprint"
-          })
-        }
-        // B. Late (> 9:00) - 5% chance
-        else if (rand < 0.07) {
-          const lateMin = (Math.floor(rand * 1000) % 60) + 1 // 1-60m
-          const h = 9, m = lateMin
-          const clockIn = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
-          const clockOut = "18:00"
+      //   // A. Missing (No Check-in/out) - 2% chance
+      //   if (rand < 0.02) {
+      //     // Creates a "Missing" record (User wants to see "Missing" status if incomplete)
+      //     // Case 1: No punch at all implies "Absent" usually, but user requirement says:
+      //     // "Missing: ko check in hoặc check in thiếu thời gian vào/ra"
+      //     // Let's simulate incomplete punch
+      //     records.push({
+      //       id: `att-${emp.id}-${dateStr}`,
+      //       employeeId: emp.id,
+      //       employeeName: emp.fullName,
+      //       date: dateStr,
+      //       clockIn: "08:00", // Forgot out
+      //       status: "missing",
+      //       totalHours: 0,
+      //       source: "fingerprint"
+      //     })
+      //   }
+      //   // B. Late (> 9:00) - 5% chance
+      //   else if (rand < 0.07) {
+      //     const lateMin = (Math.floor(rand * 1000) % 60) + 1 // 1-60m
+      //     const h = 9, m = lateMin
+      //     const clockIn = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`
+      //     const clockOut = "18:00"
 
-          // Calc hours: (18 - (9 + m/60)) - 1
-          const hours = (18 - (9 + lateMin / 60)) - 1
+      //     // Calc hours: (18 - (9 + m/60)) - 1
+      //     const hours = (18 - (9 + lateMin / 60)) - 1
 
-          records.push({
-            id: `att-${emp.id}-${dateStr}`,
-            employeeId: emp.id,
-            employeeName: emp.fullName,
-            date: dateStr,
-            clockIn,
-            clockOut,
-            status: "late",
-            lateMinutes: lateMin,
-            totalHours: Number(hours.toFixed(2)),
-            source: "fingerprint"
-          })
-        }
-        // C. Early Leave (Total < 8h) - 5% chance
-        else if (rand < 0.12) {
-          // Arrive 08:00
-          // Leave such that hours < 8.
-          const hoursWorked = 4 + (Math.floor(rand * 100) % 35) / 10 // 4.0 to 7.5 hours
-          const endHour = 8 + 1 + Math.floor(hoursWorked) // simplified break logic
-          const endMin = Math.floor((hoursWorked % 1) * 60)
+      //     records.push({
+      //       id: `att-${emp.id}-${dateStr}`,
+      //       employeeId: emp.id,
+      //       employeeName: emp.fullName,
+      //       date: dateStr,
+      //       clockIn,
+      //       clockOut,
+      //       status: "late",
+      //       lateMinutes: lateMin,
+      //       totalHours: Number(hours.toFixed(2)),
+      //       source: "fingerprint"
+      //     })
+      //   }
+      //   // C. Early Leave (Total < 8h) - 5% chance
+      //   else if (rand < 0.12) {
+      //     // Arrive 08:00
+      //     // Leave such that hours < 8.
+      //     const hoursWorked = 4 + (Math.floor(rand * 100) % 35) / 10 // 4.0 to 7.5 hours
+      //     const endHour = 8 + 1 + Math.floor(hoursWorked) // simplified break logic
+      //     const endMin = Math.floor((hoursWorked % 1) * 60)
 
-          records.push({
-            id: `att-${emp.id}-${dateStr}`,
-            employeeId: emp.id,
-            employeeName: emp.fullName,
-            date: dateStr,
-            clockIn: "08:00",
-            clockOut: `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`,
-            status: "early_leave",
-            totalHours: hoursWorked,
-            source: "fingerprint"
-          })
-        }
-        // D. Present (Normal)
-        else {
-          // 5. Present (>= 8 hours) - Random variations
-          // Arrive between 07:45 and 08:59 (Strictly < 09:00)
-          const arriveHour = 8
-          // Random minute between -15 (07:45) and 59 (08:59)
-          const arriveMinOffset = (Math.floor(rand * 1000) % 75) - 15
+      //     records.push({
+      //       id: `att-${emp.id}-${dateStr}`,
+      //       employeeId: emp.id,
+      //       employeeName: emp.fullName,
+      //       date: dateStr,
+      //       clockIn: "08:00",
+      //       clockOut: `${endHour.toString().padStart(2, '0')}:${endMin.toString().padStart(2, '0')}`,
+      //       status: "early_leave",
+      //       totalHours: hoursWorked,
+      //       source: "fingerprint"
+      //     })
+      //   }
+      //   // D. Present (Normal)
+      //   else {
+      //     // 5. Present (>= 8 hours) - Random variations
+      //     // Arrive between 07:45 and 08:59 (Strictly < 09:00)
+      //     const arriveHour = 8
+      //     // Random minute between -15 (07:45) and 59 (08:59)
+      //     const arriveMinOffset = (Math.floor(rand * 1000) % 75) - 15
 
-          const arriveDate = new Date(`2000-01-01T08:00:00`)
-          arriveDate.setMinutes(arriveDate.getMinutes() + arriveMinOffset)
+      //     const arriveDate = new Date(`2000-01-01T08:00:00`)
+      //     arriveDate.setMinutes(arriveDate.getMinutes() + arriveMinOffset)
 
-          // Manual 24h formatting to avoid locale issues
-          const inHH = arriveDate.getHours().toString().padStart(2, '0')
-          const inMM = arriveDate.getMinutes().toString().padStart(2, '0')
-          const clockIn = `${inHH}:${inMM}`
+      //     // Manual 24h formatting to avoid locale issues
+      //     const inHH = arriveDate.getHours().toString().padStart(2, '0')
+      //     const inMM = arriveDate.getMinutes().toString().padStart(2, '0')
+      //     const clockIn = `${inHH}:${inMM}`
 
-          // Work duration: 8 hours + random overtime (0-2 hours)
-          // Use a different hash based component for variation
-          const hoursWorked = 8 + (Math.floor(rand * 500) % 200) / 100
+      //     // Work duration: 8 hours + random overtime (0-2 hours)
+      //     // Use a different hash based component for variation
+      //     const hoursWorked = 8 + (Math.floor(rand * 500) % 200) / 100
 
-          const leaveDate = new Date(arriveDate)
-          leaveDate.setMinutes(leaveDate.getMinutes() + (hoursWorked + 1) * 60) // +1 hour lunch break
+      //     const leaveDate = new Date(arriveDate)
+      //     leaveDate.setMinutes(leaveDate.getMinutes() + (hoursWorked + 1) * 60) // +1 hour lunch break
 
-          const outHH = leaveDate.getHours().toString().padStart(2, '0')
-          const outMM = leaveDate.getMinutes().toString().padStart(2, '0')
-          const clockOut = `${outHH}:${outMM}`
+      //     const outHH = leaveDate.getHours().toString().padStart(2, '0')
+      //     const outMM = leaveDate.getMinutes().toString().padStart(2, '0')
+      //     const clockOut = `${outHH}:${outMM}`
 
-          const inTime = arriveDate.getHours() + arriveDate.getMinutes() / 60
-          const outTime = leaveDate.getHours() + leaveDate.getMinutes() / 60
-          const total = Math.max(0, (outTime - inTime) - 1)
+      //     const inTime = arriveDate.getHours() + arriveDate.getMinutes() / 60
+      //     const outTime = leaveDate.getHours() + leaveDate.getMinutes() / 60
+      //     const total = Math.max(0, (outTime - inTime) - 1)
 
-          records.push({
-            id: `att-${emp.id}-${dateStr}`,
-            employeeId: emp.id,
-            employeeName: emp.fullName,
-            date: dateStr,
-            clockIn,
-            clockOut,
-            status: "present",
-            totalHours: Number(total.toFixed(2)),
-            source: "fingerprint"
-          })
-        }
-      }
+      //     records.push({
+      //       id: `att-${emp.id}-${dateStr}`,
+      //       employeeId: emp.id,
+      //       employeeName: emp.fullName,
+      //       date: dateStr,
+      //       clockIn,
+      //       clockOut,
+      //       status: "present",
+      //       totalHours: Number(total.toFixed(2)),
+      //       source: "fingerprint"
+      //     })
+      //   }
+      // }
 
       curr.setDate(curr.getDate() + 1)
     }
@@ -2567,7 +2567,7 @@ const generateAttendanceRecords = (): AttendanceRecord[] => {
   return records
 }
 
-export const attendanceRecords: AttendanceRecord[] = generateAttendanceRecords()
+// export const attendanceRecords: AttendanceRecord[] = generateAttendanceRecords()
 
 export const attendanceRecords: AttendanceRecord[] = [
   // January 2026 data
