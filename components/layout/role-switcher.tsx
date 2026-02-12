@@ -31,7 +31,14 @@ export function RoleSwitcher() {
   const currentRoleData = customRoles.find((r) => r.id === currentRole) || customRoles[0]
 
   const handleRoleSwitch = (roleId: string) => {
-    setCurrentRole(roleId as Role)
+    // Built-in roles use their ID as the base role
+    // For custom roles, we'd ideally have a baseRole mapping, but for now we fallback to 'employee'
+    // or check if roleId matches a known base role
+    const baseRole = ["admin", "hr", "employee"].includes(roleId)
+      ? (roleId as Role)
+      : "employee" as Role
+
+    setCurrentRole(baseRole, roleId)
     router.push("/")
   }
 

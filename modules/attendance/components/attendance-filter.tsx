@@ -104,6 +104,12 @@ export function AttendanceFilter({
         }
     }
 
+    const [mounted, setMounted] = React.useState(false)
+
+    React.useEffect(() => {
+        setMounted(true)
+    }, [])
+
     const getLabel = () => {
         if (value.selectedIds.length === 0) {
             return activeTab === "users" ? "All Users" : "All Departments"
@@ -121,6 +127,23 @@ export function AttendanceFilter({
             }
             return `${value.selectedIds.length} Departments`
         }
+    }
+
+    if (!mounted) {
+        return (
+            <Button
+                variant="outline"
+                role="combobox"
+                aria-label="Filter attendance by users or departments"
+                className="w-[200px] justify-between min-h-[44px] opacity-50 cursor-not-allowed"
+                disabled
+            >
+                <span className="truncate text-sm">
+                    {getLabel()}
+                </span>
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" aria-hidden="true" />
+            </Button>
+        )
     }
 
     return (

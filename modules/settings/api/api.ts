@@ -1,5 +1,6 @@
 import { api } from "@/lib/axios";
 import { NavigationModule, Role, Endpoint } from "./types";
+// @ts-ignore
 import {
   CreateRoleInput,
   UpdateModuleInput,

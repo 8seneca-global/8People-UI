@@ -83,6 +83,33 @@ export function DateRangePicker({
         }
     }
 
+    const [mounted, setMounted] = React.useState(false)
+
+    React.useEffect(() => {
+        setMounted(true)
+    }, [])
+
+    if (!mounted) {
+        return (
+            <div className={cn("grid gap-2")}>
+                <Button
+                    id="date-placeholder"
+                    variant={"outline"}
+                    className={cn(
+                        "w-[260px] justify-start text-left font-normal opacity-50 cursor-not-allowed",
+                    )}
+                    disabled
+                >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    <span>Loading...</span>
+                    <div className="ml-auto border-l pl-2 h-full flex items-center">
+                        <ChevronRight className="h-4 w-4 opacity-50 rotate-90" />
+                    </div>
+                </Button>
+            </div>
+        )
+    }
+
     return (
         <div className={cn("grid gap-2")}>
             <Popover open={isOpen} onOpenChange={setIsOpen}>

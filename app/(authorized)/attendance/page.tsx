@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { AdminLayout } from "@/components/layout/admin-layout"
+import { PageHeader } from "@/modules/core/components/layout/page-header"
 import { EmployeeTimesheetModal } from "@/modules/attendance/components/employee-timesheet-modal"
 import { ImportAttendanceModal } from "@/modules/attendance/components/import-attendance-modal"
 import { AttendanceFilter, FilterState } from "@/modules/attendance/components/attendance-filter"
@@ -14,12 +14,12 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+} from "@/modules/core/components/ui/table"
+import { Card } from "@/modules/core/components/ui/card"
+import { Button } from "@/modules/core/components/ui/button"
 import { Send, Upload } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { format, eachDayOfInterval, isSameDay, startOfWeek, endOfWeek, differenceInDays } from "date-fns"
+import { format, eachDayOfInterval, startOfWeek, endOfWeek } from "date-fns"
 import type { Employee } from "@/lib/mock-data"
 import { SendReportModal } from "@/modules/attendance/components/send-report-modal"
 import { DateRange } from "react-day-picker"
@@ -30,10 +30,6 @@ export default function AttendancePage() {
 
     // Default to current week
     const today = new Date()
-    // For demo purposes, we might want to stick to the "demoToday" logic if consistent with other parts,
-    // but the prompt asked for "Week", "Month" presets which usually imply *actual* calendar time.
-    // However, the original code had `useState(new Date("2026-01-01"))` so let's try to honor the 2026 demo context if possible
-    // or just default to a 2026 date range.
     const demoDate = new Date("2026-01-16")
     const defaultStart = startOfWeek(demoDate, { weekStartsOn: 1 })
     const defaultEnd = endOfWeek(demoDate, { weekStartsOn: 1 })
@@ -72,10 +68,6 @@ export default function AttendancePage() {
             if (filterState.type === "users") {
                 filteredEmployees = filteredEmployees.filter(e => filterState.selectedIds.includes(e.id))
             } else {
-                // Filter by organizational unit (Groups)
-                // If a group is selected, we include employees who belong to that unit directly.
-                // NOTE: If deep nested filtering is needed (all employees under Division X), this needs recursion.
-                // For now, simple direct ID match as per common mock data structure usage.
                 filteredEmployees = filteredEmployees.filter(e => filterState.selectedIds.includes(e.organizationalUnitId))
             }
         }
@@ -106,7 +98,6 @@ export default function AttendancePage() {
 
                 if (leave) {
                     paidLeaveDays += 1
-                    // LV (Purple): Leave
                     return { type: "LEAVE", label: "LV", color: "text-purple-600 font-bold bg-purple-50", title: leave.leaveTypeName }
                 }
 
@@ -122,30 +113,24 @@ export default function AttendancePage() {
 
                     if (status === 'late') {
                         workingDaysCount += 1
-                        // L (Orange): Late
                         return { type: "LATE", label: "L", color: "text-orange-600 font-bold bg-orange-50", title: `Late (${attendance.lateMinutes}m)` }
                     } else if (status === 'early_leave') {
                         workingDaysCount += 1
-                        // E (Orange): Early Leave
                         return { type: "EARLY", label: "E", color: "text-orange-600 font-bold bg-orange-50", title: `Early Leave (${hours.toFixed(1)}h)` }
                     } else if (status === 'missing') {
                         workingDaysCount += 1
-                        // M (Orange): Missing
                         return { type: "MISSING", label: "M", color: "text-orange-600 font-bold bg-orange-50", title: "Missing Clock In/Out" }
                     } else if (status === 'present') {
                         workingDaysCount += 1
-                        // x (Green): Present
                         return { type: "FULL", label: "x", color: "text-green-600 font-bold", title: `Present (${hours}h)` }
                     }
 
-                    // Fallback for unknown status but record exists -> Missing?
                     return { type: "MISSING", label: "M", color: "text-orange-600 font-bold bg-orange-50", title: "Unknown Status" }
                 }
 
                 // 3. Check for Missing (No Record) on working days (Past)
                 const isPast = day < demoToday
                 if (isPast && !isOffDay) {
-                    // M (Orange): Missing (replaces Absent)
                     return { type: "MISSING", label: "M", color: "text-orange-600 font-bold bg-orange-50", title: "Missing (No Record)" }
                 }
 
@@ -176,8 +161,9 @@ export default function AttendancePage() {
     const isCompactView = daysInRange.length > 14
 
     return (
-        <AdminLayout title="Attendance Tracking" subtitle="Attendance management and reporting">
-            <div className="space-y-6">
+        <div className="flex flex-col h-full overflow-hidden">
+            <PageHeader title="Attendance Tracking" subtitle="Attendance management and reporting" />
+            <main className="flex-1 overflow-auto p-4 md:p-6 space-y-6">
                 {/* Controls */}
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-card p-4 rounded-lg border border-border">
                     <div className="flex items-center gap-2">
@@ -209,7 +195,7 @@ export default function AttendancePage() {
 
                 {/* Timesheet Table */}
                 <Card className="border-border bg-card overflow-hidden">
-                    <div className="overflow-auto relative max-h-[calc(100vh-220px)]">
+                    <div className="overflow-auto relative max-h-[calc(100vh-280px)]">
                         <Table className={cn(
                             "border-collapse w-full",
                             isCompactView ? "w-auto min-w-full sm:min-w-0" : "w-full"
@@ -253,7 +239,6 @@ export default function AttendancePage() {
                                             idx % 2 === 0 ? "bg-background" : "bg-muted/5"
                                         )}
                                     >
-                                        {/* Sticky Name Column - Sticky Left */}
                                         <TableCell
                                             className="sticky left-0 z-30 bg-card border-r border-border font-medium text-sm p-0 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] group w-[280px] min-w-[280px]"
                                             title={`${row.employee.fullName}\n${row.employee.positionTitle || 'N/A'}`}
@@ -272,7 +257,6 @@ export default function AttendancePage() {
                                             </button>
                                         </TableCell>
 
-                                        {/* Daily Status Cells */}
                                         {row.dailyStatuses.map((status, dIdx) => (
                                             <TableCell key={dIdx} className={cn(
                                                 "text-center p-0 border-r border-border/50 text-[10px] h-[40px]",
@@ -297,7 +281,7 @@ export default function AttendancePage() {
                         </Table>
                     </div>
                 </Card>
-            </div>
+            </main>
 
             <EmployeeTimesheetModal
                 employee={selectedEmployee}
@@ -306,7 +290,7 @@ export default function AttendancePage() {
                     setIsModalOpen(false)
                     setSelectedEmployee(null)
                 }}
-                currentMonth={dateRange?.from || demoToday} // Pass start of date range logic if modal supports range, or closest approx
+                currentMonth={dateRange?.from || demoToday}
             />
 
             <SendReportModal
@@ -320,6 +304,6 @@ export default function AttendancePage() {
                 isOpen={isImportOpen}
                 onClose={() => setIsImportOpen(false)}
             />
-        </AdminLayout>
+        </div>
     )
 }

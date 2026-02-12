@@ -28,6 +28,8 @@ import {
   FileText,
   Video,
   Database,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { defaultModules, type ModuleConfig } from "@/lib/rbac";
@@ -68,11 +70,16 @@ export function Sidebar() {
     customRoles,
     isMobileSidebarOpen,
     setMobileSidebarOpen,
+    isSidebarCollapsed,
+    setSidebarCollapsed,
   } = useStore();
   const [expandedModules, setExpandedModules] = useState<string[]>([]);
 
   // In mock mode, use defaultModules directly
   const allModules = defaultModules;
+
+  // Actual expansion state (permanent state)
+  const isCurrentlyExpanded = !isSidebarCollapsed;
 
   // Get current role data from store
   const currentRoleData =
@@ -120,6 +127,15 @@ export function Sidebar() {
     );
   };
 
+  const handleSidebarClick = (e: React.MouseEvent) => {
+    // No-op for sidebar whitespaces
+  };
+
+  const toggleSidebar = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSidebarCollapsed(!isSidebarCollapsed);
+  };
+
   return (
     <>
       {/* Mobile sidebar overlay */}
@@ -132,11 +148,15 @@ export function Sidebar() {
 
       {/* Sidebar - Persistent on desktop, floating on mobile */}
       <aside
+        onClick={handleSidebarClick}
         className={cn(
-          "group fixed inset-y-0 left-0 z-40 flex h-screen flex-col border-r border-sidebar-border bg-sidebar transition-all duration-300 ease-in-out md:relative md:translate-x-0",
+          "fixed inset-y-0 left-0 z-40 flex h-screen flex-col border-r border-sidebar-border bg-sidebar transition-all duration-300 ease-in-out md:relative md:translate-x-0 cursor-default",
           isMobileSidebarOpen
             ? "translate-x-0 w-64"
-            : "-translate-x-full md:w-20 md:hover:w-64",
+            : cn(
+              "-translate-x-full md:translate-x-0",
+              isCurrentlyExpanded ? "w-64" : "w-20",
+            ),
         )}
       >
         {/* Logo */}
@@ -144,14 +164,24 @@ export function Sidebar() {
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary">
             <span className="text-sm font-bold text-primary-foreground">8</span>
           </div>
-          <span className="text-lg font-semibold text-sidebar-foreground whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <span
+            className={cn(
+              "text-lg font-semibold text-sidebar-foreground whitespace-nowrap transition-opacity duration-300",
+              isCurrentlyExpanded ? "opacity-100" : "opacity-0",
+            )}
+          >
             8People
           </span>
         </div>
 
         {/* Role Switcher */}
         <div className="border-b border-sidebar-border p-3 overflow-hidden min-h-px">
-          <div className="hidden md:group-hover:block transition-all w-full animate-in fade-in zoom-in-95 duration-200">
+          <div
+            className={cn(
+              "transition-all w-full animate-in fade-in zoom-in-95 duration-200",
+              isCurrentlyExpanded ? "block" : "hidden",
+            )}
+          >
             <RoleSwitcher />
           </div>
         </div>
@@ -167,20 +197,25 @@ export function Sidebar() {
               ? pathname === module.urlPath
               : childModules.some((c) => pathname === c.urlPath);
 
-            const showChildren = hasChildren;
+            const showChildren = hasChildren && isCurrentlyExpanded;
 
             const triggerContent = (
               <>
                 <div className="flex items-center gap-3 min-w-0">
                   <Icon className="h-4 w-4 shrink-0" />
-                  <span className="text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <span
+                    className={cn(
+                      "text-sm font-medium whitespace-nowrap transition-opacity duration-300",
+                      isCurrentlyExpanded ? "opacity-100" : "opacity-0",
+                    )}
+                  >
                     {module.label || module.name}
                   </span>
                 </div>
                 {showChildren && (
                   <ChevronDown
                     className={cn(
-                      "h-4 w-4 shrink-0 transition-all duration-300 opacity-0 group-hover:opacity-100",
+                      "h-4 w-4 shrink-0 transition-all duration-300",
                       isExpanded && "rotate-180",
                     )}
                   />
@@ -211,9 +246,12 @@ export function Sidebar() {
               }
               return (
                 <button
-                  onClick={() =>
-                    showChildren ? toggleModule(module.id) : null
-                  }
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isCurrentlyExpanded) {
+                      toggleModule(module.id);
+                    }
+                  }}
                   className={triggerClassName}
                 >
                   {triggerContent}
@@ -225,7 +263,7 @@ export function Sidebar() {
               <div key={module.id} className="relative">
                 {renderTrigger()}
                 {showChildren && isExpanded && (
-                  <div className="ml-4 mt-1 space-y-1 overflow-hidden transition-all duration-300 md:hidden md:group-hover:block">
+                  <div className="ml-4 mt-1 space-y-1 overflow-hidden transition-all duration-300">
                     {childModules.map((child) => {
                       const ChildIcon = iconMap[child.icon || ""] || Building2;
                       return (
@@ -241,7 +279,12 @@ export function Sidebar() {
                           )}
                         >
                           <ChildIcon className="h-4 w-4 shrink-0" />
-                          <span className="whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <span
+                            className={cn(
+                              "whitespace-nowrap transition-opacity duration-300",
+                              isCurrentlyExpanded ? "opacity-100" : "opacity-0",
+                            )}
+                          >
                             {child.label || child.name}
                           </span>
                         </Link>
@@ -254,9 +297,22 @@ export function Sidebar() {
           })}
         </nav>
 
-        {/* User Info */}
+        {/* Collapsed View: Toggle above avatar */}
+        {!isCurrentlyExpanded && (
+          <div className="flex justify-center py-2 border-t border-sidebar-border">
+            <button
+              onClick={toggleSidebar}
+              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-sidebar-accent text-sidebar-foreground/60 transition-all"
+              title="Expand"
+            >
+              <PanelLeftOpen className="h-5 w-5" />
+            </button>
+          </div>
+        )}
+
+        {/* User Info & Expanded View Toggle */}
         <div className="border-t border-sidebar-border p-4 overflow-hidden">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 relative">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sidebar-accent ring-2 ring-primary/10">
               <span className="text-sm font-medium text-sidebar-accent-foreground">
                 {currentRole === "admin"
@@ -264,14 +320,28 @@ export function Sidebar() {
                   : currentRoleData?.name.substring(0, 2).toUpperCase() || "US"}
               </span>
             </div>
-            <div className="flex-1 truncate opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">
-                {currentRoleData?.name || "admin"}
-              </p>
-              <p className="text-xs text-sidebar-foreground/60 truncate">
-                admin@8people.com
-              </p>
-            </div>
+
+            {isCurrentlyExpanded && (
+              <>
+                <div className="flex-1 truncate transition-opacity duration-300 opacity-100">
+                  <p className="text-sm font-medium text-sidebar-foreground truncate">
+                    {currentRoleData?.name || "admin"}
+                  </p>
+                  <p className="text-xs text-sidebar-foreground/60 truncate">
+                    admin@8people.com
+                  </p>
+                </div>
+
+                {/* Expanded View: Toggle to the right of account section */}
+                <button
+                  onClick={toggleSidebar}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md hover:bg-sidebar-accent text-sidebar-foreground/60 transition-all"
+                  title="Collapse"
+                >
+                  <PanelLeftClose className="h-5 w-5" />
+                </button>
+              </>
+            )}
           </div>
         </div>
       </aside>

@@ -170,6 +170,8 @@ interface StoreState {
   // Layout actions
   isMobileSidebarOpen: boolean;
   setMobileSidebarOpen: (open: boolean) => void;
+  isSidebarCollapsed: boolean;
+  setSidebarCollapsed: (collapsed: boolean) => void;
 
   // New simulation and dashboard features
   simulationMode: 'onboarding' | null;
@@ -720,6 +722,8 @@ export const useStore = create<StoreState>((set, get) => ({
   // Layout initial state and actions
   isMobileSidebarOpen: false,
   setMobileSidebarOpen: (open) => set({ isMobileSidebarOpen: open }),
+  isSidebarCollapsed: false,
+  setSidebarCollapsed: (collapsed) => set({ isSidebarCollapsed: collapsed }),
 
   simulationMode: null,
   setSimulationMode: (mode) => set({ simulationMode: mode }),

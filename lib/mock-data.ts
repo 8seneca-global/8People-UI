@@ -28,6 +28,7 @@ export interface OrganizationalUnit {
 export interface JobClassification {
   id: string;
   code: string;
+  name: string;
   title: string;
   jobFamily: string;
   jobLevel: string;
@@ -39,7 +40,6 @@ export interface JobClassification {
   responsibilities: string[];
   competencies: string[];
   status: "active" | "inactive";
-  name: string;
 }
 
 export interface Position {
@@ -480,11 +480,15 @@ export interface Employee {
   workingDays?: number;
   resignationInfo?: {
     lastWorkingDay?: string;
+    finalWorkingDay?: string;
     resignationDate?: string;
+    resignationAction?: string;
+    resignationReason?: string;
     reason?: string;
     subReason?: string;
     notes?: string;
     rehireEligible?: boolean;
+    blacklistReason?: string;
     handoverComplete?: boolean;
     itAccessRevoked?: boolean;
   };

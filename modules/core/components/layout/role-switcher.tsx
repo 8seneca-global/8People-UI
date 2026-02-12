@@ -47,7 +47,7 @@ const colorOptions = [
   "bg-orange-500/20 text-orange-400",
 ];
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * Role Switcher - Mock Mode
@@ -109,7 +109,24 @@ export function RoleSwitcher() {
     return colorOptions[index % colorOptions.length];
   };
 
-  if (!currentRoleData) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!currentRoleData || !mounted) {
+    return (
+      <div className="group flex w-full items-center gap-3 rounded-xl border border-primary/10 bg-primary/5 p-3 opacity-50">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted animate-pulse" />
+        <div className="flex-1 text-left">
+          <div className="h-4 w-24 bg-muted rounded animate-pulse" />
+          <div className="h-3 w-16 bg-muted rounded mt-1 animate-pulse" />
+        </div>
+        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <DropdownMenu>
@@ -150,7 +167,7 @@ export function RoleSwitcher() {
               className={cn(
                 "flex items-center gap-3 p-2 rounded-xl border border-transparent transition-all cursor-pointer group/item",
                 currentRole === role.id &&
-                  "bg-primary/5 border-primary/10 shadow-sm",
+                "bg-primary/5 border-primary/10 shadow-sm",
               )}
             >
               <div
