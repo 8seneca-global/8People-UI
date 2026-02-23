@@ -49,17 +49,17 @@ interface ParsedRecord {
     errorMessages: string[]
 }
 
-type SystemField = "employeeName" | "date" | "clockIn" | "clockOut"
+type SystemField = "employeeId" | "date" | "clockIn" | "clockOut"
 
 const REQUIRED_FIELDS: { id: SystemField; label: string; description: string }[] = [
-    { id: "employeeName", label: "Employee Name", description: "Full name of the employee" },
+    { id: "employeeId", label: "Employee ID", description: "Unique employee identifier (e.g., E-001)" },
     { id: "date", label: "Date", description: "Date of attendance (DD/MM/YYYY)" },
     { id: "clockIn", label: "Clock In", description: "Start time (HH:mm)" },
     { id: "clockOut", label: "Clock Out", description: "End time (HH:mm)" },
 ]
 
 interface MappingState {
-    employeeName: string
+    employeeId: string
     date: string
     clockIn: string
     clockOut: string
@@ -74,7 +74,7 @@ export function ImportAttendanceModal({ isOpen, onClose }: ImportAttendanceModal
     const [workbook, setWorkbook] = useState<XLSX.WorkBook | null>(null)
 
     const [mapping, setMapping] = useState<MappingState>({
-        employeeName: "",
+        employeeId: "",
         date: "",
         clockIn: "",
         clockOut: "",
@@ -92,7 +92,7 @@ export function ImportAttendanceModal({ isOpen, onClose }: ImportAttendanceModal
         setFileHeaders([])
         setFilePreview([])
         setWorkbook(null)
-        setMapping({ employeeName: "", date: "", clockIn: "", clockOut: "" })
+        setMapping({ employeeId: "", date: "", clockIn: "", clockOut: "" })
     }
 
     const handleClose = () => {
@@ -107,10 +107,10 @@ export function ImportAttendanceModal({ isOpen, onClose }: ImportAttendanceModal
     }
 
     const downloadTemplate = () => {
-        const headers = ["Employee Name", "Date (DD/MM/YYYY)", "Clock In (HH:mm)", "Clock Out (HH:mm)"]
+        const headers = ["Employee ID", "Date (DD/MM/YYYY)", "Clock In (HH:mm)", "Clock Out (HH:mm)"]
         const data = [
-            ["John Doe", "16/01/2026", "08:00", "17:00"],
-            ["Jane Smith", "16/01/2026", "08:30", "17:30"]
+            ["E-001", "16/01/2026", "08:00", "17:00"],
+            ["E-002", "16/01/2026", "08:30", "17:30"]
         ]
 
         const ws = XLSX.utils.aoa_to_sheet([headers, ...data])
@@ -122,7 +122,7 @@ export function ImportAttendanceModal({ isOpen, onClose }: ImportAttendanceModal
 
     const autoMap = (headers: string[]) => {
         const newMapping: MappingState = {
-            employeeName: "",
+            employeeId: "",
             date: "",
             clockIn: "",
             clockOut: ""
@@ -133,7 +133,7 @@ export function ImportAttendanceModal({ isOpen, onClose }: ImportAttendanceModal
         headers.forEach(header => {
             const h = normalize(header)
 
-            if (h.includes("name") || h.includes("employee")) newMapping.employeeName = header
+            if (h.includes("id") || h.includes("employeeid") || h.includes("empid")) newMapping.employeeId = header
             if (h.includes("date") || h === "day") newMapping.date = header
             if (h.includes("in") || h.includes("start") || h.includes("entry")) newMapping.clockIn = header
             if (h.includes("out") || h.includes("end") || h.includes("exit")) newMapping.clockOut = header
@@ -241,11 +241,11 @@ export function ImportAttendanceModal({ isOpen, onClose }: ImportAttendanceModal
         }
 
         data.forEach((row, index) => {
-            const empName = row[mapping.employeeName]?.toString().trim()
+            const empId = row[mapping.employeeId]?.toString().trim()
             const dateStr = parseExcelDate(row[mapping.date])
 
-            if (empName && dateStr) {
-                const employee = employees.find(e => e.fullName.toLowerCase() === empName.toLowerCase())
+            if (empId && dateStr) {
+                const employee = employees.find(e => e.employeeId === empId)
                 if (employee) {
                     // Parse date to check validity
                     const parsedDate = parse(dateStr, "dd/MM/yyyy", new Date())
@@ -264,23 +264,23 @@ export function ImportAttendanceModal({ isOpen, onClose }: ImportAttendanceModal
             const errorMessages: string[] = []
 
             // 1. Retrieve & Normalize Values
-            const empName = row[mapping.employeeName]?.toString().trim()
+            const empId = row[mapping.employeeId]?.toString().trim()
             const dateStr = parseExcelDate(row[mapping.date])
             const clockIn = parseExcelTime(row[mapping.clockIn])
             const clockOut = parseExcelTime(row[mapping.clockOut])
 
             // 2. Mandatory Fields Check
-            if (!empName) errorMessages.push("Internal: Missing Employee Name value")
-            if (!dateStr) errorMessages.push("Internal: Missing Date value")
+            if (!empId) errorMessages.push("Missing Employee ID value")
+            if (!dateStr) errorMessages.push("Missing Date value")
 
             let employee = null
             let normalizedDate = ""
 
-            // 3. Employee Existence
-            if (empName) {
-                employee = employees.find(e => e.fullName.toLowerCase() === empName.toLowerCase())
+            // 3. Employee Existence (Lookup by ID)
+            if (empId) {
+                employee = employees.find(e => e.employeeId === empId)
                 if (!employee) {
-                    errorMessages.push(`Employee "${empName}" not found in system`)
+                    errorMessages.push(`Invalid Employee ID: "${empId}" not found in system`)
                 }
             }
 
@@ -344,7 +344,7 @@ export function ImportAttendanceModal({ isOpen, onClose }: ImportAttendanceModal
             validated.push({
                 row: rowNum,
                 employeeId: employee?.id || "—",
-                employeeName: empName || "—",
+                employeeName: employee?.fullName || "—",
                 date: normalizedDate || dateStr || "—",
                 clockIn: clockIn || "—",
                 clockOut: clockOut || "—",
@@ -601,6 +601,7 @@ export function ImportAttendanceModal({ isOpen, onClose }: ImportAttendanceModal
                                             <TableCell>
                                                 <div className="flex flex-col">
                                                     <span className="font-medium text-sm">{record.employeeName || 'Unknown'}</span>
+                                                    <span className="text-xs text-muted-foreground">{record.employeeId !== "—" ? `ID: ${record.employeeId}` : ''}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell>{record.date || <span className="text-red-400 italic">Invalid</span>}</TableCell>
